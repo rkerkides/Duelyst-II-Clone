@@ -1,1 +1,28 @@
 .vscode
+# Play Framework specific
+/target/
+/project/project
+/project/target/
+/logs/
+/public/stylesheets/main.css
+/public/stylesheets/main.min.css
+/public/stylesheets/main.css.map
+/dist/
+/dist-*
+/*.log
+/RUNNING_PID
+
+# IDE specific
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+/logs/*
+!.gitkeep
