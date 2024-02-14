@@ -18,6 +18,13 @@
 *.ipr
 *.iws
 .vscode/
+.metals/
+.bloop/
+metals.sbt
+.classpath
+.settings/
+.project
+.factorypath
 
 # OS generated files
 .DS_Store
