@@ -48,10 +48,9 @@ public class GameState {
 	}
 
 	public void endGame(ActorRef out) {
-
-		if (this.ai.getHealth() == 0) {
+		if (this.ai != null && this.ai.getHealth() == 0) {
 			BasicCommands.addPlayer1Notification(out, "You Won!", 1000);
-		} else if (this.human.getHealth() == 0) {
+		} else if (this.human != null && this.human.getHealth() == 0) {
 			BasicCommands.addPlayer1Notification(out, "You Lost", 1000);
 		}
 	}
