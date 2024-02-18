@@ -1,5 +1,8 @@
 package structures.basic;
 
+import akka.actor.ActorRef;
+import commands.BasicCommands;
+
 public class Board {
     private Tile[][] tiles;
 
@@ -22,4 +25,6 @@ public class Board {
     public void setTiles(Tile[][] tiles) {
         this.tiles = tiles;
     }
+
+
 }

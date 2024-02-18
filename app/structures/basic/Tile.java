@@ -27,6 +27,10 @@ public class Tile {
 	int height;
 	int tilex;
 	int tiley;
+	// Tile holds a unit
+	private Unit unit;
+	// Flag to check if the tile is highlighted
+	private boolean isHighlighted;
 	
 	public Tile() {}
 	
@@ -94,6 +98,24 @@ public class Tile {
 	public void setTiley(int tiley) {
 		this.tiley = tiley;
 	}
+
+	// added by Renos
+	public Unit getUnit() {
+		return unit;
+	}
+
+	public void setUnit(Unit unit) {
+		this.unit = unit;
+	}
+
+	public boolean isTileHighlighted() {
+		return isHighlighted;
+	}
+
+	public void setTileHighlighted(boolean isHighlighted) {
+		this.isHighlighted = isHighlighted;
+	}
+
 	
 	/**
 	 * Loads a tile from a configuration file

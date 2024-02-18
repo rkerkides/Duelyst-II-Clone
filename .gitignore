@@ -12,6 +12,9 @@
 /*.log
 /RUNNING_PID
 
+# Maven/Coursier cache
+Coursier/cache/
+
 # IDE specific
 .idea/
 *.iml
