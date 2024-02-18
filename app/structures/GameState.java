@@ -22,6 +22,19 @@ public class GameState {
 	private Player ai;
 	private Board board;
 
+	/**
+	 * This function initialises all the assets
+	 * Board, Player etc
+	 * As well as tracking critical game states
+	 * 
+	 * @param out
+	 */
+
+	public void init(ActorRef out) {
+
+		this.board = new Board(out);
+	}
+
 	// Getters and Setters
 	public Board getBoard() {
 		return board;
@@ -47,6 +60,12 @@ public class GameState {
 		this.ai = ai;
 	}
 
+	/**
+	 * Checks and see if the game has ended
+	 * If so it will send the apropiate notifcation
+	 * 
+	 * @param out
+	 */
 	public void endGame(ActorRef out) {
 		if (this.ai != null && this.ai.getHealth() == 0) {
 			BasicCommands.addPlayer1Notification(out, "You Won!", 1000);
