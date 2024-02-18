@@ -46,18 +46,20 @@
 #### 4. Common Commands if You are using `cli`
 
 ```bash
-#perform on your main branch
-#brings your main to the most up to date dev repo
-git pull upstream/main
-```
-
-```bash
 # create a branch
 git branch <branch name>
 ```
 
 ```bash
+# checkignout a branch
 git checkout <branch name>
+```
+
+```bash
+# brings your main to the most up to date dev repo
+
+git checkout main #if not in main
+git pull upstream/main
 ```
 
 ```bash
@@ -69,20 +71,31 @@ git commit -m "<message>"
 ```
 
 ```bash
-# merging braches 
-git checkout main
-# MAKING SURE UP TO DATE
-git pull upstream/main
-git merge <branch name>
-git commit -m "<message>"
-
-git push
-```
-
-```bash
 # push to your fork
 git push
 ```
+
+##### Pushing to the repo
+
+```bash
+# Once you commited to the feature branch
+
+# 1. Checkout main 
+git checkout main
+# 2. MAKING SURE UP TO DATE
+git pull upstream main
+
+# 3. Checkout your featured branch
+git checkout <branch name>
+
+# 4. merge the new changes
+git merge main
+
+git push
+```
+
+> You might get asked if you want the remote to create a branch with same name
+> say yes
 
 ### Gitlab
 
