@@ -21,14 +21,11 @@ public class HumanPlayer extends Player {
 
     public void drawInitialCards(ActorRef out) {
     	int handPosition = 1;
-//        for (int i = 0; i < 3; i++) {
                 
 //                hand.addCard(humanDeck.getCards().get(0));
 //                humanDeck.getCards().remove(i);
 // alternative one in case we will need to track the cards in the deck       
                 
-            
-//        }
 		
 		for (Card card : OrderedCardLoader.getPlayer1Cards(1)) {
 			BasicCommands.drawCard(out, card, handPosition, 0);
@@ -41,8 +38,7 @@ public class HumanPlayer extends Player {
 			
 
 		}
-    }
-    //my debug 
+    } 
     
 }
 
