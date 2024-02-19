@@ -30,7 +30,7 @@ public class Action {
 
     // check if move is valid
     public boolean isValidMove(Unit unit, Tile tile) {
-        return tile.isTileHighlighted() && tile.getUnit() == null;
+        return tile.getHighlightMode() == 1;
     }
 
     // show move range

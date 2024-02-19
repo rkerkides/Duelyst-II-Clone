@@ -4,7 +4,6 @@ package events;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import akka.actor.ActorRef;
-import structures.Action;
 import structures.GameState;
 import structures.basic.Tile;
 import structures.basic.Unit;
@@ -40,17 +39,18 @@ public class TileClicked implements EventProcessor{
 			Unit unit = tile.getUnit();
 			gameState.currentUnitClicked = unit;
 			gameState.lastEvent= "TileClicked";
+			// Temporarily commented out to facilitate testing
 //			if (!unit.isMovedThisTurn()) {
 //				gameState.getAction().showMoveRange(unit, gameState);
 //			}
-			gameState.getAction().showMoveRange(unit, gameState.getBoard());
+			gameState.action.showMoveRange(unit, gameState.getBoard());
 		}
 
 		// Handle movement if last event was a tile click and the current unit clicked is not null
 		if ("TileClicked".equals(gameState.lastEvent) && gameState.currentUnitClicked != null) {
 			System.out.println("second condition");
 			if (tile.getUnit() == null && gameState.currentUnitClicked.getOwner() == gameState.currentPlayer) {
-				gameState.getAction().moveIfValid(gameState.currentUnitClicked, tile, gameState.getBoard());
+				gameState.action.moveIfValid(gameState.currentUnitClicked, tile, gameState.getBoard());
 				gameState.currentUnitClicked.setMovedThisTurn(true);
 				gameState.currentUnitClicked = null;
 			}

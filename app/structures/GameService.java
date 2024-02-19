@@ -5,6 +5,7 @@ import commands.BasicCommands;
 import structures.basic.Board;
 import structures.basic.Tile;
 import structures.basic.Unit;
+import utils.BasicObjectBuilders;
 
 public class GameService {
     private ActorRef out;
@@ -13,13 +14,27 @@ public class GameService {
         this.out = out;
     }
 
+    // initial board setup
+    public Board loadBoard() {
+        Board board = new Board();
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 5; j++) {
+                Tile tile = BasicObjectBuilders.loadTile(i, j);
+                tile.setHighlightMode(0);
+                board.setTile(tile, i, j);
+                BasicCommands.drawTile(out, tile, 0);
+            }
+        }
+        return board;
+    }
+
     // remove highlight from all tiles
     public void removeHighlightFromAll(Board board) {
         Tile[][] tiles = board.getTiles();
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 5; j++) {
                 Tile currentTile = tiles[i][j];
-                currentTile.setTileHighlighted(false);
+                currentTile.setHighlightMode(0);
                 BasicCommands.drawTile(out, currentTile, 0);
             }
         }
@@ -48,22 +63,29 @@ public class GameService {
                     continue; // Skip tiles outside the board bounds
                 }
 
-                // Retrieve and highlight the tile if it's within the board
+                // Retrieve the tile if it's within the board bounds
                 Tile targetTile = tiles[targetX][targetY];
-                updateTileHighlight(targetTile, true);
+
+                // Handle differential highlighting for tiles with units
+                if (targetTile.getUnit() != null) {
+                    if (targetTile.getUnit().getOwner() == unit.getOwner()) {
+                        continue; // Skip tiles with friendly units
+                    } else {
+                        updateTileHighlight(targetTile, 2);
+                    }
+                } else {
+                    updateTileHighlight(targetTile, 1);
+                }
             }
         }
     }
 
-    // update tile highlight
-    public void updateTileHighlight(Tile tile, boolean highlightTile) {
-        tile.setTileHighlighted(highlightTile);
-        if (highlightTile) {
-            BasicCommands.drawTile(out, tile, 1);
-        } else {
-            BasicCommands.drawTile(out, tile, 0);
-        }
+    // helper method to update tile highlight
+    public void updateTileHighlight(Tile tile, int tileHighlightMode) {
+        tile.setHighlightMode(tileHighlightMode);
+        BasicCommands.drawTile(out, tile, tileHighlightMode);
     }
+
 
     public void updateUnitPositionAndMove(Unit unit, Tile currentTile, Tile newTile, Board board) {
         // update unit position

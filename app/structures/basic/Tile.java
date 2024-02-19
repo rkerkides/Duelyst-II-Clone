@@ -29,8 +29,9 @@ public class Tile {
 	int tiley;
 	// Tile holds a unit
 	private Unit unit;
-	// Flag to check if the tile is highlighted
-	private boolean isHighlighted;
+	// Flag to check the current mode of the tile
+	// i.e., 0: normal, 1: white-highlighted, 2: red-highlighted
+	private int highlightMode;
 	
 	public Tile() {}
 	
@@ -108,12 +109,12 @@ public class Tile {
 		this.unit = unit;
 	}
 
-	public boolean isTileHighlighted() {
-		return isHighlighted;
+	public int getHighlightMode() {
+		return highlightMode;
 	}
 
-	public void setTileHighlighted(boolean isHighlighted) {
-		this.isHighlighted = isHighlighted;
+	public void setHighlightMode(int highlightMode) {
+		this.highlightMode = highlightMode;
 	}
 
 	

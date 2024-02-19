@@ -1,14 +1,9 @@
 package structures.basic;
 
-import akka.actor.ActorRef;
-import commands.BasicCommands;
-
 public class Board {
-    private Tile[][] tiles;
+    private Tile[][] tiles = new Tile[9][5];;
 
-    public Board() {
-        tiles = new Tile[9][5];
-    }
+
 
     public Tile getTile(int x, int y) {
         return tiles[x][y];
