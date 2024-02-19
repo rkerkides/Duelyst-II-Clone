@@ -48,10 +48,13 @@ public class TileClicked implements EventProcessor{
 
 		// Handle movement if last event was a tile click and the current unit clicked is not null
 		if ("TileClicked".equals(gameState.lastEvent) && gameState.currentUnitClicked != null) {
-			System.out.println("second condition");
 			if (tile.getUnit() == null && gameState.currentUnitClicked.getOwner() == gameState.currentPlayer) {
-				gameState.action.moveIfValid(gameState.currentUnitClicked, tile, gameState.getBoard());
-				gameState.currentUnitClicked.setMovedThisTurn(true);
+				if (gameState.action.isValidMove(gameState.currentUnitClicked, tile)) {
+					gameState.action.moveUnit(gameState.currentUnitClicked, tile, gameState.getBoard());
+					gameState.currentUnitClicked.setMovedThisTurn(true);
+				} else {
+					gameState.action.gameService.removeHighlightFromAll(gameState.getBoard());
+				}
 				gameState.currentUnitClicked = null;
 			}
 		}
