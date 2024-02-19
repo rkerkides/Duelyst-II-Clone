@@ -11,6 +11,7 @@ public class Player {
 
 	int health;
 	int mana;
+	private Hand hand;
 	
 	public Player() {
 		super();
