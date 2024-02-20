@@ -29,6 +29,7 @@ metals.sbt
 .project
 .factorypath
 .scalafmt.conf
+null/
 
 # OS generated files
 .DS_Store
