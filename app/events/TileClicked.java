@@ -32,13 +32,12 @@ public class TileClicked implements EventProcessor{
 
 		// find the tile that was clicked
 		Tile tile = gameState.getBoard().getTile(tilex, tiley);
-		System.out.println("Tile clicked: " + tilex + " " + tiley);
 
 		// Process event based on tile's unit and ownership
-		if (tile.getUnit() != null && tile.getUnit().getOwner() == gameState.currentPlayer) {
+		if (tile.isOccupied() && tile.getUnit().getOwner() == gameState.currentPlayer) {
 			Unit unit = tile.getUnit();
 			gameState.currentUnitClicked = unit;
-			gameState.lastEvent= "TileClicked";
+			gameState.lastEvent = "TileClicked";
 			// Temporarily commented out to facilitate testing
 //			if (!unit.isMovedThisTurn()) {
 //				gameState.getAction().showMoveRange(unit, gameState);
@@ -48,7 +47,7 @@ public class TileClicked implements EventProcessor{
 
 		// Handle movement if last event was a tile click and the current unit clicked is not null
 		if ("TileClicked".equals(gameState.lastEvent) && gameState.currentUnitClicked != null) {
-			if (tile.getUnit() == null && gameState.currentUnitClicked.getOwner() == gameState.currentPlayer) {
+			if (!tile.isOccupied() && gameState.currentUnitClicked.getOwner() == gameState.currentPlayer) {
 				if (gameState.gameService.isValidMove(gameState.currentUnitClicked, tile)) {
 					gameState.gameService.updateUnitPositionAndMove(gameState.currentUnitClicked, tile, gameState.getBoard());
 					gameState.currentUnitClicked.setMovedThisTurn(true);

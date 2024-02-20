@@ -84,7 +84,7 @@ public class GameService {
                 Tile targetTile = tiles[targetX][targetY];
 
                 // Handle differential highlighting for tiles with units
-                if (targetTile.getUnit() != null) {
+                if (targetTile.isOccupied()) {
                     if (targetTile.getUnit().getOwner() == unit.getOwner()) {
                         continue; // Skip tiles with friendly units
                     } else {
@@ -116,7 +116,7 @@ public class GameService {
         Tile currentTile = board.getTile(position.getTilex(), position.getTiley());
 
         // update unit position
-        currentTile.setUnit(null);
+        currentTile.removeUnit();
         newTile.setUnit(unit);
         unit.setPositionByTile(newTile);
 
