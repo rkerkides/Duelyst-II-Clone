@@ -2,10 +2,7 @@ package structures;
 
 import akka.actor.ActorRef;
 import commands.BasicCommands;
-import structures.basic.Board;
-import structures.basic.Player;
-import structures.basic.Tile;
-import structures.basic.Unit;
+import structures.basic.*;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
@@ -50,28 +47,15 @@ public class GameState {
 		this.board = gameService.loadBoard();
 
 		// Create the human and AI players
-		this.human = new Player();
-		this.ai = new Player();
+		this.human = new HumanPlayer();
+		this.ai = new AIPlayer();
+
+		// Create the human and AI avatars
+		gameService.loadAvatar(board, human);
+		gameService.loadAvatar(board, ai);
 
 		// Set the current player to the human player
 		this.currentPlayer = human;
-
-
-		// Place player1 avatar
-		Tile playerAvatarTile = board.getTile(1, 2);
-		Unit playerAvatar = BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
-		playerAvatar.setPositionByTile(playerAvatarTile);
-		BasicCommands.drawUnit(out, playerAvatar, playerAvatarTile);
-		playerAvatar.setOwner(human);
-		playerAvatarTile.setUnit(playerAvatar);
-
-		// Place player2 avatar
-		Tile aiAvatarTile = board.getTile(7, 2);
-		Unit aiAvatar = BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
-		aiAvatar.setPositionByTile(aiAvatarTile);
-		BasicCommands.drawUnit(out, aiAvatar, aiAvatarTile);
-		aiAvatar.setOwner(ai);
-		aiAvatarTile.setUnit(aiAvatar);
 
 	}
 

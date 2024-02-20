@@ -7,7 +7,7 @@ package structures.basic;
  * @author Dr. Richard McCreadie
  *
  */
-public class Player {
+public abstract class Player {
 
 	int health;
 	int mana;

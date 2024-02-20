@@ -2,11 +2,9 @@ package structures;
 
 import akka.actor.ActorRef;
 import commands.BasicCommands;
-import structures.basic.Board;
-import structures.basic.Position;
-import structures.basic.Tile;
-import structures.basic.Unit;
+import structures.basic.*;
 import utils.BasicObjectBuilders;
+import utils.StaticConfFiles;
 
 public class GameService {
     private ActorRef out;
@@ -27,6 +25,24 @@ public class GameService {
             }
         }
         return board;
+    }
+
+    public void loadAvatar(Board board, Player player) {
+        // check if player is human or AI
+        Tile avatarTile;
+        Unit avatar;
+        if (player instanceof HumanPlayer) {
+            avatarTile = board.getTile(1, 2);
+            avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
+
+        } else {
+            avatarTile = board.getTile(7, 2);
+            avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
+        }
+        avatar.setPositionByTile(avatarTile);
+        BasicCommands.drawUnit(out, avatar, avatarTile);
+        avatar.setOwner(player);
+        avatarTile.setUnit(avatar);
     }
 
     // remove highlight from all tiles
