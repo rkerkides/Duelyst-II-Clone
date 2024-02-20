@@ -32,7 +32,7 @@ public class GameState {
 	public String lastEvent;
 
 	// Entity objects that are part of the game state
-	public Action action;
+	public GameService gameService;
 	private Player human;
 	private Player ai;
 	private Board board;
@@ -46,8 +46,8 @@ public class GameState {
 	 */
 
 	public void init(ActorRef out) {
-		this.action = new Action(out);
-		this.board = action.gameService.loadBoard();
+		this.gameService = new GameService(out);
+		this.board = gameService.loadBoard();
 
 		// Create the human and AI players
 		this.human = new Player();
@@ -72,6 +72,7 @@ public class GameState {
 		BasicCommands.drawUnit(out, aiAvatar, aiAvatarTile);
 		aiAvatar.setOwner(ai);
 		aiAvatarTile.setUnit(aiAvatar);
+
 	}
 
 	// Getters and Setters

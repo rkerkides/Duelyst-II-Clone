@@ -3,6 +3,7 @@ package structures;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.Board;
+import structures.basic.Position;
 import structures.basic.Tile;
 import structures.basic.Unit;
 import utils.BasicObjectBuilders;
@@ -86,8 +87,18 @@ public class GameService {
         BasicCommands.drawTile(out, tile, tileHighlightMode);
     }
 
+    // check if move is valid
+    public boolean isValidMove(Unit unit, Tile tile) {
+        // depending on unit, this may change
+        // for now, all units can move to tiles highlighted white
+        return tile.getHighlightMode() == 1;
+    }
 
-    public void updateUnitPositionAndMove(Unit unit, Tile currentTile, Tile newTile, Board board) {
+    public void updateUnitPositionAndMove(Unit unit, Tile newTile, Board board) {
+        // get position of unit and find the tile it is on
+        Position position = unit.getPosition();
+        Tile currentTile = board.getTile(position.getTilex(), position.getTiley());
+
         // update unit position
         currentTile.setUnit(null);
         newTile.setUnit(unit);

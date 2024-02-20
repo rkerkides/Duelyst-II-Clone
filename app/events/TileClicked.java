@@ -43,17 +43,17 @@ public class TileClicked implements EventProcessor{
 //			if (!unit.isMovedThisTurn()) {
 //				gameState.getAction().showMoveRange(unit, gameState);
 //			}
-			gameState.action.showMoveRange(unit, gameState.getBoard());
+			gameState.gameService.highlightMoveRange(unit, gameState.getBoard());
 		}
 
 		// Handle movement if last event was a tile click and the current unit clicked is not null
 		if ("TileClicked".equals(gameState.lastEvent) && gameState.currentUnitClicked != null) {
 			if (tile.getUnit() == null && gameState.currentUnitClicked.getOwner() == gameState.currentPlayer) {
-				if (gameState.action.isValidMove(gameState.currentUnitClicked, tile)) {
-					gameState.action.moveUnit(gameState.currentUnitClicked, tile, gameState.getBoard());
+				if (gameState.gameService.isValidMove(gameState.currentUnitClicked, tile)) {
+					gameState.gameService.updateUnitPositionAndMove(gameState.currentUnitClicked, tile, gameState.getBoard());
 					gameState.currentUnitClicked.setMovedThisTurn(true);
 				} else {
-					gameState.action.gameService.removeHighlightFromAll(gameState.getBoard());
+					gameState.gameService.removeHighlightFromAll(gameState.getBoard());
 				}
 				gameState.currentUnitClicked = null;
 			}
