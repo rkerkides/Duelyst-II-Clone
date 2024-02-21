@@ -1,5 +1,4 @@
 package structures.basic;
-
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import utils.OrderedCardLoader;
@@ -41,4 +40,3 @@ public class HumanPlayer extends Player {
     } 
     
 }
-

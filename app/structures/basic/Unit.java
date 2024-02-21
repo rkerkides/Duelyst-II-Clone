@@ -25,7 +25,11 @@ public class Unit {
 	Position position;
 	UnitAnimationSet animations;
 	ImageCorrection correction;
-	
+	// Keep track of the owner of the unit
+	Player owner;
+	// Keep track of whether the unit has moved in the current turn
+	boolean movedThisTurn = false;
+
 	public Unit() {}
 	
 	public Unit(int id, UnitAnimationSet animations, ImageCorrection correction) {
@@ -59,7 +63,6 @@ public class Unit {
 		this.animations = animations;
 		this.correction = correction;
 	}
-
 	public int getId() {
 		return id;
 	}
@@ -95,6 +98,22 @@ public class Unit {
 
 	public void setAnimations(UnitAnimationSet animations) {
 		this.animations = animations;
+	}
+
+	public Player getOwner() {
+		return owner;
+	}
+
+	public void setOwner(Player owner) {
+		this.owner = owner;
+	}
+
+	public boolean isMovedThisTurn() {
+		return movedThisTurn;
+	}
+
+	public void setMovedThisTurn(boolean movedThisTurn) {
+		this.movedThisTurn = movedThisTurn;
 	}
 	
 	/**
