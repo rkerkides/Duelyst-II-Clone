@@ -2,12 +2,19 @@ package structures.basic;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import utils.OrderedCardLoader;
+import structures.basic.cards.Card;
 
 public class HumanPlayer extends Player {
 		
 	ActorRef out;
 	private HumanDeck humanDeck;
 	
+
+	public HumanPlayer() {
+		super();
+		this.hand=new Hand();
+		this.humanDeck = new HumanDeck();
+	}
 
     public HumanPlayer(int health, int mana) {
         super(health,mana); 

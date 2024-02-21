@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import akka.actor.ActorRef;
 import play.libs.Json;
-import structures.basic.Card;
+import structures.basic.cards.Card;
 import structures.basic.EffectAnimation;
 import structures.basic.Player;
 import structures.basic.Tile;

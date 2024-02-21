@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import structures.basic.Card;
+import structures.basic.cards.Card;
 import structures.basic.Tile;
 import structures.basic.Unit;
 

@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import structures.basic.Card;
+import structures.basic.cards.Card;
 import structures.basic.EffectAnimation;
 import structures.basic.Tile;
 import structures.basic.Unit;
