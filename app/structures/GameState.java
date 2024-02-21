@@ -3,6 +3,7 @@ package structures;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.Board;
+import structures.basic.HumanPlayer;
 import structures.basic.Player;
 
 /**
@@ -18,7 +19,7 @@ public class GameState {
 
 	public boolean something = false;
 
-	private Player human;
+	private HumanPlayer human;
 	private Player ai;
 	private Board board;
 
@@ -33,6 +34,9 @@ public class GameState {
 	public void init(ActorRef out) {
 
 		this.board = new Board(out);
+		this.human = new HumanPlayer(20,0);
+		human.drawInitialCards(out);
+
 	}
 
 	// Getters and Setters
@@ -48,7 +52,7 @@ public class GameState {
 		return this.human;
 	}
 
-	public void setHuman(Player human) {
+	public void setHuman(HumanPlayer human) {
 		this.human = human;
 	}
 

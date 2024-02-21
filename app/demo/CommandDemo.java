@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.Card;
 import structures.basic.EffectAnimation;
+import structures.basic.HumanPlayer;
 import structures.basic.Player;
 import structures.basic.Tile;
 import structures.basic.Unit;
