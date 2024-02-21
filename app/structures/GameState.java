@@ -59,6 +59,15 @@ public class GameState {
 
 	}
 
+	// Switch the current player
+	public void switchCurrentPlayer() {
+		if (this.currentPlayer == human) {
+			this.currentPlayer = ai;
+		} else {
+			this.currentPlayer = human;
+		}
+	}
+
 	// Getters and Setters
 	public Board getBoard() {
 		return board;
