@@ -2,7 +2,8 @@ package structures.basic;
 
 import java.util.ArrayList;
 import java.util.List;
-import structures.basic.cards.*;
+import structures.basic.cards.Card;
+import utils.OrderedCardLoader;
 
 public class HumanDeck {
 	//for us potentially player only deck and for AI we will do another one 
@@ -11,7 +12,7 @@ public class HumanDeck {
 
 	    public HumanDeck() {
 	        this.cards = new ArrayList<>();
-	        // Add cards to the deck in the specified order
+/*	        // Add cards to the deck in the specified order
 	        cards.add(new BadOmen());
 	        cards.add(new HornOfTheForsaken());
 	        cards.add(new GloomChaser());
@@ -23,7 +24,8 @@ public class HumanDeck {
 //	        
 //	        cards.add(new WraithlingSwarm());
 //	        cards.add(new DarkTerminus());
-//	        cards.add(new Wraithling());
+//	        cards.add(new Wraithling());*/
+			cards = OrderedCardLoader.getPlayer1Cards(2);
 	    }
 
 	    public List<Card> getCards() {
