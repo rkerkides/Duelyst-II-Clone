@@ -1,5 +1,8 @@
-package structures.basic;
+package structures.basic.cards;
 
+
+import structures.basic.BigCard;
+import structures.basic.MiniCard;
 
 /**
  * This is the base representation of a Card which is rendered in the player's hand.

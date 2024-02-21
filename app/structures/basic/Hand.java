@@ -1,6 +1,9 @@
 package structures.basic;
 
+import structures.basic.cards.Card;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class Hand {
 	
@@ -23,6 +26,12 @@ public class Hand {
             return null; 
         }
     }
+
+    // Public getter for Jackson to use for serialization
+    public List<Card> getCards() {
+        return cards;
+    }
+
 }
 
 

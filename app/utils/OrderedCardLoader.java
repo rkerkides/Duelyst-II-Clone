@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import structures.basic.Card;
+import structures.basic.cards.Card;
 
 /**
  * This is a utility class that provides methods for loading the decks for each
