@@ -4,7 +4,6 @@ public class Board {
     private Tile[][] tiles = new Tile[9][5];;
 
 
-
     public Tile getTile(int x, int y) {
         return tiles[x][y];
     }

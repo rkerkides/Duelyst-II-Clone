@@ -6,6 +6,7 @@ import structures.basic.*;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
+
 /**
  * This class can be used to hold information about the on-going game. Its
  * created with the GameActor.
@@ -19,6 +20,7 @@ public class GameState {
 
 	public boolean something = false;
 
+
 	// Keep track of the player currently taking their turn
 	public Player currentPlayer;
 
@@ -31,6 +33,7 @@ public class GameState {
 	// Entity objects that are part of the game state
 	public GameService gameService;
 	private Player human;
+
 	private Player ai;
 	private Board board;
 
