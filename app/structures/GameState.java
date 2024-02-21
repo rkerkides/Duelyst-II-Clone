@@ -3,7 +3,8 @@ package structures;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
-
+import structures.basic.player.HumanPlayer;
+import structures.basic.player.Player;
 
 /**
  * This class can be used to hold information about the on-going game. Its
@@ -17,7 +18,6 @@ public class GameState {
 	public boolean gameInitalised = false;
 
 	public boolean something = false;
-
 
 	// Keep track of the player currently taking their turn
 	public Player currentPlayer;
@@ -36,9 +36,8 @@ public class GameState {
 	private Board board;
 
 	/**
-	 * This function initialises all the assets
-	 * Board, Player etc
-	 * As well as tracking critical game states
+	 * This function initialises all the assets Board, Player etc As well as
+	 * tracking critical game states
 	 * 
 	 * @param out
 	 */
@@ -82,15 +81,13 @@ public class GameState {
 		return this.human;
 	}
 
-
 	public Player getAi() {
 		return this.ai;
 	}
 
-
 	/**
-	 * Checks and see if the game has ended
-	 * If so it will send the apropiate notifcation
+	 * Checks and see if the game has ended If so it will send the apropiate
+	 * notifcation
 	 * 
 	 * @param out
 	 */
