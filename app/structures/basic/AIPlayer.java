@@ -1,4 +1,6 @@
 package structures.basic;
 
-public class AIPlayer extends Player{
+import structures.basic.player.Player;
+
+public class AIPlayer extends Player {
 }

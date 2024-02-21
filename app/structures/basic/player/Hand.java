@@ -1,4 +1,4 @@
-package structures.basic;
+package structures.basic.player;
 
 import structures.basic.cards.Card;
 
