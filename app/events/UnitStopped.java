@@ -24,7 +24,6 @@ public class UnitStopped implements EventProcessor{
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 		
 		int unitid = message.get("id").asInt();
-		
 	}
 
 }

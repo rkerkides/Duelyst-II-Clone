@@ -2,6 +2,7 @@ package actors;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,6 +22,8 @@ import events.UnitMoving;
 import events.UnitStopped;
 import play.libs.Json;
 import structures.GameState;
+import structures.basic.AIPlayer;
+import structures.basic.HumanPlayer;
 import utils.ImageListForPreLoad;
 import play.libs.Json;
 
@@ -100,18 +103,27 @@ public class GameActor extends AbstractActor {
 	 * @throws Exception
 	 */
 	@SuppressWarnings({"deprecation"})
-	public void processMessage(String messageType, JsonNode message) throws Exception{
-
+	public void processMessage(String messageType, JsonNode message) throws Exception {
 		EventProcessor processor = eventProcessors.get(messageType);
-		if (processor==null) {
+		if (processor == null) {
 			// Unknown event type received
-			System.err.println("GameActor: Recieved unknown event type "+messageType);
+			System.err.println("GameActor: Received unknown event type " + messageType);
 		} else {
-			processor.processEvent(out, gameState, message); // process the event
+			// Check if the event is player-driven
+			if (!Objects.equals(messageType, "heartbeat") && !Objects.equals(messageType, "initalize") &&
+					!Objects.equals(messageType, "UnitMoving") && !Objects.equals(messageType, "UnitStopped")) {
+				// Skip processing the event further if it's the AI's turn
+				if (gameState.currentPlayer instanceof AIPlayer) {
+					System.out.println("Ignoring player action because it's the AI's turn.");
+					return;
+				}
+			}
+			processor.processEvent(out, gameState, message); // Process the event
 		}
 	}
-	
-	
+
+
+
 	public void reportError(String errorText) {
 		ObjectNode returnMessage = Json.newObject();
 		returnMessage.put("messagetype", "ERR");

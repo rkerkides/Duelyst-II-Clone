@@ -7,15 +7,31 @@ package structures.basic;
  * @author Dr. Richard McCreadie
  *
  */
-public class Player {
+public abstract class Player {
 
-	int health;
-	int mana;
+	protected int health;
+	protected int mana;
+	protected Hand hand;
+	private int turn;
 	
+	
+	public Hand getHand() {
+		return hand;
+	}
+	public void setHand(Hand hand) {
+		this.hand = hand;
+	}
+	public int getTurn() {
+		return turn;
+	}
+	public void setTurn(int turn) {
+		this.turn = turn;
+	}
 	public Player() {
 		super();
 		this.health = 20;
 		this.mana = 0;
+		this.hand=null;
 	}
 	public Player(int health, int mana) {
 		super();
