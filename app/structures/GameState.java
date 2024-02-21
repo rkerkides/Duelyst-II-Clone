@@ -2,8 +2,10 @@ package structures;
 
 import akka.actor.ActorRef;
 import commands.BasicCommands;
-import structures.basic.Board;
-import structures.basic.Player;
+import structures.basic.*;
+import utils.BasicObjectBuilders;
+import utils.StaticConfFiles;
+
 
 /**
  * This class can be used to hold information about the on-going game. Its
@@ -18,7 +20,20 @@ public class GameState {
 
 	public boolean something = false;
 
+
+	// Keep track of the player currently taking their turn
+	public Player currentPlayer;
+
+	// Keep track of the aiAvatar that is currently clicked
+	public Unit currentUnitClicked;
+
+	// Keep track of the last event that was processed
+	public String lastEvent;
+
+	// Entity objects that are part of the game state
+	public GameService gameService;
 	private Player human;
+
 	private Player ai;
 	private Board board;
 
@@ -31,8 +46,29 @@ public class GameState {
 	 */
 
 	public void init(ActorRef out) {
+		this.gameService = new GameService(out);
+		this.board = gameService.loadBoard();
 
-		this.board = new Board(out);
+		// Create the human and AI players
+		this.human = new HumanPlayer();
+		this.ai = new AIPlayer();
+
+		// Create the human and AI avatars
+		gameService.loadAvatar(board, human);
+		gameService.loadAvatar(board, ai);
+
+		// Set the current player to the human player
+		this.currentPlayer = human;
+
+	}
+
+	// Switch the current player
+	public void switchCurrentPlayer() {
+		if (this.currentPlayer == human) {
+			this.currentPlayer = ai;
+		} else {
+			this.currentPlayer = human;
+		}
 	}
 
 	// Getters and Setters
@@ -48,17 +84,11 @@ public class GameState {
 		return this.human;
 	}
 
-	public void setHuman(Player human) {
-		this.human = human;
-	}
 
 	public Player getAi() {
 		return this.ai;
 	}
 
-	public void setAi(Player ai) {
-		this.ai = ai;
-	}
 
 	/**
 	 * Checks and see if the game has ended
@@ -73,5 +103,4 @@ public class GameState {
 			BasicCommands.addPlayer1Notification(out, "You Lost", 1000);
 		}
 	}
-
 }
