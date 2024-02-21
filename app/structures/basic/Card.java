@@ -22,7 +22,7 @@ public class Card {
 	
 	boolean isCreature;
 	String unitConfig;
-	
+	Player owner;
 	public Card() {};
 	
 	public Card(int id, String cardname, int manacost, MiniCard miniCard, BigCard bigCard, boolean isCreature, String unitConfig) {
@@ -83,6 +83,12 @@ public class Card {
 	}
 	public void setUnitConfig(String unitConfig) {
 		this.unitConfig = unitConfig;
+	}
+	public Player getOwner() {
+		return owner;
+	}
+	public void setOwner(Player owner) {
+		this.owner = owner;
 	}
 
 	

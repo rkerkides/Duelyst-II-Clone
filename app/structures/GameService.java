@@ -6,6 +6,8 @@ import structures.basic.*;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
+import static utils.BasicObjectBuilders.loadUnit;
+
 public class GameService {
     private ActorRef out;
 
@@ -33,11 +35,11 @@ public class GameService {
         Unit avatar;
         if (player instanceof HumanPlayer) {
             avatarTile = board.getTile(1, 2);
-            avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
+            avatar = loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
 
         } else {
             avatarTile = board.getTile(7, 2);
-            avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
+            avatar = loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
         }
         avatar.setPositionByTile(avatarTile);
         BasicCommands.drawUnit(out, avatar, avatarTile);
@@ -97,6 +99,47 @@ public class GameService {
         }
     }
 
+    // highlight tiles for summoning units (does not currently take into account special units)
+    public void highlightSummonRange(Card card, Board board) {
+        Tile[][] tiles = board.getTiles();
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 5; j++) {
+                Tile currentTile = tiles[i][j];
+                // Check if tile is occupied by a friendly unit
+                if (currentTile.isOccupied() && currentTile.getUnit().getOwner() == card.getOwner()) {
+                    // Highlight adjacent tiles that are not occupied
+                    for (int x = -1; x <= 1; x++) {
+                        for (int y = -1; y <= 1; y++) {
+                            // Skip the current tile
+                            if (x == 0 && y == 0) {
+                                continue;
+                            }
+                            int adjX = i + x;
+                            int adjY = j + y;
+                            // Check if adjacent tile is within board bounds
+                            if (adjX >= 0 && adjX < 9 && adjY >= 0 && adjY < 5) {
+                                Tile adjTile = tiles[adjX][adjY];
+                                // Highlight the tile if it's not occupied
+                                if (!adjTile.isOccupied()) {
+                                    updateTileHighlight(adjTile, 1); // Use 1 for summonable highlight mode
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // check if summoning is valid
+    public boolean isValidSummon(Card card, Tile tile) {
+        // depending on cards, this may change
+        // for now, all cards can move to tiles highlighted white
+        return tile.getHighlightMode() == 1;
+    }
+
+
     // helper method to update tile highlight
     public void updateTileHighlight(Tile tile, int tileHighlightMode) {
         tile.setHighlightMode(tileHighlightMode);
@@ -131,4 +174,28 @@ public class GameService {
             e.printStackTrace();
         }
     }
+
+    /*// remove card from hand and summon unit
+    public void removeCardFromHandAndSummonUnit(Board board, Card card, Tile tile, Hand hand) {
+        // remove card from hand
+        hand.removeCard(card);
+
+        // summon unit (should handle ids differently)
+        Unit unit = loadUnit(card.getUnitConfig(), 3, Unit.class);
+
+        // set unit position
+        tile.setUnit(unit);
+        unit.setPositionByTile(tile);
+
+        // remove highlight from all tiles
+        removeHighlightFromAll(board);
+
+        // draw unit on new tile
+        BasicCommands.drawUnit(out, unit, tile);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }*/
 }
