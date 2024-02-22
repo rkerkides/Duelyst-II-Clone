@@ -3,9 +3,11 @@ package structures;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
+import structures.basic.cards.Card;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
+import utils.OrderedCardLoader;
 import utils.StaticConfFiles;
 
 public class GameService {
@@ -136,4 +138,18 @@ public class GameService {
 			e.printStackTrace();
 		}
 	}
+	
+	public void drawingCards(int cardsToDraw, int handPosition) {
+
+	    int currentCardIndex = 0;
+
+	    for (int i = 0; i < cardsToDraw; i++) {
+	        Card card = OrderedCardLoader.getPlayer1Cards(1).get(currentCardIndex);
+	        BasicCommands.drawCard(out, card, handPosition, 0);
+	        try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+	        handPosition++;
+	        currentCardIndex++;
+	    }
+	}
+
 }
