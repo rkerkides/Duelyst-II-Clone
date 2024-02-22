@@ -30,7 +30,7 @@ public class GameState {
 
 	// Entity objects that are part of the game state
 	public GameService gameService;
-	private Player human;
+	private HumanPlayer human;
 
 	private Player ai;
 	private Board board;
@@ -50,12 +50,24 @@ public class GameState {
 		this.human = new HumanPlayer();
 		this.ai = new AIPlayer();
 
+		
+		
+		
+
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
 		gameService.loadAvatar(board, ai);
+		
+
 
 		// Set the current player to the human player
 		this.currentPlayer = human;
+		
+		
+		//Drawing initial 3 cards from the deck
+		gameService.drawingCards(3,human.getHand().getSize()+1);
+		human.drawCards(3);
+		
 
 	}
 
