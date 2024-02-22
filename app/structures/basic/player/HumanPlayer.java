@@ -1,8 +1,6 @@
 package structures.basic.player;
 
 import akka.actor.ActorRef;
-import commands.BasicCommands;
-import utils.OrderedCardLoader;
 import structures.basic.HumanDeck;
 import structures.basic.cards.Card;
 
@@ -31,6 +29,7 @@ public class HumanPlayer extends Player {
 	        if (!humanDeck.getCards().isEmpty()) {
 	            Card card = humanDeck.getCards().pop();
 	            hand.addCard(card);
+				System.out.println("Card drawn: " + card.getCardname());
 	        }
 	    }
 	}
