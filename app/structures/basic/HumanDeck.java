@@ -1,40 +1,26 @@
 package structures.basic;
 
-import java.util.ArrayList;
-import java.util.List;
+import structures.basic.cards.BadOmen;
 import structures.basic.cards.Card;
-import utils.OrderedCardLoader;
+import structures.basic.cards.HornOfTheForsaken;
+import java.util.Stack;
 
 public class HumanDeck {
-	//for us potentially player only deck and for AI we will do another one 
+    private Stack<Card> cards;
 
-	    private List<Card> cards;
+    public HumanDeck() {
+        this.cards = new Stack<>();
+        cards.push(new BadOmen());
+        cards.push(new HornOfTheForsaken());
+        // Add more cards to the deck
+    }
 
-	    public HumanDeck() {
-	        this.cards = new ArrayList<>();
-/*	        // Add cards to the deck in the specified order
-	        cards.add(new BadOmen());
-	        cards.add(new HornOfTheForsaken());
-	        cards.add(new GloomChaser());
-//	        cards.add(new RockPulveriser());
-//	        cards.add(new ShadowWatcher());
-//	        cards.add(new NightsorrowAssassin());
-//	        cards.add(new BloodmoonPriestess());
-//	        cards.add(new Shadowdancer());
-//	        
-//	        cards.add(new WraithlingSwarm());
-//	        cards.add(new DarkTerminus());
-//	        cards.add(new Wraithling());*/
-			cards = OrderedCardLoader.getPlayer1Cards(2);
-	    }
+    public Stack<Card> getCards() {
+        return cards;
+    }
 
-	    public List<Card> getCards() {
-	        return cards;
-	    }
-
-		public Card drawCard() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+    public Card drawCard() {
+        return cards.pop();
+    }
 }
 
