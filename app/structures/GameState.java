@@ -81,6 +81,26 @@ public class GameState {
 		}
 	}
 
+	public void endTurn(){
+		if (currentPlayer.equals(human)){
+			handleCardManagement(this.currentPlayer);
+		}
+		switchCurrentPlayer();
+	}
+
+	public void handleCardManagement( Player currentPlayer) {
+		if (currentPlayer.getHand().getSize() >= 6) {
+			// Discard the top card from the hand if it's at maximum size.
+			currentPlayer.getDeck().drawCard();
+		} else {
+			// The hand is not full, draw a new card.
+			gameService.drawingCards(1, human.getHand().getSize() + 1);
+			human.drawCards(1);
+		}
+	}
+
+
+
 	// Getters and Setters
 	public Board getBoard() {
 		return board;

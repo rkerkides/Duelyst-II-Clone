@@ -1,14 +1,10 @@
 package structures.basic.player;
-import org.junit.Test;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import akka.actor.ActorRef;
-
-import commands.BasicCommands;
-import utils.OrderedCardLoader;
 import structures.basic.Deck;
 import structures.basic.cards.BadOmen;
 import structures.basic.cards.Card;
