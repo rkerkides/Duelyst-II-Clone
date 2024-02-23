@@ -112,22 +112,27 @@ public class GameActor extends AbstractActor {
 			// Unknown event type received
 			System.err.println("GameActor: Received unknown event type " + messageType);
 		} else {
-			// Block all events if a unit is currently moving
-			if (gameState.lastEvent.equals("unitMoving")) {
-				return;
-			}
 			// Check if the event is player-driven
 			if (!Objects.equals(messageType, "heartbeat") && !Objects.equals(messageType, "initalize")
-					&& !Objects.equals(messageType, "UnitMoving") && !Objects.equals(messageType, "UnitStopped")) {
+					&& !Objects.equals(messageType, "unitMoving") && !Objects.equals(messageType, "unitstopped")) {
+				// Block all events if a unit is currently moving
+				// Add a null check for lastEvent before comparing it
+				if (gameState.lastEvent != null && gameState.lastEvent.equals("unitMoving")) {
+					System.out.println("Ignoring event because a unit is currently moving.");
+					System.out.println("Last event: " + gameState.lastEvent);
+					return;
+				}
 				// Skip processing the event further if it's the AI's turn
 				if (gameState.currentPlayer instanceof AIPlayer) {
 					System.out.println("Ignoring player action because it's the AI's turn.");
 					return;
 				}
 			}
+			gameState.lastEvent = messageType;
 			processor.processEvent(out, gameState, message); // Process the event
 		}
 	}
+
 
 	public void reportError(String errorText) {
 		ObjectNode returnMessage = Json.newObject();
