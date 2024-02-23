@@ -112,7 +112,7 @@ public class GameActor extends AbstractActor {
 			// Unknown event type received
 			System.err.println("GameActor: Received unknown event type " + messageType);
 		} else {
-			// Check if the event is player-driven
+			// If the event is not a heartbeat, initalize, unitMoving, or unitStopped event:
 			if (!Objects.equals(messageType, "heartbeat") && !Objects.equals(messageType, "initalize")
 					&& !Objects.equals(messageType, "unitMoving") && !Objects.equals(messageType, "unitstopped")) {
 				// Block all events if a unit is currently moving
@@ -122,14 +122,23 @@ public class GameActor extends AbstractActor {
 					System.out.println("Last event: " + gameState.lastEvent);
 					return;
 				}
+				// Reset currentUnitClicked if this event is not a tile click
+				if (!messageType.equals("tileclicked")) {
+					System.out.println("Message type: " + messageType + " so resetting currentUnitClicked.");
+					gameState.currentUnitClicked = null;
+				}
 				// Skip processing the event further if it's the AI's turn
 				if (gameState.currentPlayer instanceof AIPlayer) {
 					System.out.println("Ignoring player action because it's the AI's turn.");
 					return;
 				}
 			}
+
+			// Set the last event to the current event
 			gameState.lastEvent = messageType;
-			processor.processEvent(out, gameState, message); // Process the event
+
+			// Process the event
+			processor.processEvent(out, gameState, message);
 		}
 	}
 

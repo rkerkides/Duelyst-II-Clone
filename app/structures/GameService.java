@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
 import structures.basic.cards.Card;
+import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
@@ -110,6 +111,7 @@ public class GameService {
 
     // highlight tiles for summoning units (does not currently take into account special units)
     public void highlightSummonRange(Card card, Board board) {
+		System.out.println("highlightSummonRange for " + card.getCardname());
         Tile[][] tiles = board.getTiles();
 
         for (int i = 0; i < 9; i++) {
@@ -196,10 +198,10 @@ public class GameService {
 	    }
 	}
 
-    /*// remove card from hand and summon unit
-    public void removeCardFromHandAndSummonUnit(Board board, Card card, Tile tile, Hand hand) {
+    // remove card from hand and summon unit
+    public void removeCardFromHandAndSummonUnit(Board board, Card card, Tile tile, Hand hand, int handPosition) {
         // remove card from hand
-        hand.removeCard(card);
+        hand.removeCardAtIndex(handPosition);
 
         // summon unit (should handle ids differently)
         Unit unit = loadUnit(card.getUnitConfig(), 3, Unit.class);
@@ -218,5 +220,5 @@ public class GameService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }*/
+    }
 }

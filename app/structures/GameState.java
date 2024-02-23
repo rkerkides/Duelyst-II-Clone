@@ -3,6 +3,7 @@ package structures;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
+import structures.basic.cards.Card;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 
@@ -22,8 +23,10 @@ public class GameState {
 	// Keep track of the player currently taking their turn
 	public Player currentPlayer;
 
-	// Keep track of the aiAvatar that is currently clicked
+	// Keep track of the unit that is currently clicked
 	public Unit currentUnitClicked;
+	// Keep track of the card that is currently clicked
+	public Card currentCardClicked;
 
 	// Keep track of the last event that was processed
 	public String lastEvent;
