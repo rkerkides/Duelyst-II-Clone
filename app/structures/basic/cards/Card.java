@@ -3,7 +3,7 @@ package structures.basic.cards;
 
 import structures.basic.BigCard;
 import structures.basic.MiniCard;
-import structures.basic.Player;
+import structures.basic.player.Player;
 
 /**
  * This is the base representation of a Card which is rendered in the player's hand.
