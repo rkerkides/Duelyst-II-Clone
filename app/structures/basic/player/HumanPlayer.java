@@ -6,13 +6,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import akka.actor.ActorRef;
-<<<<<<< HEAD
+
 import commands.BasicCommands;
 import utils.OrderedCardLoader;
 import structures.basic.Deck;
-=======
->>>>>>> 3e9034b23bfe791eafb065f0246ac9236c049f7f
-import structures.basic.HumanDeck;
 import structures.basic.cards.BadOmen;
 import structures.basic.cards.Card;
 import structures.basic.cards.GloomChaser;

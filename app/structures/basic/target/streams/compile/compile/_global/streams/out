@@ -1,0 +1,96 @@
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\AIPlayer.java:3:1: package structures.basic.cards does not exist
+[error] structures.basic.cards.Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\AIPlayer.java:4:1: package structures.basic.player does not exist
+[error] structures.basic.player.Player
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\AIPlayer.java:6:1: cannot find symbol
+[error]   symbol: class Player
+[error] Player
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\BetterUnit.java:6:1: package utils does not exist
+[error] utils.BasicObjectBuilders
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\BetterUnit.java:7:1: package utils does not exist
+[error] utils.StaticConfFiles
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:3:1: package com.fasterxml.jackson.annotation does not exist
+[error] com.fasterxml.jackson.annotation.JsonIgnore
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:4:1: package com.fasterxml.jackson.databind does not exist
+[error] com.fasterxml.jackson.databind.ObjectMapper
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:6:1: package structures.basic.player does not exist
+[error] structures.basic.player.Player
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:22:1: cannot find symbol
+[error]   symbol:   class ObjectMapper
+[error]   location: class structures.basic.Unit
+[error] ObjectMapper
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\ImageCorrection.java:3:1: package com.fasterxml.jackson.annotation does not exist
+[error] com.fasterxml.jackson.annotation.JsonIgnore
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:31:1: cannot find symbol
+[error]   symbol:   class Player
+[error]   location: class structures.basic.Unit
+[error] Player
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Tile.java:7:1: package com.fasterxml.jackson.annotation does not exist
+[error] com.fasterxml.jackson.annotation.JsonIgnore
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Tile.java:8:1: package com.fasterxml.jackson.databind does not exist
+[error] com.fasterxml.jackson.databind.ObjectMapper
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:109:1: cannot find symbol
+[error]   symbol:   class Player
+[error]   location: class structures.basic.Unit
+[error] Player
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:113:1: cannot find symbol
+[error]   symbol:   class Player
+[error]   location: class structures.basic.Unit
+[error] Player
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Tile.java:23:1: cannot find symbol
+[error]   symbol:   class ObjectMapper
+[error]   location: class structures.basic.Tile
+[error] ObjectMapper
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Deck.java:5:1: package structures.basic.cards does not exist
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\aiDeck.java:5:1: package structures.basic.cards does not exist
+[error] structures.basic.cards.Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\aiDeck.java:8:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.aiDeck
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\aiDeck.java:15:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.aiDeck
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\aiDeck.java:19:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.aiDeck
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:21:1: cannot find symbol
+[error]   symbol:   class JsonIgnore
+[error]   location: class structures.basic.Unit
+[error] JsonIgnore
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:130:1: cannot find symbol
+[error]   symbol:   class JsonIgnore
+[error]   location: class structures.basic.Unit
+[error] JsonIgnore
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Tile.java:22:1: cannot find symbol
+[error]   symbol:   class JsonIgnore
+[error]   location: class structures.basic.Tile
+[error] JsonIgnore
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\ImageCorrection.java:103:1: cannot find symbol
+[error]   symbol:   class JsonIgnore
+[error]   location: class structures.basic.ImageCorrection
+[error] JsonIgnore
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\ImageCorrection.java:108:1: cannot find symbol
+[error]   symbol:   class JsonIgnore
+[error]   location: class structures.basic.ImageCorrection
+[error] JsonIgnore
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\AIPlayer.java:8:1: method does not override or implement a method from a supertype
+[error] @Override
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Unit.java:22:1: cannot find symbol
+[error]   symbol:   class ObjectMapper
+[error]   location: class structures.basic.Unit
+[error] ObjectMapper
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\BetterUnit.java:31:1: cannot find symbol
+[error]   symbol:   variable StaticConfFiles
+[error]   location: class structures.basic.BetterUnit
+[error] StaticConfFiles
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\BetterUnit.java:31:1: cannot find symbol
+[error]   symbol:   variable BasicObjectBuilders
+[error]   location: class structures.basic.BetterUnit
+[error] BasicObjectBuilders
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\Tile.java:23:1: cannot find symbol
+[error]   symbol:   class ObjectMapper
+[error]   location: class structures.basic.Tile
+[error] ObjectMapper
