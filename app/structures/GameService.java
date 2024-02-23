@@ -12,6 +12,7 @@ import utils.StaticConfFiles;
 
 public class GameService {
 	private ActorRef out;
+	
 
 	public GameService(ActorRef out) {
 		this.out = out;

@@ -1,12 +1,11 @@
 package structures.basic;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import structures.basic.cards.*;
 
 @SuppressWarnings({ "serial", "hiding" })
-public class Deck<Card> extends LinkedHashSet<Card>{
+public class Deck<Card> extends LinkedHashSet<Card>{ 
 
 	public Card pop() {
 		Iterator <Card> iterator= iterator();
@@ -20,6 +19,7 @@ public class Deck<Card> extends LinkedHashSet<Card>{
 		
 		
 	}
+	
 	public boolean isEmpty() {
 		return super.isEmpty();
 	}

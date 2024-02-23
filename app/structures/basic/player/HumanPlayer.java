@@ -1,4 +1,5 @@
 package structures.basic.player;
+import org.junit.Test;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -23,10 +24,6 @@ public class HumanPlayer extends Player {
 
 	public Deck<Card> getDeck() {
 		return deck;
-	}
-
-	public void setDeck(Deck<Card> deck) {
-		this.deck = deck;
 	}
 
 	public Hand getHand() {
