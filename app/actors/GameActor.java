@@ -22,7 +22,7 @@ import events.UnitMoving;
 import events.UnitStopped;
 import play.libs.Json;
 import structures.GameState;
-import structures.basic.*;
+import structures.basic.player.AIPlayer;
 import utils.ImageListForPreLoad;
 
 /**
