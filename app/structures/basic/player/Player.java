@@ -16,16 +16,11 @@ public abstract class Player {
 	protected int mana;
 	protected Hand hand;
 	private int turn;
-	private Deck<Card> deck;
-	
-	
+	private Deck deck;
 
-	public Deck<Card> getDeck() {
+
+	public Deck getDeck() {
 		return deck;
-	}
-
-	public void setDeck(Deck<Card> deck) {
-		this.deck = deck;
 	}
 
 	public Hand getHand() {
@@ -48,7 +43,8 @@ public abstract class Player {
 		super();
 		this.health = 20;
 		this.mana = 0;
-		this.hand = null;
+		this.hand = new Hand();
+		this.deck=new Deck(this);
 	}
 
 	public Player(int health, int mana) {
@@ -73,6 +69,18 @@ public abstract class Player {
 		this.mana = mana;
 	}
 
-	public abstract void drawCards(int i);
+	public Card drawCard() {
+		if (this.deck == null) {
+			// Deck is not initialized, handle accordingly
+			System.err.println("Deck is null, cannot draw a card.");
+			// For example, initialize the deck here if appropriate
+			// this.deck = new Deck();
+			return null;
+		}
+        Card card = this.deck.drawCard();
+		System.out.println("Player " + this + " drew card " + card + " from deck");
+        this.hand.addCard(card);
+		return card;
+	}
 
 }

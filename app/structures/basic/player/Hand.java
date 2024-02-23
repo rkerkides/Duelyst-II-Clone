@@ -8,6 +8,7 @@ import java.util.List;
 public class Hand {
 	
     private ArrayList<Card> cards;
+    private int numberOfCardsInHand;
     
 
 	public Hand() {
@@ -17,7 +18,7 @@ public class Hand {
 
     public void addCard(Card drawnCard) {
         cards.add(drawnCard);
-        
+        this.numberOfCardsInHand++;
     }
     public Card getCardAtIndex(int index) {
         if (index >= 0 && index < cards.size()) {
@@ -26,9 +27,24 @@ public class Hand {
             return null; 
         }
     }
+
+    public Card getCardAtPosition(int position) {
+    	if (position >= 1 && position <= numberOfCardsInHand) {
+    		return cards.get(position-1);
+    	} else {
+    		return null;
+    	}
+    }
+
+    public void removeCardAtIndex(int index) {
+        if (index >= 0 && index < cards.size()) {
+            cards.remove(index);
+            this.numberOfCardsInHand--;
+        }
+    }
     
-    public int getSize() {
-        return cards.size();
+    public int getNumberOfCardsInHand() {
+    	return this.numberOfCardsInHand;
     }
 
     // Public getter for Jackson to use for serialization

@@ -1,5 +1,5 @@
 package structures.basic.cards;
 
-public class CreatureCard {
+public class CreatureCard extends Card {
 
 }

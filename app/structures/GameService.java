@@ -110,7 +110,7 @@ public class GameService {
 	}
 
     // highlight tiles for summoning units (does not currently take into account special units)
-    public void highlightSummonRange(Card card, Board board) {
+    public void highlightSummonRange(Card card, Board board, Player player) {
 		System.out.println("highlightSummonRange for " + card.getCardname());
         Tile[][] tiles = board.getTiles();
 
@@ -118,7 +118,8 @@ public class GameService {
             for (int j = 0; j < 5; j++) {
                 Tile currentTile = tiles[i][j];
                 // Check if tile is occupied by a friendly unit
-                if (currentTile.isOccupied() && currentTile.getUnit().getOwner() == card.getOwner()) {
+                if (currentTile.isOccupied() && currentTile.getUnit().getOwner() == player) {
+					System.out.println("Tile " + i + ", " + j + " is occupied by a friendly unit");
                     // Highlight adjacent tiles that are not occupied
                     for (int x = -1; x <= 1; x++) {
                         for (int y = -1; y <= 1; y++) {
@@ -185,17 +186,19 @@ public class GameService {
 		}
 	}
 	
-	public void drawingCards(int cardsToDraw, int handPosition) {
-
-	    int currentCardIndex = 0;
-
-	    for (int i = 0; i < cardsToDraw; i++) {
-	        Card card = OrderedCardLoader.getPlayer1Cards(1).get(currentCardIndex);
-	        BasicCommands.drawCard(out, card, handPosition, 0);
-	        try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
-	        handPosition++;
-	        currentCardIndex++;
-	    }
+	public void drawCards(Player player, int numberOfCards) {
+		if (player instanceof HumanPlayer) {
+			for (int i = 0; i < numberOfCards; i++) {
+				Card cardDrawn = player.drawCard();
+				int handPosition = player.getHand().getNumberOfCardsInHand() + 1;
+				BasicCommands.drawCard(out, cardDrawn, handPosition, 0);
+				try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+			}
+		} else {
+			for (int i = 0; i < numberOfCards; i++) {
+				player.drawCard();
+			}
+		}
 	}
 
     // remove card from hand and summon unit

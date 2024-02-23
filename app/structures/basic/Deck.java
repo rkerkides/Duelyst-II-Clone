@@ -1,31 +1,31 @@
 package structures.basic;
 
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import structures.basic.cards.*;
+import structures.basic.cards.Card;
+import structures.basic.player.HumanPlayer;
+import structures.basic.player.Player;
+import utils.OrderedCardLoader;
 
-@SuppressWarnings({ "serial", "hiding" })
-public class Deck<Card> extends LinkedHashSet<Card>{ 
+import java.util.ArrayList;
+import java.util.List;
 
-	public Card pop() {
-		Iterator <Card> iterator= iterator();
-		if(iterator.hasNext()) {
-			Card card = iterator.next();
-			iterator.remove();
-			return card;
-		} else {		
-			return null;
-		}
-		
-		
-	}
-	
-	public boolean isEmpty() {
-		return super.isEmpty();
-	}
-	
-    public Card drawCard() {
-        return pop();
+public class Deck {
+    private List<Card> deck;
+
+    // Load the appropriate deck based on the player
+    public Deck(Player player) {
+        if (player instanceof HumanPlayer) {
+            this.deck = new ArrayList<>(OrderedCardLoader.getPlayer1Cards(2));
+        } else {
+            this.deck = new ArrayList<>(OrderedCardLoader.getPlayer2Cards(2));
+        }
     }
 
+    public Card drawCard() {
+        return deck.remove(0);
+    }
+
+    public List<Card> getDeck() {
+        return deck;
+    }
 }
+
