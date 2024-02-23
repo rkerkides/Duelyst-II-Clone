@@ -112,6 +112,10 @@ public class GameActor extends AbstractActor {
 			// Unknown event type received
 			System.err.println("GameActor: Received unknown event type " + messageType);
 		} else {
+			// Block all events if a unit is currently moving
+			if (gameState.lastEvent.equals("unitMoving")) {
+				return;
+			}
 			// Check if the event is player-driven
 			if (!Objects.equals(messageType, "heartbeat") && !Objects.equals(messageType, "initalize")
 					&& !Objects.equals(messageType, "UnitMoving") && !Objects.equals(messageType, "UnitStopped")) {
