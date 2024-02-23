@@ -64,9 +64,10 @@ public class GameState {
 		this.currentPlayer = human;
 		
 		
-		//Drawing initial 3 cards from the deck
-		gameService.drawingCards(3,human.getHand().getSize()+1);
-		human.drawCards(3);
+		//Drawing initial 3 cards from the deck for the game start
+		gameService.drawingCards(3,1 /*human.getHand().getSize()+1*/); // draws them in the front end
+		//human.drawCards(3); //to be deleted and moved into constructor
+		System.out.println(human.getHand().getCards());
 		
 
 	}
