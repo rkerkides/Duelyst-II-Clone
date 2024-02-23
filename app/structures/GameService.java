@@ -14,6 +14,7 @@ import static utils.BasicObjectBuilders.loadUnit;
 
 public class GameService {
 	private ActorRef out;
+	
 
 	public GameService(ActorRef out) {
 		this.out = out;

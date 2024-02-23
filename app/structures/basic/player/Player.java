@@ -1,5 +1,7 @@
 package structures.basic.player;
 
+import structures.basic.*;
+import structures.basic.cards.Card;
 import akka.actor.ActorRef;
 
 /**
@@ -14,6 +16,17 @@ public abstract class Player {
 	protected int mana;
 	protected Hand hand;
 	private int turn;
+	private Deck<Card> deck;
+	
+	
+
+	public Deck<Card> getDeck() {
+		return deck;
+	}
+
+	public void setDeck(Deck<Card> deck) {
+		this.deck = deck;
+	}
 
 	public Hand getHand() {
 		return hand;

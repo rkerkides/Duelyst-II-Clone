@@ -64,9 +64,10 @@ public class GameState {
 		this.currentPlayer = human;
 		
 		
-		//Drawing initial 3 cards from the deck
-		gameService.drawingCards(3,human.getHand().getSize()+1);
-		human.drawCards(3);
+		//Drawing initial 3 cards from the deck for the game start
+		gameService.drawingCards(3,1 /*human.getHand().getSize()+1*/); // draws them in the front end
+		//human.drawCards(3); //to be deleted and moved into constructor
+		System.out.println(human.getHand().getCards());
 		
 
 	}
@@ -79,6 +80,26 @@ public class GameState {
 			this.currentPlayer = human;
 		}
 	}
+
+	public void endTurn(){
+		if (currentPlayer.equals(human)){
+			handleCardManagement(this.currentPlayer);
+		}
+		switchCurrentPlayer();
+	}
+
+	public void handleCardManagement( Player currentPlayer) {
+		if (currentPlayer.getHand().getSize() >= 6) {
+			// Discard the top card from the hand if it's at maximum size.
+			currentPlayer.getDeck().drawCard();
+		} else {
+			// The hand is not full, draw a new card.
+			gameService.drawingCards(1, human.getHand().getSize() + 1);
+			human.drawCards(1);
+		}
+	}
+
+
 
 	// Getters and Setters
 	public Board getBoard() {
