@@ -51,8 +51,8 @@ public class GameState {
 		this.ai = new AIPlayer();
 
 		// Health initialised to 20
-		BasicCommands.setPlayer1Health(out, human);
-		BasicCommands.setPlayer2Health(out, ai);
+		gameService.updatePlayerHealth(human,20);
+		gameService.updatePlayerHealth(ai,20);
 
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
