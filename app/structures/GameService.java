@@ -18,6 +18,18 @@ public class GameService {
 		this.out = out;
 	}
 
+	public void updatePlayerHealth(Player player, int newHealth){
+		// Set the new health value on the player object first
+		player.setHealth(newHealth);
+
+		// Now update the health on the frontend using the BasicCommands
+		if (player instanceof HumanPlayer){
+			BasicCommands.setPlayer1Health(out, player);
+		} else {
+			BasicCommands.setPlayer2Health(out, player);
+		}
+	}
+
 	// initial board setup
 	public Board loadBoard() {
 		Board board = new Board();

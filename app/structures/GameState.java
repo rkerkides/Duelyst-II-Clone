@@ -3,6 +3,7 @@ package structures;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
+import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 
@@ -50,9 +51,9 @@ public class GameState {
 		this.human = new HumanPlayer();
 		this.ai = new AIPlayer();
 
-		
-		
-		
+		// Health initialised to 20
+		gameService.updatePlayerHealth(human,20);
+		gameService.updatePlayerHealth(ai,20);
 
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
@@ -74,21 +75,21 @@ public class GameState {
 
 	// Switch the current player
 	public void switchCurrentPlayer() {
-		if (this.currentPlayer == human) {
-			this.currentPlayer = ai;
+		if (this.currentPlayer == this.human) {
+			this.currentPlayer = this.ai;
 		} else {
-			this.currentPlayer = human;
+			this.currentPlayer = this.human;
 		}
 	}
 
 	public void endTurn(){
-		if (currentPlayer.equals(human)){
-			handleCardManagement(this.currentPlayer);
+		if (this.currentPlayer == this.human){
+			handleCardManagement();
 		}
 		switchCurrentPlayer();
 	}
 
-	public void handleCardManagement( Player currentPlayer) {
+	public void handleCardManagement() {
 		if (currentPlayer.getHand().getSize() >= 6) {
 			// Discard the top card from the hand if it's at maximum size.
 			currentPlayer.getDeck().drawCard();
