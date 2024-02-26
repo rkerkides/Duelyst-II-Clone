@@ -5,7 +5,6 @@ import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.OrderedCardLoader;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Deck {
@@ -14,9 +13,9 @@ public class Deck {
     // Load the appropriate deck based on the player
     public Deck(Player player) {
         if (player instanceof HumanPlayer) {
-            this.deck = new ArrayList<>(OrderedCardLoader.getPlayer1Cards(2));
+            this.deck = OrderedCardLoader.getPlayer1Cards(2);
         } else {
-            this.deck = new ArrayList<>(OrderedCardLoader.getPlayer2Cards(2));
+            this.deck = OrderedCardLoader.getPlayer2Cards(2);
         }
     }
 
