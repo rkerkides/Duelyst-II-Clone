@@ -3,6 +3,7 @@ package structures;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
+import structures.basic.cards.Card;
 import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
@@ -23,8 +24,10 @@ public class GameState {
 	// Keep track of the player currently taking their turn
 	public Player currentPlayer;
 
-	// Keep track of the aiAvatar that is currently clicked
+	// Keep track of the unit that is currently clicked
 	public Unit currentUnitClicked;
+	// Keep track of the card that is currently clicked
+	public Card currentCardClicked;
 
 	// Keep track of the last event that was processed
 	public String lastEvent;
@@ -58,19 +61,15 @@ public class GameState {
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
 		gameService.loadAvatar(board, ai);
-		
-
 
 		// Set the current player to the human player
 		this.currentPlayer = human;
-		
-		
-		//Drawing initial 3 cards from the deck for the game start
-		gameService.drawingCards(3,1 /*human.getHand().getSize()+1*/); // draws them in the front end
-		//human.drawCards(3); //to be deleted and moved into constructor
-		System.out.println(human.getHand().getCards());
-		
 
+		//Drawing initial 3 cards from the deck for the game start
+		gameService.drawCards(human,3);
+		System.out.println("Human hand: " + human.getHand().getCards());
+		gameService.drawCards(ai,3);
+		System.out.println(human.getHand().getCards());
 	}
 
 	// Switch the current player
@@ -90,13 +89,12 @@ public class GameState {
 	}
 
 	public void handleCardManagement() {
-		if (currentPlayer.getHand().getSize() >= 6) {
+		if (currentPlayer.getHand().getNumberOfCardsInHand() >= 6) {
 			// Discard the top card from the hand if it's at maximum size.
 			currentPlayer.getDeck().drawCard();
 		} else {
 			// The hand is not full, draw a new card.
-			gameService.drawingCards(1, human.getHand().getSize() + 1);
-			human.drawCards(1);
+			gameService.drawCards(currentPlayer, 1);
 		}
 	}
 

@@ -23,7 +23,14 @@ public class CardClicked implements EventProcessor{
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 		
-		int handPosition = message.get("position").asInt();
+		int handPosition = message.get("position").asInt() - 1;
+
+		// Set the current card clicked to the card at the specified position in the player's hand
+		gameState.currentCardClicked = gameState.currentPlayer.getHand().getCardAtPosition(handPosition);
+
+		// Highlight the summon range of the current card clicked
+		gameState.gameService.highlightSummonRange(gameState.currentCardClicked, gameState.getBoard(), gameState.getHuman());
+
 	}
 
 }

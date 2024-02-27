@@ -27,6 +27,8 @@ public class TileClicked implements EventProcessor{
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 
+		System.out.println(gameState.lastEvent + " -> tileclicked");
+
 		int tilex = message.get("tilex").asInt();
 		int tiley = message.get("tiley").asInt();
 
@@ -43,9 +45,9 @@ public class TileClicked implements EventProcessor{
 				gameState.gameService.highlightMoveRange(unit, gameState.getBoard());
 			}
 		}
-
+		System.out.println("Unit clicked: " + gameState.currentUnitClicked);
 		// Handle movement if last event was a tile click and the current unit clicked is not null
-		if ("TileClicked".equals(gameState.lastEvent) && gameState.currentUnitClicked != null) {
+		if (gameState.lastEvent.equals("tileclicked") && gameState.currentUnitClicked != null) {
 			if (!tile.isOccupied() && gameState.currentUnitClicked.getOwner() == gameState.currentPlayer) {
 				if (gameState.gameService.isValidMove(gameState.currentUnitClicked, tile)) {
 					gameState.gameService.updateUnitPositionAndMove(gameState.currentUnitClicked, tile, gameState.getBoard());
