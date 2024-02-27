@@ -67,9 +67,11 @@ public class GameService {
 		Tile[][] tiles = board.getTiles();
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 5; j++) {
-				Tile currentTile = tiles[i][j];
-				currentTile.setHighlightMode(0);
-				BasicCommands.drawTile(out, currentTile, 0);
+				if(tiles[i][j].getHighlightMode() != 0){
+					Tile currentTile = tiles[i][j];
+					currentTile.setHighlightMode(0);
+					BasicCommands.drawTile(out, currentTile, 0);
+				}
 			}
 		}
 	}
