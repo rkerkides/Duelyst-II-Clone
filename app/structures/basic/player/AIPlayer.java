@@ -15,11 +15,4 @@ public class AIPlayer extends Player {
 		endTurn.processEvent(out, gameState, message);
 	}
 
-	@Override
-	public void drawCards(int cardsToDraw) {
-		
-//		for (int i = 0; i < cardsToDraw; i++) {
-//		    Card card = aiDeck.getCards().pop();
-//		    hand.addCard(card);
-	}
 }
