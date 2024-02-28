@@ -28,6 +28,8 @@ public class GameState {
 	public Unit currentUnitClicked;
 	// Keep track of the card that is currently clicked
 	public Card currentCardClicked;
+	// Keep track of the position of the card that is currently clicked
+	public int currentCardPosition;
 
 	// Keep track of the last event that was processed
 	public String lastEvent;

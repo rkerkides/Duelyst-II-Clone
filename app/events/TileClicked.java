@@ -27,7 +27,7 @@ public class TileClicked implements EventProcessor{
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 
-		System.out.println(gameState.lastEvent + " -> tileclicked");
+		System.out.println("Last event" + " -> tileclicked");
 
 		int tilex = message.get("tilex").asInt();
 		int tiley = message.get("tiley").asInt();
@@ -39,12 +39,25 @@ public class TileClicked implements EventProcessor{
 		if (tile.isOccupied() && tile.getUnit().getOwner() == gameState.currentPlayer) {
 			Unit unit = tile.getUnit();
 			gameState.currentUnitClicked = unit;
-			gameState.lastEvent = "TileClicked";
 			// Highlight move range if unit has not moved this turn
 			if (!unit.isMovedThisTurn()) {
 				gameState.gameService.highlightMoveRange(unit, gameState.getBoard());
 			}
 		}
+
+		// Summon unit if last event was a card click and the current tile is highlighted
+		if (gameState.lastEvent.equals("cardclicked") && gameState.currentCardClicked != null) {
+			System.out.println("Trying to summon " + gameState.currentCardClicked.getCardname() + " to tile " + tilex + ", " + tiley);
+			if (gameState.gameService.isValidSummon(gameState.currentCardClicked, tile)) {
+				gameState.gameService.removeCardFromHandAndSummonUnit
+						(gameState.getBoard(), gameState.currentCardClicked,
+						tile, gameState.currentPlayer.getHand(), gameState.currentCardPosition);
+				gameState.currentCardClicked = null;
+			} else {
+				gameState.gameService.removeHighlightFromAll(gameState.getBoard());
+			}
+		}
+
 		System.out.println("Unit clicked: " + gameState.currentUnitClicked);
 		// Handle movement if last event was a tile click and the current unit clicked is not null
 		if (gameState.lastEvent.equals("tileclicked") && gameState.currentUnitClicked != null) {
@@ -57,6 +70,18 @@ public class TileClicked implements EventProcessor{
 				}
 				gameState.currentUnitClicked = null;
 			}
+			/*if (tile.isOccupied() && tile.getUnit().getOwner() != gameState.currentPlayer) {
+				// Attack the enemy unit if it's within attack range
+				if (gameState.gameService.isValidAttack(gameState.currentUnitClicked, tile.getUnit())) {
+					gameState.gameService.attack(gameState.currentUnitClicked, tile.getUnit(), gameState.getBoard());
+					// or move and attack
+					gameState.gameService.moveAndAttack(gameState.currentUnitClicked, tile.getUnit(), gameState.getBoard());
+					gameState.currentUnitClicked.setAttackedThisTurn(true);
+				} else {
+					gameState.gameService.removeHighlightFromAll(gameState.getBoard());
+				}
+				gameState.currentUnitClicked = null;
+			}*/
 		}
 	}
 

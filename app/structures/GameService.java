@@ -8,7 +8,6 @@ import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
-import utils.OrderedCardLoader;
 import utils.StaticConfFiles;
 
 import static utils.BasicObjectBuilders.loadUnit;
@@ -124,41 +123,64 @@ public class GameService {
 	}
 
     // highlight tiles for summoning units (does not currently take into account special units)
-    public void highlightSummonRange(Card card, Board board, Player player) {
+	public void highlightSummonRange(Card card, Board board, Player player) {
+		if (card == null || board == null || player == null) {
+			System.out.println("One or more required parameters are null.");
+			return;
+		}
+
+		// Check if card is a creature (spells can not be summoned)
+		if (!card.isCreature()) {
+			System.out.println("Card is not a creature.");
+			return;
+		}
+
 		System.out.println("highlightSummonRange for " + card.getCardname());
-        Tile[][] tiles = board.getTiles();
+		Tile[][] tiles = board.getTiles();
 
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 5; j++) {
-                Tile currentTile = tiles[i][j];
-                // Check if tile is occupied by a friendly unit
-                if (currentTile.isOccupied() && currentTile.getUnit().getOwner() == player) {
-					System.out.println("Tile " + i + ", " + j + " is occupied by a friendly unit");
-                    // Highlight adjacent tiles that are not occupied
-                    for (int x = -1; x <= 1; x++) {
-                        for (int y = -1; y <= 1; y++) {
-                            // Skip the current tile
-                            if (x == 0 && y == 0) {
-                                continue;
-                            }
-                            int adjX = i + x;
-                            int adjY = j + y;
-                            // Check if adjacent tile is within board bounds
-                            if (adjX >= 0 && adjX < 9 && adjY >= 0 && adjY < 5) {
-                                Tile adjTile = tiles[adjX][adjY];
-                                // Highlight the tile if it's not occupied
-                                if (!adjTile.isOccupied()) {
-                                    updateTileHighlight(adjTile, 1); // Use 1 for summonable highlight mode
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+		if (tiles == null) {
+			System.out.println("Tiles array is null.");
+			return;
+		}
 
-    // check if summoning is valid
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 5; j++) {
+				Tile currentTile = tiles[i][j];
+				if (currentTile == null) {
+					System.out.println("Tile at position " + i + ", " + j + " is null.");
+					continue;
+				}
+				// Check if tile is occupied by a friendly unit
+				if (currentTile.isOccupied()) {
+					Unit unit = currentTile.getUnit();
+					if (unit != null && unit.getOwner() == player) {
+						System.out.println("Tile " + i + ", " + j + " is occupied by a friendly unit");
+						// Highlight adjacent tiles that are not occupied
+						for (int x = -1; x <= 1; x++) {
+							for (int y = -1; y <= 1; y++) {
+								// Skip the current tile
+								if (x == 0 && y == 0) {
+									continue;
+								}
+								int adjX = i + x;
+								int adjY = j + y;
+								// Check if adjacent tile is within board bounds
+								if (adjX >= 0 && adjX < 9 && adjY >= 0 && adjY < 5) {
+									Tile adjTile = tiles[adjX][adjY];
+									if (adjTile != null && !adjTile.isOccupied()) {
+										updateTileHighlight(adjTile, 1); // Use 1 for summonable highlight mode
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	// check if summoning is valid
     public boolean isValidSummon(Card card, Tile tile) {
         // depending on cards, this may change
         // for now, all cards can move to tiles highlighted white
@@ -217,11 +239,28 @@ public class GameService {
 
     // remove card from hand and summon unit
     public void removeCardFromHandAndSummonUnit(Board board, Card card, Tile tile, Hand hand, int handPosition) {
-        // remove card from hand
-        hand.removeCardAtIndex(handPosition);
+		if (board == null || card == null || tile == null || hand == null) {
+			System.out.println("removeCardFromHandAndSummonUnit: One or more arguments are null");
+			return;
+		}
+		if (handPosition < 1 || handPosition > hand.getNumberOfCardsInHand()) {
+			System.out.println("removeCardFromHandAndSummonUnit: handPosition is out of bounds");
+			return;
+		}
 
-        // summon unit (should handle ids differently)
-        Unit unit = loadUnit(card.getUnitConfig(), 3, Unit.class);
+		// remove card from hand
+		BasicCommands.deleteCard(out, handPosition + 1);
+		hand.removeCardAtPosition(handPosition);
+
+		// update the positions of the remaining cards
+		updateHandPositions(hand);
+
+		// summon unit (should handle ids differently)
+		Unit unit = loadUnit(card.getUnitConfig(), 3, Unit.class);
+		if (unit == null) {
+			System.out.println("removeCardFromHandAndSummonUnit: Failed to load unit");
+			return;
+		}
 
         // set unit position
         tile.setUnit(unit);
@@ -238,4 +277,13 @@ public class GameService {
             e.printStackTrace();
         }
     }
+
+	private void updateHandPositions(Hand hand) {
+		// Iterate over the remaining cards in the hand
+		for (int i = 0; i < hand.getNumberOfCardsInHand(); i++) {
+			// Draw each card in its new position, positions are usually 1-indexed on the UI
+			BasicCommands.deleteCard(out, i + 2);
+			BasicCommands.drawCard(out, hand.getCardAtIndex(i), i + 1, 0);
+		}
+	}
 }

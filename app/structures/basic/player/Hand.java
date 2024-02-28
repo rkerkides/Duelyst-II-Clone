@@ -36,6 +36,15 @@ public class Hand {
     	}
     }
 
+    public Card removeCardAtPosition(int position) {
+    	if (position >= 1 && position <= numberOfCardsInHand) {
+    		this.numberOfCardsInHand--;
+    		return cards.remove(position-1);
+    	} else {
+    		return null;
+    	}
+    }
+
     public void removeCardAtIndex(int index) {
         if (index >= 0 && index < cards.size()) {
             cards.remove(index);
