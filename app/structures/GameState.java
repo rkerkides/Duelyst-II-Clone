@@ -19,8 +19,6 @@ public class GameState {
 
 	public boolean gameInitalised = false;
 
-	public boolean something = false;
-
 	// Keep track of the player currently taking their turn
 	public Player currentPlayer;
 
@@ -28,6 +26,8 @@ public class GameState {
 	public Unit currentUnitClicked;
 	// Keep track of the card that is currently clicked
 	public Card currentCardClicked;
+	// Keep track of the position of the card that is currently clicked
+	public int currentCardPosition;
 
 	// Keep track of the last event that was processed
 	public String lastEvent;
@@ -58,6 +58,9 @@ public class GameState {
 		gameService.updatePlayerHealth(human,20);
 		gameService.updatePlayerHealth(ai,20);
 
+		// Player mana initialised to 1
+		gameService.updatePlayerMana(human, 1);
+
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
 		gameService.loadAvatar(board, ai);
@@ -85,7 +88,10 @@ public class GameState {
 		if (this.currentPlayer == this.human){
 			handleCardManagement();
 		}
+		currentPlayer.incrementTurn();
+		this.gameService.updatePlayerMana(currentPlayer, 0);
 		switchCurrentPlayer();
+		this.gameService.updatePlayerMana(currentPlayer, currentPlayer.getTurn() + 1);
 	}
 
 	public void handleCardManagement() {

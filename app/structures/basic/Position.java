@@ -49,9 +49,9 @@ public class Position {
 	public void setTiley(int tilexy) {
 		this.tiley = tilexy;
 	}
-	
-	
-	
-	
-	
+
+	@Override
+	public String toString() {
+		return "Position [tilex=" + tilex + ", tiley=" + tiley + "]";
+	}
 }

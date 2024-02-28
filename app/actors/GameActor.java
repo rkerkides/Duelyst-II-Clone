@@ -134,11 +134,14 @@ public class GameActor extends AbstractActor {
 				}
 			}
 
-			// Set the last event to the current event
-			gameState.lastEvent = messageType;
-
 			// Process the event
 			processor.processEvent(out, gameState, message);
+
+			// Set the last event to the current event type (excluding heartbeat)
+			if (!messageType.equals("heartbeat")) {
+				System.out.println("Setting last event to " + messageType);
+				gameState.lastEvent = messageType;
+			}
 		}
 	}
 

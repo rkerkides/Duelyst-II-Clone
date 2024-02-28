@@ -132,4 +132,9 @@ public class Unit {
 		position = new Position(tile.getXpos(), tile.getYpos(), tile.getTilex(), tile.getTiley());
 	}
 
+	@Override
+	public String toString() {
+		return "Unit [id=" + id + ", position=" + position + ", owner=" + owner + ", movedThisTurn=" + movedThisTurn + "]";
+	}
+
 }

@@ -35,8 +35,8 @@ public abstract class Player {
 		return turn;
 	}
 
-	public void setTurn(int turn) {
-		this.turn = turn;
+	public void incrementTurn() {
+		this.turn++;
 	}
 
 	public Player() {
