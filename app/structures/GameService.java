@@ -131,7 +131,7 @@ public class GameService {
 
 		// Check if card is a creature (spells can not be summoned)
 		if (!card.isCreature()) {
-			System.out.println("Card is not a creature.");
+			System.out.println(card.getCardname() + " is not a creature.");
 			return;
 		}
 
@@ -226,7 +226,7 @@ public class GameService {
 		if (player instanceof HumanPlayer) {
 			for (int i = 0; i < numberOfCards; i++) {
 				Card cardDrawn = player.drawCard();
-				int handPosition = player.getHand().getNumberOfCardsInHand() + 1;
+				int handPosition = player.getHand().getNumberOfCardsInHand();
 				BasicCommands.drawCard(out, cardDrawn, handPosition, 0);
 				try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
 			}
