@@ -238,7 +238,7 @@ public class GameService {
 	}
 
     // remove card from hand and summon unit
-    public void removeCardFromHandAndSummonUnit(Board board, Card card, Tile tile, Hand hand, int handPosition) {
+    public void removeCardFromHandAndSummonUnit(Board board, Card card, Tile tile, Hand hand, int handPosition, Player player) {
 		if (board == null || card == null || tile == null || hand == null) {
 			System.out.println("removeCardFromHandAndSummonUnit: One or more arguments are null");
 			return;
@@ -252,11 +252,13 @@ public class GameService {
 		BasicCommands.deleteCard(out, handPosition + 1);
 		hand.removeCardAtPosition(handPosition);
 
-		// update the positions of the remaining cards
-		updateHandPositions(hand);
+		// update the positions of the remaining cards if the player is human
+		if (player instanceof HumanPlayer) {
+			updateHandPositions(hand);
+		}
 
 		// summon unit (should handle ids differently)
-		Unit unit = loadUnit(card.getUnitConfig(), 3, Unit.class);
+		Unit unit = loadUnit(card.getUnitConfig(), card.getId(), Unit.class);
 		if (unit == null) {
 			System.out.println("removeCardFromHandAndSummonUnit: Failed to load unit");
 			return;
@@ -264,7 +266,11 @@ public class GameService {
 
         // set unit position
         tile.setUnit(unit);
+		System.out.println("Summoning " + unit + " to tile " + tile.getTilex() + ", " + tile.getTiley());
         unit.setPositionByTile(tile);
+		unit.setOwner(player);
+		System.out.println("Tile " + tile.getTilex() + ", " + tile.getTiley() + " is occupied: " + tile.isOccupied() +
+				" by " + tile.getUnit() + " which belongs to " + tile.getUnit().getOwner());
 
         // remove highlight from all tiles
         removeHighlightFromAll(board);

@@ -15,4 +15,9 @@ public class AIPlayer extends Player {
 		endTurn.processEvent(out, gameState, message);
 	}
 
+	@Override
+	public String toString() {
+		return "AIPlayer";
+	}
+
 }

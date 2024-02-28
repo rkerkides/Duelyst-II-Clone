@@ -51,7 +51,7 @@ public class TileClicked implements EventProcessor{
 			if (gameState.gameService.isValidSummon(gameState.currentCardClicked, tile)) {
 				gameState.gameService.removeCardFromHandAndSummonUnit
 						(gameState.getBoard(), gameState.currentCardClicked,
-						tile, gameState.currentPlayer.getHand(), gameState.currentCardPosition);
+						tile, gameState.currentPlayer.getHand(), gameState.currentCardPosition, gameState.currentPlayer);
 				gameState.currentCardClicked = null;
 			} else {
 				gameState.gameService.removeHighlightFromAll(gameState.getBoard());
