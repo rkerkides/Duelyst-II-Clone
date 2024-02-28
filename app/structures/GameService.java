@@ -32,6 +32,18 @@ public class GameService {
 		}
 	}
 
+	public void updatePlayerMana(Player player, int newMana){
+		// Set the new mana value on the player object first
+		player.setMana(newMana);
+
+		// Now update the mana on the frontend using the BasicCommands
+		if (player instanceof HumanPlayer){
+			BasicCommands.setPlayer1Mana(out, player);
+		} else {
+			BasicCommands.setPlayer2Mana(out, player);
+		}
+	}
+
 	// initial board setup
 	public Board loadBoard() {
 		Board board = new Board();
@@ -248,6 +260,16 @@ public class GameService {
 			return;
 		}
 
+		// check if enough mana
+		if (player.getMana() < card.getManacost()) {
+			BasicCommands.addPlayer1Notification(out, "Not enough mana to summon " + card.getCardname(), 2);
+			return;
+		}
+
+		// update player mana
+		player.setMana(player.getMana() - card.getManacost());
+		BasicCommands.setPlayer1Mana(out, player);
+
 		// remove card from hand
 		BasicCommands.deleteCard(out, handPosition + 1);
 		hand.removeCardAtPosition(handPosition);
@@ -257,7 +279,7 @@ public class GameService {
 			updateHandPositions(hand);
 		}
 
-		// summon unit (should handle ids differently)
+		// summon unit
 		Unit unit = loadUnit(card.getUnitConfig(), card.getId(), Unit.class);
 		if (unit == null) {
 			System.out.println("removeCardFromHandAndSummonUnit: Failed to load unit");
@@ -266,17 +288,21 @@ public class GameService {
 
         // set unit position
         tile.setUnit(unit);
-		System.out.println("Summoning " + unit + " to tile " + tile.getTilex() + ", " + tile.getTiley());
         unit.setPositionByTile(tile);
 		unit.setOwner(player);
-		System.out.println("Tile " + tile.getTilex() + ", " + tile.getTiley() + " is occupied: " + tile.isOccupied() +
-				" by " + tile.getUnit() + " which belongs to " + tile.getUnit().getOwner());
 
         // remove highlight from all tiles
         removeHighlightFromAll(board);
 
+
+		// for now, set health and attack to default values
+		// doesn't seem to work, idk why
+		BasicCommands.setUnitHealth(out, unit, 20);
+		BasicCommands.setUnitAttack(out, unit, 10);
+
         // draw unit on new tile
         BasicCommands.drawUnit(out, unit, tile);
+
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {

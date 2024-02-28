@@ -37,6 +37,10 @@ public class TileClicked implements EventProcessor{
 
 		// Process event based on tile's unit and ownership
 		if (tile.isOccupied() && tile.getUnit().getOwner() == gameState.currentPlayer) {
+			// Unhighlight all tiles if a unit is already clicked
+			if (gameState.currentUnitClicked != null) {
+				gameState.gameService.removeHighlightFromAll(gameState.getBoard());
+			}
 			Unit unit = tile.getUnit();
 			gameState.currentUnitClicked = unit;
 			// Highlight move range if unit has not moved this turn
@@ -58,10 +62,14 @@ public class TileClicked implements EventProcessor{
 			}
 		}
 
+		// Print the current unit clicked for debugging
 		System.out.println("Unit clicked: " + gameState.currentUnitClicked);
+
+
 		// Handle movement if last event was a tile click and the current unit clicked is not null
 		if (gameState.lastEvent.equals("tileclicked") && gameState.currentUnitClicked != null) {
 			if (!tile.isOccupied() && gameState.currentUnitClicked.getOwner() == gameState.currentPlayer) {
+				// Move the unit if the tile is highlighted
 				if (gameState.gameService.isValidMove(gameState.currentUnitClicked, tile)) {
 					gameState.gameService.updateUnitPositionAndMove(gameState.currentUnitClicked, tile, gameState.getBoard());
 					gameState.currentUnitClicked.setMovedThisTurn(true);
