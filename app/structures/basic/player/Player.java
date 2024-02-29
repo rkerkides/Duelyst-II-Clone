@@ -15,7 +15,7 @@ public abstract class Player {
 	protected int health;
 	protected int mana;
 	protected Hand hand;
-	private int turn;
+	private int turn = 1;
 	private Deck deck;
 
 	public Player() {
