@@ -53,6 +53,7 @@ public class GameService {
 				tile.setHighlightMode(0);
 				board.setTile(tile, i, j);
 				BasicCommands.drawTile(out, tile, 0);
+				try {Thread.sleep(10);} catch (InterruptedException e) {e.printStackTrace();}
 			}
 		}
 		return board;
