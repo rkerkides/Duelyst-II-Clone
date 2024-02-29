@@ -37,7 +37,7 @@ public class GameState {
 
 	// Entity objects that are part of the game state
 	public GameService gameService;
-	private HumanPlayer human;
+	private Player human;
 
 	private Player ai;
 	private Board board;
