@@ -27,6 +27,7 @@ public class CardClicked implements EventProcessor{
 		int handPosition = message.get("position").asInt();
 
 		CardAction cardAction = new CardAction(gameState, handPosition);
+		
 		cardAction.creaturePreAction();	
 	}
 
