@@ -2,6 +2,7 @@ package utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import structures.basic.cards.Card;
@@ -23,13 +24,15 @@ public class OrderedCardLoader {
 	public static List<Card> getPlayer1Cards(int copies) {
 	
 		List<Card> cardsInDeck = new ArrayList<Card>(20);
-		
-		int cardID = 1;
+		int counter = 0;	
 		for (int i =0; i<copies; i++) {
-			for (String filename : new File(cardsDIR).list()) {
+			String[] filenames = new File(cardsDIR).list();
+			Arrays.sort(filenames);
+			for (String filename :filenames) {
 				if (filename.startsWith("1_")) {
 					// this is a deck 1 card
-					cardsInDeck.add(BasicObjectBuilders.loadCard(cardsDIR+filename, cardID, Card.class));
+					System.out.println(filename);
+					cardsInDeck.add(BasicObjectBuilders.loadCard(cardsDIR+filename, counter++, Card.class));
 				}
 			}
 		}
@@ -46,13 +49,15 @@ public class OrderedCardLoader {
 	public static List<Card> getPlayer2Cards(int copies) {
 	
 		List<Card> cardsInDeck = new ArrayList<Card>(20);
+		int counter = 0;	
 		
-		int cardID = 1;
 		for (int i =0; i<copies; i++) {
+			String[] filenames = new File(cardsDIR).list();
+			Arrays.sort(filenames);
 			for (String filename : new File(cardsDIR).list()) {
 				if (filename.startsWith("2_")) {
 					// this is a deck 2 card
-					cardsInDeck.add(BasicObjectBuilders.loadCard(cardsDIR+filename, cardID, Card.class));
+					cardsInDeck.add(BasicObjectBuilders.loadCard(cardsDIR+filename, counter++, Card.class));
 				}
 			}
 		}

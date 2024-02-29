@@ -18,7 +18,14 @@ public abstract class Player {
 	private int turn;
 	private Deck deck;
 
-
+	public Player() {
+		super();
+		this.health = 20;
+		this.mana = 0;
+		this.hand = new Hand();
+		this.deck=new Deck(this);
+	}
+	
 	public Deck getDeck() {
 		return deck;
 	}
@@ -39,13 +46,6 @@ public abstract class Player {
 		this.turn++;
 	}
 
-	public Player() {
-		super();
-		this.health = 20;
-		this.mana = 0;
-		this.hand = new Hand();
-		this.deck=new Deck(this);
-	}
 
 	public Player(int health, int mana) {
 		super();
