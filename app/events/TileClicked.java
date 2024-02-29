@@ -27,6 +27,11 @@ public class TileClicked implements EventProcessor{
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 
+		// Ignore events when the AI is taking its turn
+		if (gameState.getCurrentPlayer().equals(gameState.getAi())) {
+			return;
+		}
+
 		System.out.println("Last event" + " -> tileclicked");
 
 		int tilex = message.get("tilex").asInt();
