@@ -11,17 +11,17 @@ public class CardAction {
     };
     public void preAction() {
 		// Set the current card clicked to the card at the specified position in the player's hand
-		gameState.currentCardClicked = gameState.currentPlayer.getHand().getCardAtPosition(handPosition);
+		gameState.setCurrentCardClicked(gameState.getCurrentPlayer().getHand().getCardAtPosition(handPosition));
 
 		// Mark the position of the card clicked
-		gameState.currentCardPosition = handPosition;
+		gameState.setCurrentCardPosition(handPosition);
 
     }
 
     public void creaturePreAction() {
         preAction();
 		// Highlight the summon range of the current card clicked
-		gameState.gameService.highlightSummonRange(gameState.currentCardClicked, gameState.getBoard(), gameState.getHuman());
+		gameState.gameService.highlightSummonRange(gameState.getCurrentCardClicked(), gameState.getBoard(), gameState.getHuman());
     }
 
 }

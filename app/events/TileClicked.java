@@ -36,13 +36,13 @@ public class TileClicked implements EventProcessor{
 		Tile tile = gameState.getBoard().getTile(tilex, tiley);
 
 		// Process event based on tile's unit and ownership
-		if (tile.isOccupied() && tile.getUnit().getOwner() == gameState.currentPlayer) {
+		if (tile.isOccupied() && tile.getUnit().getOwner() == gameState.getCurrentPlayer()) {
 			// Unhighlight all tiles if a unit is already clicked
-			if (gameState.currentUnitClicked != null) {
+			if (gameState.getCurrentUnitClicked() != null) {
 				gameState.gameService.removeHighlightFromAll(gameState.getBoard());
 			}
 			Unit unit = tile.getUnit();
-			gameState.currentUnitClicked = unit;
+			gameState.setCurrentUnitClicked(unit);
 			// Highlight move range if unit has not moved this turn
 			if (!unit.isMovedThisTurn()) {
 				gameState.gameService.highlightMoveRange(unit, gameState.getBoard());
@@ -50,45 +50,45 @@ public class TileClicked implements EventProcessor{
 		}
 
 		// Summon unit if last event was a card click and the current tile is highlighted
-		if (gameState.lastEvent.equals("cardclicked") && gameState.currentCardClicked != null) {
-			System.out.println("Trying to summon " + gameState.currentCardClicked.getCardname() + " to tile " + tilex + ", " + tiley);
-			if (gameState.gameService.isValidSummon(gameState.currentCardClicked, tile)) {
+		if (gameState.lastEvent.equals("cardclicked") && gameState.getCurrentCardClicked() != null) {
+			System.out.println("Trying to summon " + gameState.getCurrentCardClicked().getCardname() + " to tile " + tilex + ", " + tiley);
+			if (gameState.gameService.isValidSummon(gameState.getCurrentCardClicked(), tile)) {
 				gameState.gameService.removeCardFromHandAndSummonUnit
-						(gameState.getBoard(), gameState.currentCardClicked,
-						tile, gameState.currentPlayer.getHand(), gameState.currentCardPosition, gameState.currentPlayer);
-				gameState.currentCardClicked = null;
+						(gameState.getBoard(), gameState.getCurrentCardClicked(),
+						tile, gameState.getCurrentPlayer().getHand(), gameState.getCurrentCardPosition(), gameState.getCurrentPlayer());
+				gameState.setCurrentCardClicked(null);
 			} else {
 				gameState.gameService.removeHighlightFromAll(gameState.getBoard());
 			}
 		}
 
 		// Print the current unit clicked for debugging
-		System.out.println("Unit clicked: " + gameState.currentUnitClicked);
+		System.out.println("Unit clicked: " + gameState.getCurrentUnitClicked());
 
 
 		// Handle movement if last event was a tile click and the current unit clicked is not null
-		if (gameState.lastEvent.equals("tileclicked") && gameState.currentUnitClicked != null) {
-			if (!tile.isOccupied() && gameState.currentUnitClicked.getOwner() == gameState.currentPlayer) {
+		if (gameState.lastEvent.equals("tileclicked") && gameState.getCurrentUnitClicked() != null) {
+			if (!tile.isOccupied() && gameState.getCurrentUnitClicked().getOwner() == gameState.getCurrentPlayer()) {
 				// Move the unit if the tile is highlighted
-				if (gameState.gameService.isValidMove(gameState.currentUnitClicked, tile)) {
-					gameState.gameService.updateUnitPositionAndMove(gameState.currentUnitClicked, tile, gameState.getBoard());
-					gameState.currentUnitClicked.setMovedThisTurn(true);
+				if (gameState.gameService.isValidMove(gameState.getCurrentUnitClicked(), tile)) {
+					gameState.gameService.updateUnitPositionAndMove(gameState.getCurrentUnitClicked(), tile, gameState.getBoard());
+					gameState.getCurrentUnitClicked().setMovedThisTurn(true);
 				} else {
 					gameState.gameService.removeHighlightFromAll(gameState.getBoard());
 				}
-				gameState.currentUnitClicked = null;
+				gameState.setCurrentUnitClicked(null);
 			}
 			/*if (tile.isOccupied() && tile.getUnit().getOwner() != gameState.currentPlayer) {
 				// Attack the enemy unit if it's within attack range
-				if (gameState.gameService.isValidAttack(gameState.currentUnitClicked, tile.getUnit())) {
-					gameState.gameService.attack(gameState.currentUnitClicked, tile.getUnit(), gameState.getBoard());
+				if (gameState.gameService.isValidAttack(gameState.getCurrentUnitClicked(), tile.getUnit())) {
+					gameState.gameService.attack(gameState.getCurrentUnitClicked(), tile.getUnit(), gameState.getBoard());
 					// or move and attack
-					gameState.gameService.moveAndAttack(gameState.currentUnitClicked, tile.getUnit(), gameState.getBoard());
-					gameState.currentUnitClicked.setAttackedThisTurn(true);
+					gameState.gameService.moveAndAttack(gameState.getCurrentUnitClicked(), tile.getUnit(), gameState.getBoard());
+					gameState.getCurrentUnitClicked().setAttackedThisTurn(true);
 				} else {
 					gameState.gameService.removeHighlightFromAll(gameState.getBoard());
 				}
-				gameState.currentUnitClicked = null;
+				gameState.getCurrentUnitClicked() = null;
 			}*/
 		}
 	}

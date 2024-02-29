@@ -23,17 +23,17 @@ public class GameState {
 	public boolean gameInitalised = false;
 
 	// Keep track of the player currently taking their turn
-	public Player currentPlayer;
+	private Player currentPlayer;
 
 	// Keep track of the unit that is currently clicked
-	public Unit currentUnitClicked;
+	private Unit currentUnitClicked;
 	// Keep track of the card that is currently clicked
-	public Card currentCardClicked;
+	private Card currentCardClicked;
 	// Keep track of the position of the card that is currently clicked
-	public int currentCardPosition;
+	private int currentCardPosition;
 
 	// Keep track of the previous plays of the current turn
-	public Stack<String> previousPlays;
+	private Stack<String> previousPlays;
 
 	// Entity objects that are part of the game state
 	public GameService gameService;
@@ -127,6 +127,50 @@ public class GameState {
 
 	public Player getAi() {
 		return this.ai;
+	}
+
+	public Player getCurrentPlayer() {
+		return currentPlayer;
+	}
+
+	public void setCurrentPlayer(Player player) {
+		currentPlayer = player;
+	}
+
+	public Unit getCurrentUnitClicked() {
+		return currentUnitClicked;
+	}
+
+	public void setCurrentUnitClicked(Unit unit) {
+		currentUnitClicked = unit;
+	}
+
+	public Card getCurrentCardClicked() {
+		return currentCardClicked;
+	}
+
+	public void setCurrentCardClicked(Card card) {
+		currentCardClicked = card;
+	}
+
+	public int getCurrentCardPosition() {
+		return currentCardPosition;
+	}
+
+	public void setCurrentCardPosition(int position) {
+		currentCardPosition = position;
+	}
+
+	public Stack<String> getPreviousPlays() {
+		return previousPlays;
+	}
+
+	public void addPreviousPlay(String play) {
+		previousPlays.add(play);
+	}
+
+	public void removePreviousPlay() {
+		previousPlays.pop();
 	}
 
 	/**
