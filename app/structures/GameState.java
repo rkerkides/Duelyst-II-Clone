@@ -8,6 +8,9 @@ import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 
+import java.util.List;
+import java.util.Stack;
+
 /**
  * This class can be used to hold information about the on-going game. Its
  * created with the GameActor.
@@ -29,8 +32,8 @@ public class GameState {
 	// Keep track of the position of the card that is currently clicked
 	public int currentCardPosition;
 
-	// Keep track of the last event that was processed
-	public String lastEvent;
+	// Keep track of the previous plays of the current turn
+	public Stack<String> previousPlays;
 
 	// Entity objects that are part of the game state
 	public GameService gameService;
@@ -49,6 +52,9 @@ public class GameState {
 	public void init(ActorRef out) {
 		this.gameService = new GameService(out);
 		this.board = gameService.loadBoard();
+
+		// Initiliaze list of previous plays
+		this.previousPlays = new Stack<>();
 
 		// Create the human and AI players
 		this.human = new HumanPlayer();
