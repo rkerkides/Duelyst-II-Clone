@@ -33,7 +33,7 @@ public class GameState {
 	private int currentCardPosition;
 
 	// Keep track of the previous plays of the current turn
-	private Stack<String> actionHistory;
+	private Stack<Actionable> actionHistory;
 	// Keep track of the total number of units on the board
 	private int totalUnits = 0;
 
@@ -163,11 +163,11 @@ public class GameState {
 		currentCardPosition = position;
 	}
 
-	public Stack<String> getActionHistory() {
+	public Stack<Actionable> getActionHistory() {
 		return actionHistory;
 	}
 
-	public void addActionToHistory(String action) {
+	public void addActionToHistory(Actionable action) {
 		actionHistory.add(action);
 	}
 
