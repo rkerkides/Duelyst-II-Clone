@@ -1,6 +1,7 @@
 package structures.basic.cards;
 
 
+import structures.basic.Actionable;
 import structures.basic.BigCard;
 import structures.basic.MiniCard;
 import structures.basic.player.Player;
@@ -14,7 +15,7 @@ import structures.basic.player.Player;
  * @author Dr. Richard McCreadie
  *
  */
-public class Card {
+public class Card implements Actionable {
 	
 	int id;
 	

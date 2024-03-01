@@ -17,7 +17,7 @@ import structures.basic.player.Player;
  * @author Dr. Richard McCreadie
  *
  */
-public class Unit {
+public class Unit implements Actionable {
 
 	@JsonIgnore
 	protected static ObjectMapper mapper = new ObjectMapper(); // Jackson Java Object Serializer, is used to read java

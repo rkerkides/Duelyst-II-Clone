@@ -34,6 +34,9 @@ public class EndTurnClicked implements EventProcessor{
 			}
 		}
 
+		// Clear the action history, as the turn has ended
+		gameState.getActionHistory().clear();
+
 		if (gameState.getCurrentPlayer() instanceof AIPlayer) {
 			((AIPlayer) gameState.getCurrentPlayer()).takeTurn(out, gameState, message);
 		}

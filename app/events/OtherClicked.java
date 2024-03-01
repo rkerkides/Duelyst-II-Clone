@@ -26,7 +26,11 @@ public class OtherClicked implements EventProcessor{
 			return;
 		}
 
+		// Clear all highlighted tiles
+		gameState.gameService.removeHighlightFromAll(gameState.getBoard());
 
+		// Remove the previous action
+		gameState.getActionHistory().pop();
 
 	}
 

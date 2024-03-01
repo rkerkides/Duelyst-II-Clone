@@ -33,7 +33,7 @@ public class GameState {
 	private int currentCardPosition;
 
 	// Keep track of the previous plays of the current turn
-	private Stack<String> previousPlays;
+	private Stack<String> actionHistory;
 	// Keep track of the total number of units on the board
 	private int totalUnits = 0;
 
@@ -55,8 +55,8 @@ public class GameState {
 		this.gameService = new GameService(out, this);
 		this.board = gameService.loadBoard();
 
-		// Initiliaze list of previous plays
-		this.previousPlays = new Stack<>();
+		// Initialize stack of action history
+		this.actionHistory = new Stack<>();
 
 		// Create the human and AI players
 		this.human = new HumanPlayer();
@@ -163,16 +163,16 @@ public class GameState {
 		currentCardPosition = position;
 	}
 
-	public Stack<String> getPreviousPlays() {
-		return previousPlays;
+	public Stack<String> getActionHistory() {
+		return actionHistory;
 	}
 
-	public void addPreviousPlay(String play) {
-		previousPlays.add(play);
+	public void addActionToHistory(String action) {
+		actionHistory.add(action);
 	}
 
-	public void removePreviousPlay() {
-		previousPlays.pop();
+	public void removeFromActionHistory() {
+		actionHistory.pop();
 	}
 
 	public int getTotalUnits() {
