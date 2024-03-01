@@ -1,5 +1,6 @@
 package structures.basic.player;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import structures.basic.*;
 import structures.basic.cards.Card;
 import akka.actor.ActorRef;
@@ -15,8 +16,10 @@ public abstract class Player {
 	protected int health;
 	protected int mana;
 	protected Hand hand;
-	private int turn = 1;
-	private Deck deck;
+	protected int turn = 1;
+	protected Deck deck;
+	@JsonManagedReference
+	protected Unit avatar;
 
 	public Player() {
 		super();
@@ -67,6 +70,14 @@ public abstract class Player {
 
 	public void setMana(int mana) {
 		this.mana = mana;
+	}
+
+	public Unit getAvatar() {
+		return avatar;
+	}
+
+	public void setAvatar(Unit avatar) {
+		this.avatar = avatar;
 	}
 
 	public Card drawCard() {

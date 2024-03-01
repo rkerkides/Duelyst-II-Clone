@@ -1,5 +1,6 @@
 package structures.basic;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,6 +29,7 @@ public class Unit {
 	UnitAnimationSet animations;
 	ImageCorrection correction;
 	// Keep track of the owner of the unit
+	@JsonBackReference
 	Player owner;
 	// Keep track of whether the unit has moved in the current turn
 	boolean movedThisTurn = false;

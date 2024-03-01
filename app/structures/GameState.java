@@ -34,6 +34,8 @@ public class GameState {
 
 	// Keep track of the previous plays of the current turn
 	private Stack<String> previousPlays;
+	// Keep track of the total number of units on the board
+	private int totalUnits = 0;
 
 	// Entity objects that are part of the game state
 	public GameService gameService;
@@ -50,7 +52,7 @@ public class GameState {
 	 */
 
 	public void init(ActorRef out) {
-		this.gameService = new GameService(out);
+		this.gameService = new GameService(out, this);
 		this.board = gameService.loadBoard();
 
 		// Initiliaze list of previous plays
@@ -171,6 +173,18 @@ public class GameState {
 
 	public void removePreviousPlay() {
 		previousPlays.pop();
+	}
+
+	public int getTotalUnits() {
+		return totalUnits;
+	}
+
+	public void addToTotalUnits(int numberToAdd) {
+		this.totalUnits += numberToAdd;
+	}
+
+	public void removeFromTotalUnits(int numberToRemove) {
+		this.totalUnits -= numberToRemove;
 	}
 
 	/**

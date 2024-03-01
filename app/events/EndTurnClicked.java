@@ -22,11 +22,6 @@ public class EndTurnClicked implements EventProcessor{
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 
-		// Ignore events when the AI is taking its turn
-		if (gameState.getCurrentPlayer().equals(gameState.getAi())) {
-			return;
-		}
-
 		gameState.endTurn();
 
 		// Reset all units' movedThisTurn status and unhighlight all tiles

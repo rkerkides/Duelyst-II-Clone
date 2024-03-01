@@ -14,10 +14,12 @@ import static utils.BasicObjectBuilders.loadUnit;
 
 public class GameService {
 	private ActorRef out;
+	private GameState gs;
 	
 
-	public GameService(ActorRef out) {
+	public GameService(ActorRef out, GameState gs) {
 		this.out = out;
+		this.gs = gs;
 	}
 
 	public void updatePlayerHealth(Player player, int newHealth){
@@ -53,7 +55,7 @@ public class GameService {
 				tile.setHighlightMode(0);
 				board.setTile(tile, i, j);
 				BasicCommands.drawTile(out, tile, 0);
-				try {Thread.sleep(10);} catch (InterruptedException e) {e.printStackTrace();}
+				try {Thread.sleep(5);} catch (InterruptedException e) {e.printStackTrace();}
 			}
 		}
 		return board;
@@ -76,6 +78,8 @@ public class GameService {
 		BasicCommands.drawUnit(out, avatar, avatarTile);
 		avatar.setOwner(player);
 		avatarTile.setUnit(avatar);
+		player.setAvatar(avatar);
+		gs.addToTotalUnits(1);
 	}
 
 	// remove highlight from all tiles

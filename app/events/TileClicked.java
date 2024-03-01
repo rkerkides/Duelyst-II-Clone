@@ -32,7 +32,7 @@ public class TileClicked implements EventProcessor{
 			return;
 		}
 
-		System.out.println("Last event" + " -> tileclicked");
+		/*System.out.println("Last event" + " -> tileclicked");
 
 		int tilex = message.get("tilex").asInt();
 		int tiley = message.get("tiley").asInt();
@@ -83,7 +83,7 @@ public class TileClicked implements EventProcessor{
 				}
 				gameState.setCurrentUnitClicked(null);
 			}
-			/*if (tile.isOccupied() && tile.getUnit().getOwner() != gameState.currentPlayer) {
+			*//*if (tile.isOccupied() && tile.getUnit().getOwner() != gameState.currentPlayer) {
 				// Attack the enemy unit if it's within attack range
 				if (gameState.gameService.isValidAttack(gameState.getCurrentUnitClicked(), tile.getUnit())) {
 					gameState.gameService.attack(gameState.getCurrentUnitClicked(), tile.getUnit(), gameState.getBoard());
@@ -97,5 +97,3 @@ public class TileClicked implements EventProcessor{
 			}*/
 		}
 	}
-
-}
