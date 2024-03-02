@@ -34,7 +34,7 @@ public class Tile {
 	private Unit unit;
 	// Flag to check the current mode of the tile
 	// i.e., 0: normal, 1: white-highlighted, 2: red-highlighted
-	private int highlightMode;
+	private int highlightMode = 0;
 	// tracks occupied tiles
 	private boolean occupied = false;
 

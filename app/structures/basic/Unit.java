@@ -33,6 +33,8 @@ public class Unit implements Actionable {
 	Player owner;
 	// Keep track of whether the unit has moved in the current turn
 	boolean movedThisTurn = false;
+	// Keep track of whether the unit has attacked in the current turn
+	boolean attackedThisTurn = false;
 
 	public Unit() {
 	}
@@ -116,12 +118,20 @@ public class Unit implements Actionable {
 		this.owner = owner;
 	}
 
-	public boolean isMovedThisTurn() {
+	public boolean movedThisTurn() {
 		return movedThisTurn;
 	}
 
 	public void setMovedThisTurn(boolean movedThisTurn) {
 		this.movedThisTurn = movedThisTurn;
+	}
+
+	public boolean attackedThisTurn() {
+		return attackedThisTurn;
+	}
+
+	public void setAttackedThisTurn(boolean attackedThisTurn) {
+		this.attackedThisTurn = attackedThisTurn;
 	}
 
 	/**

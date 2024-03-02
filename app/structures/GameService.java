@@ -13,8 +13,8 @@ import utils.StaticConfFiles;
 import static utils.BasicObjectBuilders.loadUnit;
 
 public class GameService {
-	private ActorRef out;
-	private GameState gs;
+	private final ActorRef out;
+	private final GameState gs;
 	
 
 	public GameService(ActorRef out, GameState gs) {
@@ -83,7 +83,8 @@ public class GameService {
 	}
 
 	// remove highlight from all tiles
-	public void removeHighlightFromAll(Board board) {
+	public void removeHighlightFromAll() {
+		Board board = gs.getBoard();
 		Tile[][] tiles = board.getTiles();
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 5; j++) {
@@ -96,9 +97,11 @@ public class GameService {
 		}
 	}
 
-	// highlight tiles for movement
-	public void highlightMoveRange(Unit unit, Board board) {
+	// highlight tiles for movement and attacking
+	public void highlightMoveAndAttackRange(Unit unit) {
+		Board board = gs.getBoard();
 		Tile[][] tiles = board.getTiles();
+
 		int baseX = unit.getPosition().getTilex();
 		int baseY = unit.getPosition().getTiley();
 
@@ -128,12 +131,58 @@ public class GameService {
 				// Handle differential highlighting for tiles with units
 				if (targetTile.isOccupied()) {
 					if (targetTile.getUnit().getOwner() == unit.getOwner()) {
-						continue; // Skip tiles with friendly units
+						// Leave tiles with friendly units unhighlighted
 					} else {
+						// Highlight tiles with enemy units for attack
 						updateTileHighlight(targetTile, 2);
 					}
 				} else {
+					// Highlight empty tiles for movement
 					updateTileHighlight(targetTile, 1);
+				}
+			}
+		}
+	}
+
+	// highlight tiles for attacking only
+	public void highlightAttackRange(Unit unit) {
+		Board board = gs.getBoard();
+		Tile[][] tiles = board.getTiles();
+
+		int baseX = unit.getPosition().getTilex();
+		int baseY = unit.getPosition().getTiley();
+
+		// Loop to cover 2 tiles in each direction and 1 tile diagonally
+		for (int x = -2; x <= 2; x++) {
+			for (int y = -2; y <= 2; y++) {
+				// Check for diagonal movement (skip tiles that are 2 tiles away diagonally)
+				if (Math.abs(x) == 2 && Math.abs(y) == 2)
+					continue;
+				if (Math.abs(x) == 2 && Math.abs(y) == 1)
+					continue;
+				if (Math.abs(x) == 1 && Math.abs(y) == 2)
+					continue;
+
+				// Calculate the target tile's coordinates
+				int targetX = baseX + x;
+				int targetY = baseY + y;
+
+				// Check if coordinates are within board bounds
+				if (targetX < 0 || targetY < 0 || targetX >= 9 || targetY >= 5) {
+					continue; // Skip tiles outside the board bounds
+				}
+
+				// Retrieve the tile if it's within the board bounds
+				Tile targetTile = tiles[targetX][targetY];
+
+				// Handle differential highlighting for tiles with units
+				if (targetTile.isOccupied()) {
+					if (targetTile.getUnit().getOwner() == unit.getOwner()) {
+						// Leave tiles with friendly units unhighlighted
+					} else {
+						// Highlight tiles with enemy units for attack
+						updateTileHighlight(targetTile, 2);
+					}
 				}
 			}
 		}
@@ -214,10 +263,13 @@ public class GameService {
 	public boolean isValidMove(Unit unit, Tile tile) {
 		// depending on unit, this may change
 		// for now, all units can move to tiles highlighted white
+		System.out.println("isValidMove: " + tile.getHighlightMode());
 		return tile.getHighlightMode() == 1;
 	}
 
-	public void updateUnitPositionAndMove(Unit unit, Tile newTile, Board board) {
+	public void updateUnitPositionAndMove(Unit unit, Tile newTile) {
+		Board board = gs.getBoard();
+
 		// get position of unit and find the tile it is on
 		Position position = unit.getPosition();
 		Tile currentTile = board.getTile(position.getTilex(), position.getTiley());
@@ -228,7 +280,7 @@ public class GameService {
 		unit.setPositionByTile(newTile);
 
 		// remove highlight from all tiles
-		removeHighlightFromAll(board);
+		removeHighlightFromAll();
 
 		// draw unit on new tile and wait for animation to play out
 		BasicCommands.moveUnitToTile(out, unit, newTile);
@@ -255,7 +307,13 @@ public class GameService {
 	}
 
     // remove card from hand and summon unit
-    public void removeCardFromHandAndSummonUnit(Board board, Card card, Tile tile, Hand hand, int handPosition, Player player) {
+    public void removeCardFromHandAndSummonUnit(Card card, Tile tile) {
+		Board board = gs.getBoard();
+		Player player = gs.getCurrentPlayer();
+		Hand hand = player.getHand();
+		int handPosition = gs.getCurrentCardPosition();
+
+		// check if any of the required parameters are null
 		if (board == null || card == null || tile == null || hand == null) {
 			System.out.println("removeCardFromHandAndSummonUnit: One or more arguments are null");
 			return;
@@ -297,7 +355,7 @@ public class GameService {
 		unit.setOwner(player);
 
         // remove highlight from all tiles
-        removeHighlightFromAll(board);
+        removeHighlightFromAll();
 
 
 		// for now, set health and attack to default values

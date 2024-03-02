@@ -4,9 +4,13 @@ package events;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import akka.actor.ActorRef;
+import commands.BasicCommands;
 import structures.GameState;
 import structures.basic.Tile;
 import structures.basic.Unit;
+import structures.basic.cards.Card;
+import structures.basic.cards.CreatureCard;
+import structures.basic.cards.SpellCard;
 
 /**
  * Indicates that the user has clicked an object on the game canvas, in this case a tile.
@@ -22,7 +26,7 @@ import structures.basic.Unit;
  * @author Dr. Richard McCreadie
  *
  */
-public class TileClicked implements EventProcessor{
+public class TileClicked implements EventProcessor {
 
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
@@ -32,68 +36,100 @@ public class TileClicked implements EventProcessor{
 			return;
 		}
 
-		/*System.out.println("Last event" + " -> tileclicked");
-
 		int tilex = message.get("tilex").asInt();
 		int tiley = message.get("tiley").asInt();
-
-		// find the tile that was clicked
 		Tile tile = gameState.getBoard().getTile(tilex, tiley);
 
-		// Process event based on tile's unit and ownership
-		if (tile.isOccupied() && tile.getUnit().getOwner() == gameState.getCurrentPlayer()) {
-			// Unhighlight all tiles if a unit is already clicked
-			if (gameState.getCurrentUnitClicked() != null) {
-				gameState.gameService.removeHighlightFromAll(gameState.getBoard());
-			}
-			Unit unit = tile.getUnit();
-			gameState.setCurrentUnitClicked(unit);
-			// Highlight move range if unit has not moved this turn
-			if (!unit.isMovedThisTurn()) {
-				gameState.gameService.highlightMoveRange(unit, gameState.getBoard());
-			}
-		}
+		// Check if there's an action in history
+		if (!gameState.getActionHistory().isEmpty()) {
+			Object lastAction = gameState.getActionHistory().peek();
 
-		// Summon unit if last event was a card click and the current tile is highlighted
-		if (gameState.lastEvent.equals("cardclicked") && gameState.getCurrentCardClicked() != null) {
-			System.out.println("Trying to summon " + gameState.getCurrentCardClicked().getCardname() + " to tile " + tilex + ", " + tiley);
-			if (gameState.gameService.isValidSummon(gameState.getCurrentCardClicked(), tile)) {
-				gameState.gameService.removeCardFromHandAndSummonUnit
-						(gameState.getBoard(), gameState.getCurrentCardClicked(),
-						tile, gameState.getCurrentPlayer().getHand(), gameState.getCurrentCardPosition(), gameState.getCurrentPlayer());
-				gameState.setCurrentCardClicked(null);
-			} else {
-				gameState.gameService.removeHighlightFromAll(gameState.getBoard());
+			// Handle spell casting or unit interaction based on last action type
+			if (lastAction instanceof SpellCard) {
+				handleSpellCasting(gameState, (SpellCard) lastAction, tile);
+			} else if (lastAction instanceof Unit) {
+				handleUnitAction(gameState, (Unit) lastAction, tile);
+			} else if (lastAction instanceof CreatureCard) {
+				handleCardSummoning(gameState, (Card) lastAction, tile);
 			}
-		}
 
-		// Print the current unit clicked for debugging
-		System.out.println("Unit clicked: " + gameState.getCurrentUnitClicked());
-
-
-		// Handle movement if last event was a tile click and the current unit clicked is not null
-		if (gameState.lastEvent.equals("tileclicked") && gameState.getCurrentUnitClicked() != null) {
-			if (!tile.isOccupied() && gameState.getCurrentUnitClicked().getOwner() == gameState.getCurrentPlayer()) {
-				// Move the unit if the tile is highlighted
-				if (gameState.gameService.isValidMove(gameState.getCurrentUnitClicked(), tile)) {
-					gameState.gameService.updateUnitPositionAndMove(gameState.getCurrentUnitClicked(), tile, gameState.getBoard());
-					gameState.getCurrentUnitClicked().setMovedThisTurn(true);
-				} else {
-					gameState.gameService.removeHighlightFromAll(gameState.getBoard());
-				}
-				gameState.setCurrentUnitClicked(null);
+			// Clear last action if it's not related to current tile interaction
+			System.out.println("Popped " + gameState.getActionHistory().pop());;
+		} else {
+			// No prior action, check for unit on tile for possible movement or attack highlighting
+			if (tile.isOccupied() && tile.getUnit().getOwner() == gameState.getCurrentPlayer()) {
+				Unit unit = tile.getUnit();
+				highlightUnitActions(gameState, unit, tile);
+				gameState.getActionHistory().push(unit);
 			}
-			*//*if (tile.isOccupied() && tile.getUnit().getOwner() != gameState.currentPlayer) {
-				// Attack the enemy unit if it's within attack range
-				if (gameState.gameService.isValidAttack(gameState.getCurrentUnitClicked(), tile.getUnit())) {
-					gameState.gameService.attack(gameState.getCurrentUnitClicked(), tile.getUnit(), gameState.getBoard());
-					// or move and attack
-					gameState.gameService.moveAndAttack(gameState.getCurrentUnitClicked(), tile.getUnit(), gameState.getBoard());
-					gameState.getCurrentUnitClicked().setAttackedThisTurn(true);
-				} else {
-					gameState.gameService.removeHighlightFromAll(gameState.getBoard());
-				}
-				gameState.getCurrentUnitClicked() = null;
-			}*/
 		}
 	}
+
+
+	// Process spell casting based on target tile
+	private void handleSpellCasting(GameState gameState, SpellCard spellCard, Tile tile) {
+		// Spell casting logic
+		System.out.println("NO SPELL CASTING LOGIC IMPLEMENTED YET");
+	}
+
+	// Process unit move or attack based on targetTile's state
+	private void handleUnitAction(GameState gameState, Unit unit, Tile targetTile) {
+		// Ensure targetTile is not null before proceeding
+		if (targetTile == null) {
+			System.out.println("Target tile is null.");
+			gameState.gameService.removeHighlightFromAll();
+			return;
+		}
+
+		// Check if the tile is not occupied for a move action
+		if (!targetTile.isOccupied()) {
+			// Move unit if tile is valid for movement
+			if (gameState.gameService.isValidMove(unit, targetTile)) {
+				System.out.println("Moving unit " + unit.getId() + " to " + targetTile.getTilex() + ", " + targetTile.getTiley());
+				gameState.gameService.updateUnitPositionAndMove(unit, targetTile);
+				System.out.println("Unit " + unit.getId() + " moved to " + targetTile.getTilex() + ", " + targetTile.getTiley());
+				unit.setMovedThisTurn(true);
+			}
+		} else {
+			// Handle attack action if the tile is occupied by an enemy unit
+			if (targetTile.getHighlightMode() == 2) {
+				// Placeholder for attack logic
+				System.out.println("Attacking unit on tile " + targetTile.getTilex() + ", " + targetTile.getTiley());
+				// Implement attack logic here
+				System.out.println("NO ATTACK LOGIC IMPLEMENTED YET");
+			}
+		}
+
+		// Always remove highlight from all tiles after action
+		gameState.gameService.removeHighlightFromAll();
+	}
+
+
+	// Place unit card on board if tile is valid
+	private void handleCardSummoning(GameState gameState, Card card, Tile tile) {
+		if (gameState.gameService.isValidSummon(card, tile)) {
+			gameState.gameService.removeCardFromHandAndSummonUnit(card, tile);
+		} else {
+			gameState.gameService.removeHighlightFromAll();
+		}
+	}
+
+	// Highlight valid moves and attacks for unit
+	private void highlightUnitActions(GameState gameState, Unit unit, Tile tile) {
+		// Clear all highlighted tiles
+		gameState.gameService.removeHighlightFromAll();
+
+		// Highlight move and attack range based on unit's turn state
+		if (!unit.attackedThisTurn() && !unit.movedThisTurn()) {
+			gameState.gameService.highlightMoveAndAttackRange(unit);
+			for (int i = 0; i < gameState.getBoard().getTiles().length; i++) {
+				for (int j = 0; j < gameState.getBoard().getTiles()[i].length; j++) {
+					System.out.println("Tile " + i + ", " + j + " highlight mode: " + gameState.getBoard().getTiles()[i][j].getHighlightMode());
+				}
+			}
+		// Highlight attack range only, if unit has moved but not attacked
+		} else if (unit.movedThisTurn()) {
+			gameState.gameService.highlightAttackRange(unit);
+		}
+	}
+}

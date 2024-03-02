@@ -25,7 +25,7 @@ public class EndTurnClicked implements EventProcessor{
 		gameState.endTurn();
 
 		// Reset all units' movedThisTurn status and unhighlight all tiles
-		gameState.gameService.removeHighlightFromAll(gameState.getBoard());
+		gameState.gameService.removeHighlightFromAll();
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 5; j++) {
 				if (gameState.getBoard().getTile(i, j).isOccupied()) {
