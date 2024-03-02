@@ -28,6 +28,10 @@ public class Unit implements Actionable {
 	Position position;
 	UnitAnimationSet animations;
 	ImageCorrection correction;
+	// Keep track of the unit's health
+	int health;
+	// Keep track of the unit's attack
+	int attack;
 	// Keep track of the owner of the unit
 	@JsonBackReference
 	Player owner;
@@ -35,7 +39,6 @@ public class Unit implements Actionable {
 	boolean movedThisTurn = false;
 	// Keep track of whether the unit has attacked in the current turn
 	boolean attackedThisTurn = false;
-
 	public Unit() {
 	}
 
@@ -109,6 +112,21 @@ public class Unit implements Actionable {
 	public void setAnimations(UnitAnimationSet animations) {
 		this.animations = animations;
 	}
+	public int getHealth() {
+		return health;
+	}
+	public void setHealth(int health) {
+		this.health = health;
+	}
+
+	public int getAttack() {
+		return attack;
+	}
+
+	public void setAttack(int attack) {
+		this.attack = attack;
+	}
+
 
 	public Player getOwner() {
 		return owner;

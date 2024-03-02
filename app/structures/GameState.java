@@ -142,6 +142,13 @@ public class GameState {
 	public Unit getCurrentUnitClicked() {
 		return currentUnitClicked;
 	}
+	public Player getInactivePlayer() {
+		if (currentPlayer == human) {
+			return ai;
+		} else {
+			return human;
+		}
+	}
 
 	public void setCurrentUnitClicked(Unit unit) {
 		currentUnitClicked = unit;

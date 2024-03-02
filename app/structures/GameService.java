@@ -10,6 +10,9 @@ import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static utils.BasicObjectBuilders.loadUnit;
 
 public class GameService {
@@ -75,11 +78,28 @@ public class GameService {
 			avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
 		}
 		avatar.setPositionByTile(avatarTile);
+		avatarTile.setUnit(avatar);
 		BasicCommands.drawUnit(out, avatar, avatarTile);
 		avatar.setOwner(player);
-		avatarTile.setUnit(avatar);
 		player.setAvatar(avatar);
+		player.addUnit(avatar);
 		gs.addToTotalUnits(1);
+		updateUnitHealth(avatar, 20);
+		updateUnitAttack(avatar, 2);
+	}
+
+	// Update a unit's health on the board
+	public void updateUnitHealth(Unit unit, int newHealth) {
+		try {Thread.sleep(5);} catch (InterruptedException e) {e.printStackTrace();}
+		unit.setHealth(newHealth);
+		BasicCommands.setUnitHealth(out, unit, newHealth);
+	}
+
+	// Update a unit's attack on the board
+	public void updateUnitAttack(Unit unit, int newAttack) {
+		try {Thread.sleep(5);} catch (InterruptedException e) {e.printStackTrace();}
+		unit.setAttack(newAttack);
+		BasicCommands.setUnitAttack(out, unit, newAttack);
 	}
 
 	// remove highlight from all tiles
@@ -97,51 +117,176 @@ public class GameService {
 		}
 	}
 
-	// highlight tiles for movement and attacking
+	// Highlight tiles for movement and attacking
 	public void highlightMoveAndAttackRange(Unit unit) {
-		Board board = gs.getBoard();
-		Tile[][] tiles = board.getTiles();
+		Tile[][] tiles = gs.getBoard().getTiles();
+		Set<Tile> validMoves = calculateValidActions(tiles, unit);
 
-		int baseX = unit.getPosition().getTilex();
-		int baseY = unit.getPosition().getTiley();
+		if (validMoves == null) {
+			return; // Unit is provoked or cannot move
+		}
 
-		// Loop to cover 2 tiles in each direction and 1 tile diagonally
-		for (int x = -2; x <= 2; x++) {
-			for (int y = -2; y <= 2; y++) {
-				// Check for diagonal movement (skip tiles that are 2 tiles away diagonally)
-				if (Math.abs(x) == 2 && Math.abs(y) == 2)
-					continue;
-				if (Math.abs(x) == 2 && Math.abs(y) == 1)
-					continue;
-				if (Math.abs(x) == 1 && Math.abs(y) == 2)
-					continue;
+		// Highlight valid moves and attack ranges based on the set of valid tiles
+		for (Tile validTile : validMoves) {
+			int x = validTile.getTilex();
+			int y = validTile.getTiley();
 
-				// Calculate the target tile's coordinates
-				int targetX = baseX + x;
-				int targetY = baseY + y;
+			// Retrieve the target tile from the board
+			Tile targetTile = tiles[x][y];
 
-				// Check if coordinates are within board bounds
-				if (targetX < 0 || targetY < 0 || targetX >= 9 || targetY >= 5) {
-					continue; // Skip tiles outside the board bounds
-				}
+			// Determine highlighting based on occupancy and ownership
+			if (!targetTile.isOccupied()) {
+				// Highlight for movement
+				updateTileHighlight(targetTile, 1);
+			} else if (targetTile.getUnit().getOwner() != unit.getOwner()) {
+				// Highlight for attack
+				updateTileHighlight(targetTile, 2);
+			}
+			// Note: Tiles with friendly units are not highlighted
+		}
+	}
 
-				// Retrieve the tile if it's within the board bounds
-				Tile targetTile = tiles[targetX][targetY];
+	// Calculates and returns the Set of valid actions for a given unit
+	public Set<Tile> calculateValidActions(Tile[][] board, Unit unit) {
 
-				// Handle differential highlighting for tiles with units
-				if (targetTile.isOccupied()) {
-					if (targetTile.getUnit().getOwner() == unit.getOwner()) {
-						// Leave tiles with friendly units unhighlighted
-					} else {
-						// Highlight tiles with enemy units for attack
-						updateTileHighlight(targetTile, 2);
+		Set<Tile> validTiles = new HashSet<>();
+
+		if (checkProvoked(unit)) {
+			return null;
+		}
+
+		/*if (unit.getClass().equals(Windshrike.class) && !unit.movedThisTurn() && !unit.attackedThisTurn()) {
+			return ((Windshrike) unit).specialAbility(board);
+
+		} else */if (!unit.movedThisTurn() && !unit.attackedThisTurn()) {
+			int x = unit.getPosition().getTilex();
+			int y = unit.getPosition().getTiley();
+
+			// check one behind
+			int newX = x - 1;
+			if (newX > -1 && newX < board.length && board[newX][y].getUnit() == null) {
+				validTiles.add(board[newX][y]);
+			}
+
+			// if the nearby unit is a friendly unit, check the tile behind the friendly unit
+			int newerX = newX - 1;
+			if (newerX > -1 && newerX < board.length) {
+				if (gs.getCurrentPlayer().getUnits().contains(board[newX][y].getUnit()) || board[newX][y].getUnit() == null) {
+					//newX = x - 2;
+					if (board[newerX][y].getUnit() == null) {
+						validTiles.add(board[newerX][y]);
 					}
-				} else {
-					// Highlight empty tiles for movement
-					updateTileHighlight(targetTile, 1);
 				}
 			}
+
+			// check one ahead
+			newX = x + 1;
+			if (newX > -1 && newX < board.length && board[newX][y].getUnit() == null) {
+				validTiles.add(board[newX][y]);
+			}
+			// if one ahead is a friendly unit, check the tile ahead of the friendly unit
+			newerX = newX + 1;
+			if (newerX > -1 && newerX < board.length) {
+				if (gs.getCurrentPlayer().getUnits().contains(board[newX][y].getUnit()) || board[newX][y].getUnit() == null) {
+					// newX = x + 2;
+					if (board[newerX][y].getUnit() == null) {
+						validTiles.add(board[newerX][y]);
+					}
+				}
+			}
+
+
+			// check one up
+			int newY = y - 1;
+			if (newY > -1 && newY < board[0].length && board[x][newY].getUnit() == null) {
+				validTiles.add(board[x][newY]);
+			}
+			// if one up a friendly unit, check two up
+			int newerY = newY - 1;
+			if (newerY > -1 && newerY < board[0].length) {
+				if (gs.getCurrentPlayer().getUnits().contains(board[x][newY].getUnit()) || board[x][newY].getUnit() == null) {
+					//newY = y - 2;
+					if (board[x][newerY].getUnit() == null) {
+						validTiles.add(board[x][newerY]);
+					}
+				}
+			}
+
+
+			// check one down
+			newY = y + 1;
+			if (newY > -1 && newY < board[0].length && board[x][newY].getUnit() == null) {
+				validTiles.add(board[x][newY]);
+			}
+			// if one up a friendly unit, check two up
+			newerY = newY + 1;
+			if (newerY > -1 && newerY < board[0].length) {
+				if (gs.getCurrentPlayer().getUnits().contains(board[x][newY].getUnit()) || board[x][newY].getUnit() == null) {
+					//newY = y + 2;
+					if (board[x][newerY].getUnit() == null) {
+						validTiles.add(board[x][newerY]);
+					}
+				}
+			}
+
+			// diagonal tiles
+			if (x + 1 < board.length && y + 1 < board[0].length && board[x + 1][y + 1].getUnit() == null) {
+				if (gs.getCurrentPlayer().getUnits().contains(board[x + 1][y].getUnit()) || board[x + 1][y].getUnit() == null) {
+					validTiles.add(board[x + 1][y + 1]);
+				} else if (gs.getCurrentPlayer().getUnits().contains(board[x][y + 1].getUnit()) || board[x][y + 1].getUnit() == null) {
+					validTiles.add(board[x + 1][y + 1]);
+				}
+			}
+
+			if (x - 1 >= 0 && y - 1 >= 0 && board[x - 1][y - 1].getUnit() == null) {
+				if (gs.getCurrentPlayer().getUnits().contains(board[x - 1][y].getUnit()) || board[x - 1][y].getUnit() == null) {
+					validTiles.add(board[x - 1][y - 1]);
+				} else if (gs.getCurrentPlayer().getUnits().contains(board[x][y - 1].getUnit()) || board[x][y - 1].getUnit() == null) {
+					validTiles.add(board[x - 1][y - 1]);
+				}
+			}
+
+			if (x + 1 < board.length && y - 1 >= 0 && board[x + 1][y - 1].getUnit() == null) {
+				if (gs.getCurrentPlayer().getUnits().contains(board[x + 1][y].getUnit()) || board[x + 1][y].getUnit() == null) {
+					validTiles.add(board[x + 1][y - 1]);
+				} else if (gs.getCurrentPlayer().getUnits().contains(board[x][y - 1].getUnit()) || board[x][y - 1].getUnit() == null) {
+					validTiles.add(board[x + 1][y - 1]);
+				}
+			}
+
+			if (x - 1 >= 0 && y + 1 < board[0].length && board[x - 1][y + 1].getUnit() == null) {
+				if (gs.getCurrentPlayer().getUnits().contains(board[x - 1][y].getUnit()) || board[x - 1][y].getUnit() == null) {
+					validTiles.add(board[x - 1][y + 1]);
+				} else if (gs.getCurrentPlayer().getUnits().contains(board[x][y + 1].getUnit()) || board[x][y + 1].getUnit() == null) {
+					validTiles.add(board[x - 1][y + 1]);
+				}
+			}
+
+		} else {
+			// cannot move, return empty set
+			return validTiles;
 		}
+		return validTiles;
+	}
+
+	// Returns true if the unit should be provoked based on adjacent opponents
+	public boolean checkProvoked(Unit unit) {
+
+		// Incomplete implementation yet to be tested, temporarily return false always
+		/*for (Unit other : gs.getInactivePlayer().getUnits()) {
+
+			int unitx = unit.getPosition().getTilex();
+			int unity = unit.getPosition().getTiley();
+
+			if(other.getId() == 3 || other.getId() == 10 || other.getId() == 6 || other.getId() == 16 || other.getId() == 20 || other.getId() == 30) {
+				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
+					System.out.println("Unit is provoked!");
+					return true;
+				}
+			}
+
+		}*/
+		return false;
 	}
 
 	// highlight tiles for attacking only
@@ -359,16 +504,16 @@ public class GameService {
         // remove highlight from all tiles
         removeHighlightFromAll();
 
+        // draw unit on new tile
+        BasicCommands.drawUnit(out, unit, tile);
 
 		// for now, set health and attack to default values
 		// doesn't seem to work, idk why
 		BasicCommands.setUnitHealth(out, unit, 20);
 		BasicCommands.setUnitAttack(out, unit, 10);
 
-        // draw unit on new tile
-        BasicCommands.drawUnit(out, unit, tile);
 
-        try {
+		try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -5,6 +5,9 @@ import structures.basic.*;
 import structures.basic.cards.Card;
 import akka.actor.ActorRef;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A basic representation of of the Player. A player has health and mana.
  * 
@@ -20,6 +23,8 @@ public abstract class Player {
 	protected Deck deck;
 	@JsonManagedReference
 	protected Unit avatar;
+	// Units on the board belonging to the player
+	protected List<Unit> units;
 
 	public Player() {
 		super();
@@ -27,6 +32,7 @@ public abstract class Player {
 		this.mana = 0;
 		this.hand = new Hand();
 		this.deck=new Deck(this);
+		this.units = new ArrayList<>();
 	}
 	
 	public Deck getDeck() {
@@ -78,6 +84,18 @@ public abstract class Player {
 
 	public void setAvatar(Unit avatar) {
 		this.avatar = avatar;
+	}
+
+	public List<Unit> getUnits() {
+		return units;
+	}
+
+	public void addUnit(Unit unit) {
+		this.units.add(unit);
+	}
+
+	public void removeUnit(Unit unit) {
+		this.units.remove(unit);
 	}
 
 	public Card drawCard() {
