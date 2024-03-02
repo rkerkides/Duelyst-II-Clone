@@ -117,37 +117,33 @@ public class GameService {
 		}
 	}
 
-	// Highlight tiles for movement and attacking
+	// Highlight tiles for movement and attack
 	public void highlightMoveAndAttackRange(Unit unit) {
 		Tile[][] tiles = gs.getBoard().getTiles();
-		Set<Tile> validActions = calculateValidActions(tiles, unit);
+		Set<Tile> validMovementTiles = calculateValidMovement(tiles, unit);
+		Set<Tile> validAttackTiles = determineTargets(unit);
 
-		if (validActions == null) {
-			return; // Unit is provoked or cannot move
+		// Highlight valid movement tiles
+		if (validMovementTiles != null) {
+			for (Tile tile : validMovementTiles) {
+				if (!tile.isOccupied()) {
+					// Highlight tile for movement
+					updateTileHighlight(tile, 1); // Assuming 1 is the highlight mode for movement
+				}
+			}
 		}
 
-		// Highlight valid moves and attack ranges based on the set of valid tiles
-		for (Tile validTile : validActions) {
-			int x = validTile.getTilex();
-			int y = validTile.getTiley();
-
-			// Retrieve the target tile from the board
-			Tile targetTile = tiles[x][y];
-
-			// Determine highlighting based on occupancy and ownership
-			if (!targetTile.isOccupied()) {
-				// Highlight for movement
-				updateTileHighlight(targetTile, 1);
-			} else if (targetTile.getUnit().getOwner() != unit.getOwner()) {
-				// Highlight for attack
-				updateTileHighlight(targetTile, 2);
+		// Highlight valid attack tiles
+		for (Tile tile : validAttackTiles) {
+			if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
+				// Highlight tile for attack
+				updateTileHighlight(tile, 2); // Assuming 2 is the highlight mode for attack
 			}
-			// Note: Tiles with friendly units are not highlighted
 		}
 	}
 
 	// Method to calculate and return the set of valid actions (tiles) for a given unit
-	public Set<Tile> calculateValidActions(Tile[][] board, Unit unit) {
+	public Set<Tile> calculateValidMovement(Tile[][] board, Unit unit) {
 		Set<Tile> validTiles = new HashSet<>();
 
 		// Check if the unit is in a provoked state, which may restrict its actions
@@ -184,8 +180,8 @@ public class GameService {
 		// Check if the new position is within board bounds and potentially valid for action
 		if (isValidTile(board, x, y)) {
 			Tile tile = board[x][y];
-			// Add the tile to valid actions if it is unoccupied or occupied by a friendly unit
-			if (tile.getUnit() == null || isFriendlyUnit(tile.getUnit())) {
+			// Add the tile to valid tiles if it is unoccupied
+			if (tile.getUnit() == null) {
 				validTiles.add(tile);
 			}
 		}
@@ -222,51 +218,61 @@ public class GameService {
 		return false;
 	}
 
-	// highlight tiles for attacking only
+	// Highlight tiles for attacking only
 	public void highlightAttackRange(Unit unit) {
-		Board board = gs.getBoard();
-		Tile[][] tiles = board.getTiles();
+		Set<Tile> validAttackTiles = determineTargets(unit);
 
-		int baseX = unit.getPosition().getTilex();
-		int baseY = unit.getPosition().getTiley();
-
-		// Loop to cover 2 tiles in each direction and 1 tile diagonally
-		for (int x = -2; x <= 2; x++) {
-			for (int y = -2; y <= 2; y++) {
-				// Check for diagonal movement (skip tiles that are 2 tiles away diagonally)
-				if (Math.abs(x) == 2 && Math.abs(y) == 2)
-					continue;
-				if (Math.abs(x) == 2 && Math.abs(y) == 1)
-					continue;
-				if (Math.abs(x) == 1 && Math.abs(y) == 2)
-					continue;
-
-				// Calculate the target tile's coordinates
-				int targetX = baseX + x;
-				int targetY = baseY + y;
-
-				// Check if coordinates are within board bounds
-				if (targetX < 0 || targetY < 0 || targetX >= 9 || targetY >= 5) {
-					continue; // Skip tiles outside the board bounds
-				}
-
-				// Retrieve the tile if it's within the board bounds
-				Tile targetTile = tiles[targetX][targetY];
-
-				// Handle differential highlighting for tiles with units
-				if (targetTile.isOccupied()) {
-					if (targetTile.getUnit().getOwner() == unit.getOwner()) {
-						// Leave tiles with friendly units unhighlighted
-					} else {
-						// Highlight tiles with enemy units for attack
-						updateTileHighlight(targetTile, 2);
-					}
-				}
-			}
-		}
+		// Highlight valid attack tiles
+		validAttackTiles.forEach(tile -> updateTileHighlight(tile, 2)); // 2 for attack highlight mode
 	}
 
-    // highlight tiles for summoning units (does not currently take into account special units)
+	public Set<Tile> determineTargets(Unit unit) {
+		Set<Tile> validAttacks = new HashSet<>();
+		Player opponent = gs.getInactivePlayer();
+
+		// Special ability or ranged attack logic (not implemented yet)
+		/*if (unit instanceof RangedAttack && !unit.attackedThisTurn()) {
+			return ((RangedAttack) unit).specialAbility(gs.getBoard());
+		}*/
+
+		// Provocation check
+		if (!unit.movedThisTurn() && checkProvoked(unit)) {
+			return findProvokedTargets(unit);
+		}
+
+		// Default target determination
+		if (!unit.attackedThisTurn()) {
+			validAttacks.addAll(getValidTargets(unit, opponent));
+		}
+
+		return validAttacks;
+	}
+
+	// Simplified to demonstrate concept
+	public Set<Tile> getValidTargets(Unit unit, Player opponent) {
+		Set<Tile> validAttacks = new HashSet<>();
+		Tile unitTile = unit.getCurrentTile(gs.getBoard());
+
+		opponent.getUnits().stream()
+				.map(opponentUnit -> opponentUnit.getCurrentTile(gs.getBoard()))
+				.filter(opponentTile -> isWithinAttackRange(unitTile, opponentTile))
+				.forEach(validAttacks::add);
+
+		return validAttacks;
+	}
+
+	private boolean isWithinAttackRange(Tile unitTile, Tile targetTile) {
+		int dx = Math.abs(unitTile.getTilex() - targetTile.getTilex());
+		int dy = Math.abs(unitTile.getTiley() - targetTile.getTiley());
+		return dx < 2 && dy < 2;
+	}
+
+	private Set<Tile> findProvokedTargets(Unit unit) {
+		// Logic to identify tiles when unit is provoked
+		return new HashSet<>();
+	}
+
+	// highlight tiles for summoning units (does not currently take into account special units)
 	public void highlightSummonRange(Card card, Player player) {
 		Board board = gs.getBoard();
 

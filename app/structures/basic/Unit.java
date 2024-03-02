@@ -167,4 +167,8 @@ public class Unit implements Actionable {
 		return "Unit [id=" + id + ", position=" + position + ", owner=" + owner + ", movedThisTurn=" + movedThisTurn + "]";
 	}
 
+	public Tile getCurrentTile(Board board) {
+		return board.getTile(position.getTilex(), position.getTiley());
+
+	}
 }

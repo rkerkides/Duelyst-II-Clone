@@ -76,36 +76,30 @@ public class TileClicked implements EventProcessor {
 
 	// Process unit move or attack based on targetTile's state
 	private void handleUnitAction(GameState gameState, Unit unit, Tile targetTile) {
-		// Ensure targetTile is not null before proceeding
+		// Early return if targetTile is null
 		if (targetTile == null) {
 			System.out.println("Target tile is null.");
 			gameState.gameService.removeHighlightFromAll();
 			return;
 		}
 
-		// Check if the tile is not occupied for a move action
+		// Determine action based on tile's occupancy and highlight mode
 		if (!targetTile.isOccupied()) {
-			// Move unit if tile is valid for movement
-			if (gameState.gameService.isValidMove(unit, targetTile)) {
-				System.out.println("Moving unit " + unit.getId() + " to " + targetTile.getTilex() + ", " + targetTile.getTiley());
-				gameState.gameService.updateUnitPositionAndMove(unit, targetTile);
-				System.out.println("Unit " + unit.getId() + " moved to " + targetTile.getTilex() + ", " + targetTile.getTiley());
-				unit.setMovedThisTurn(true);
-			}
-		} else {
-			// Handle attack action if the tile is occupied by an enemy unit
-			if (targetTile.getHighlightMode() == 2) {
-				// Placeholder for attack logic
-				System.out.println("Attacking unit on tile " + targetTile.getTilex() + ", " + targetTile.getTiley());
-				// Implement attack logic here
-				System.out.println("NO ATTACK LOGIC IMPLEMENTED YET");
-			}
+			// Assuming all valid moves are already checked, directly move the unit
+			System.out.println("Moving unit " + unit.getId() + " to " + targetTile.getTilex() + ", " + targetTile.getTiley());
+			gameState.gameService.updateUnitPositionAndMove(unit, targetTile);
+			System.out.println("Unit " + unit.getId() + " moved to " + targetTile.getTilex() + ", " + targetTile.getTiley());
+			unit.setMovedThisTurn(true);
+		} else if (targetTile.getHighlightMode() == 2) {
+			// Directly handle attack as validity should have been ensured beforehand
+			System.out.println("Attacking unit on tile " + targetTile.getTilex() + ", " + targetTile.getTiley());
+			// Placeholder for actual attack logic
+			System.out.println("NO ATTACK LOGIC IMPLEMENTED YET");
 		}
 
-		// Always remove highlight from all tiles after action
+		// Remove highlight from all tiles after action
 		gameState.gameService.removeHighlightFromAll();
 	}
-
 
 	// Place unit card on board if tile is valid
 	private void handleCardSummoning(GameState gameState, Card card, Tile tile) {
