@@ -90,14 +90,14 @@ public class GameService {
 
 	// Update a unit's health on the board
 	public void updateUnitHealth(Unit unit, int newHealth) {
-		try {Thread.sleep(5);} catch (InterruptedException e) {e.printStackTrace();}
+		try {Thread.sleep(15);} catch (InterruptedException e) {e.printStackTrace();}
 		unit.setHealth(newHealth);
 		BasicCommands.setUnitHealth(out, unit, newHealth);
 	}
 
 	// Update a unit's attack on the board
 	public void updateUnitAttack(Unit unit, int newAttack) {
-		try {Thread.sleep(5);} catch (InterruptedException e) {e.printStackTrace();}
+		try {Thread.sleep(15);} catch (InterruptedException e) {e.printStackTrace();}
 		unit.setAttack(newAttack);
 		BasicCommands.setUnitAttack(out, unit, newAttack);
 	}
@@ -120,14 +120,14 @@ public class GameService {
 	// Highlight tiles for movement and attacking
 	public void highlightMoveAndAttackRange(Unit unit) {
 		Tile[][] tiles = gs.getBoard().getTiles();
-		Set<Tile> validMoves = calculateValidActions(tiles, unit);
+		Set<Tile> validActions = calculateValidActions(tiles, unit);
 
-		if (validMoves == null) {
+		if (validActions == null) {
 			return; // Unit is provoked or cannot move
 		}
 
 		// Highlight valid moves and attack ranges based on the set of valid tiles
-		for (Tile validTile : validMoves) {
+		for (Tile validTile : validActions) {
 			int x = validTile.getTilex();
 			int y = validTile.getTiley();
 
@@ -146,128 +146,61 @@ public class GameService {
 		}
 	}
 
-	// Calculates and returns the Set of valid actions for a given unit
+	// Method to calculate and return the set of valid actions (tiles) for a given unit
 	public Set<Tile> calculateValidActions(Tile[][] board, Unit unit) {
-
 		Set<Tile> validTiles = new HashSet<>();
 
+		// Check if the unit is in a provoked state, which may restrict its actions
 		if (checkProvoked(unit)) {
 			return null;
 		}
 
-		/*if (unit.getClass().equals(Windshrike.class) && !unit.movedThisTurn() && !unit.attackedThisTurn()) {
-			return ((Windshrike) unit).specialAbility(board);
+		// Only allow action calculation if the unit has not moved or attacked this turn
+		if (!unit.movedThisTurn() && !unit.attackedThisTurn()) {
+			// Extended directions array includes immediate adjacent and two steps away in cardinal directions
+			int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {1, 1}, {-1, 1}, {1, -1}};
+			int[][] extendedDirections = {{-2, 0}, {2, 0}, {0, -2}, {0, 2}}; // For two steps away
 
-		} else */if (!unit.movedThisTurn() && !unit.attackedThisTurn()) {
-			int x = unit.getPosition().getTilex();
-			int y = unit.getPosition().getTiley();
-
-			// check one behind
-			int newX = x - 1;
-			if (newX > -1 && newX < board.length && board[newX][y].getUnit() == null) {
-				validTiles.add(board[newX][y]);
+			// Check adjacent and diagonal tiles
+			for (int[] direction : directions) {
+				addValidTileInDirection(board, unit, direction[0], direction[1], validTiles);
 			}
 
-			// if the nearby unit is a friendly unit, check the tile behind the friendly unit
-			int newerX = newX - 1;
-			if (newerX > -1 && newerX < board.length) {
-				if (gs.getCurrentPlayer().getUnits().contains(board[newX][y].getUnit()) || board[newX][y].getUnit() == null) {
-					//newX = x - 2;
-					if (board[newerX][y].getUnit() == null) {
-						validTiles.add(board[newerX][y]);
-					}
-				}
+			// Check tiles two steps away in cardinal directions
+			for (int[] direction : extendedDirections) {
+				addValidTileInDirection(board, unit, direction[0], direction[1], validTiles);
 			}
-
-			// check one ahead
-			newX = x + 1;
-			if (newX > -1 && newX < board.length && board[newX][y].getUnit() == null) {
-				validTiles.add(board[newX][y]);
-			}
-			// if one ahead is a friendly unit, check the tile ahead of the friendly unit
-			newerX = newX + 1;
-			if (newerX > -1 && newerX < board.length) {
-				if (gs.getCurrentPlayer().getUnits().contains(board[newX][y].getUnit()) || board[newX][y].getUnit() == null) {
-					// newX = x + 2;
-					if (board[newerX][y].getUnit() == null) {
-						validTiles.add(board[newerX][y]);
-					}
-				}
-			}
-
-
-			// check one up
-			int newY = y - 1;
-			if (newY > -1 && newY < board[0].length && board[x][newY].getUnit() == null) {
-				validTiles.add(board[x][newY]);
-			}
-			// if one up a friendly unit, check two up
-			int newerY = newY - 1;
-			if (newerY > -1 && newerY < board[0].length) {
-				if (gs.getCurrentPlayer().getUnits().contains(board[x][newY].getUnit()) || board[x][newY].getUnit() == null) {
-					//newY = y - 2;
-					if (board[x][newerY].getUnit() == null) {
-						validTiles.add(board[x][newerY]);
-					}
-				}
-			}
-
-
-			// check one down
-			newY = y + 1;
-			if (newY > -1 && newY < board[0].length && board[x][newY].getUnit() == null) {
-				validTiles.add(board[x][newY]);
-			}
-			// if one up a friendly unit, check two up
-			newerY = newY + 1;
-			if (newerY > -1 && newerY < board[0].length) {
-				if (gs.getCurrentPlayer().getUnits().contains(board[x][newY].getUnit()) || board[x][newY].getUnit() == null) {
-					//newY = y + 2;
-					if (board[x][newerY].getUnit() == null) {
-						validTiles.add(board[x][newerY]);
-					}
-				}
-			}
-
-			// diagonal tiles
-			if (x + 1 < board.length && y + 1 < board[0].length && board[x + 1][y + 1].getUnit() == null) {
-				if (gs.getCurrentPlayer().getUnits().contains(board[x + 1][y].getUnit()) || board[x + 1][y].getUnit() == null) {
-					validTiles.add(board[x + 1][y + 1]);
-				} else if (gs.getCurrentPlayer().getUnits().contains(board[x][y + 1].getUnit()) || board[x][y + 1].getUnit() == null) {
-					validTiles.add(board[x + 1][y + 1]);
-				}
-			}
-
-			if (x - 1 >= 0 && y - 1 >= 0 && board[x - 1][y - 1].getUnit() == null) {
-				if (gs.getCurrentPlayer().getUnits().contains(board[x - 1][y].getUnit()) || board[x - 1][y].getUnit() == null) {
-					validTiles.add(board[x - 1][y - 1]);
-				} else if (gs.getCurrentPlayer().getUnits().contains(board[x][y - 1].getUnit()) || board[x][y - 1].getUnit() == null) {
-					validTiles.add(board[x - 1][y - 1]);
-				}
-			}
-
-			if (x + 1 < board.length && y - 1 >= 0 && board[x + 1][y - 1].getUnit() == null) {
-				if (gs.getCurrentPlayer().getUnits().contains(board[x + 1][y].getUnit()) || board[x + 1][y].getUnit() == null) {
-					validTiles.add(board[x + 1][y - 1]);
-				} else if (gs.getCurrentPlayer().getUnits().contains(board[x][y - 1].getUnit()) || board[x][y - 1].getUnit() == null) {
-					validTiles.add(board[x + 1][y - 1]);
-				}
-			}
-
-			if (x - 1 >= 0 && y + 1 < board[0].length && board[x - 1][y + 1].getUnit() == null) {
-				if (gs.getCurrentPlayer().getUnits().contains(board[x - 1][y].getUnit()) || board[x - 1][y].getUnit() == null) {
-					validTiles.add(board[x - 1][y + 1]);
-				} else if (gs.getCurrentPlayer().getUnits().contains(board[x][y + 1].getUnit()) || board[x][y + 1].getUnit() == null) {
-					validTiles.add(board[x - 1][y + 1]);
-				}
-			}
-
-		} else {
-			// cannot move, return empty set
-			return validTiles;
 		}
+		// Return the set of valid tiles/actions
 		return validTiles;
 	}
+
+	// Helper method to add a valid tile to the set of valid actions if the conditions are met
+	private void addValidTileInDirection(Tile[][] board, Unit unit, int dx, int dy, Set<Tile> validTiles) {
+		// Calculate new position based on direction offsets
+		int x = unit.getPosition().getTilex() + dx;
+		int y = unit.getPosition().getTiley() + dy;
+
+		// Check if the new position is within board bounds and potentially valid for action
+		if (isValidTile(board, x, y)) {
+			Tile tile = board[x][y];
+			// Add the tile to valid actions if it is unoccupied or occupied by a friendly unit
+			if (tile.getUnit() == null || isFriendlyUnit(tile.getUnit())) {
+				validTiles.add(tile);
+			}
+		}
+	}
+
+	// Checks if a tile position is within the boundaries of the game board
+	private boolean isValidTile(Tile[][] board, int x, int y) {
+		return x >= 0 && y >= 0 && x < board.length && y < board[0].length;
+	}
+
+	// Determines if a unit is considered friendly based on current game state
+	private boolean isFriendlyUnit(Unit unit) {
+		return gs.getCurrentPlayer().getUnits().contains(unit);
+	}
+
 
 	// Returns true if the unit should be provoked based on adjacent opponents
 	public boolean checkProvoked(Unit unit) {
