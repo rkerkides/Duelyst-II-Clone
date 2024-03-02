@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.GameState;
+import structures.basic.Actionable;
 import structures.basic.Tile;
 import structures.basic.Unit;
 import structures.basic.cards.Card;
@@ -42,14 +43,15 @@ public class TileClicked implements EventProcessor {
 
 		// Check if there's an action in history
 		if (!gameState.getActionHistory().isEmpty()) {
-			Object lastAction = gameState.getActionHistory().peek();
+			Actionable lastAction = gameState.getActionHistory().peek();
 
 			// Handle spell casting or unit interaction based on last action type
 			if (lastAction instanceof SpellCard) {
 				handleSpellCasting(gameState, (SpellCard) lastAction, tile);
 			} else if (lastAction instanceof Unit) {
 				handleUnitAction(gameState, (Unit) lastAction, tile);
-			} else if (lastAction instanceof CreatureCard) {
+			// Change this to instanceof CreatureCard in the future
+			} else if (lastAction instanceof Card) {
 				handleCardSummoning(gameState, (Card) lastAction, tile);
 			}
 

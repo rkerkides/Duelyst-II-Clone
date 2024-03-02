@@ -11,11 +11,7 @@ public class CardAction {
     };
     public void preAction() {
 		// Set the current card clicked to the card at the specified position in the player's hand
-		gameState.setCurrentCardClicked(gameState.getCurrentPlayer().getHand().getCardAtPosition(handPosition));
-
-		// Mark the position of the card clicked
-		gameState.setCurrentCardPosition(handPosition);
-
+		gameState.gameService.setCurrentCardClicked(handPosition);
     }
 
     public void creaturePreAction() {

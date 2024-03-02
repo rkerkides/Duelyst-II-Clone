@@ -373,6 +373,24 @@ public class GameService {
         }
     }
 
+	public void setCurrentCardClicked(int handPosition) {
+		notClickingCard();
+		Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(handPosition);
+		gs.setCurrentCardPosition(handPosition);
+		gs.setCurrentCardClicked(card);
+		BasicCommands.drawCard(out, card, handPosition,1);
+	}
+
+	public void notClickingCard() {
+		gs.setCurrentCardClicked(null);
+		gs.setCurrentCardPosition(0);
+
+		for (int i = 1; i <= gs.getCurrentPlayer().getHand().getNumberOfCardsInHand(); i++) {
+			Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(i);
+			BasicCommands.drawCard(out, card, i, 0);
+		}
+	}
+
 	private void updateHandPositions(Hand hand) {
 		// Iterate over the remaining cards in the hand
 		for (int i = 0; i < hand.getNumberOfCardsInHand(); i++) {

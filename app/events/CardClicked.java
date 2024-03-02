@@ -31,6 +31,11 @@ public class CardClicked implements EventProcessor{
 
 		int handPosition = message.get("position").asInt();
 
+		// CLear all highlighted tiles
+		gameState.gameService.removeHighlightFromAll();
+
+
+
 		CardAction cardAction = new CardAction(gameState, handPosition);
 		
 		cardAction.creaturePreAction();	
