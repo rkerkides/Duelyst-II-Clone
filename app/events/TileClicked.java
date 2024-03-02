@@ -86,7 +86,6 @@ public class TileClicked implements EventProcessor {
 		// Determine action based on tile's occupancy and highlight mode
 		if (!targetTile.isOccupied()) {
 			// Assuming all valid moves are already checked, directly move the unit
-			System.out.println("Moving unit " + unit.getId() + " to " + targetTile.getTilex() + ", " + targetTile.getTiley());
 			gameState.gameService.updateUnitPositionAndMove(unit, targetTile);
 			System.out.println("Unit " + unit.getId() + " moved to " + targetTile.getTilex() + ", " + targetTile.getTiley());
 			unit.setMovedThisTurn(true);
@@ -95,6 +94,7 @@ public class TileClicked implements EventProcessor {
 			System.out.println("Attacking unit on tile " + targetTile.getTilex() + ", " + targetTile.getTiley());
 			// Placeholder for actual attack logic
 			System.out.println("NO ATTACK LOGIC IMPLEMENTED YET");
+			unit.setAttackedThisTurn(true);
 		}
 
 		// Remove highlight from all tiles after action

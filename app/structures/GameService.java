@@ -90,14 +90,14 @@ public class GameService {
 
 	// Update a unit's health on the board
 	public void updateUnitHealth(Unit unit, int newHealth) {
-		try {Thread.sleep(15);} catch (InterruptedException e) {e.printStackTrace();}
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		unit.setHealth(newHealth);
 		BasicCommands.setUnitHealth(out, unit, newHealth);
 	}
 
 	// Update a unit's attack on the board
 	public void updateUnitAttack(Unit unit, int newAttack) {
-		try {Thread.sleep(15);} catch (InterruptedException e) {e.printStackTrace();}
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		unit.setAttack(newAttack);
 		BasicCommands.setUnitAttack(out, unit, newAttack);
 	}
@@ -178,7 +178,7 @@ public class GameService {
 		int y = unit.getPosition().getTiley() + dy;
 
 		// Check if the new position is within board bounds and potentially valid for action
-		if (isValidTile(board, x, y)) {
+		if (isValidTile(x, y)) {
 			Tile tile = board[x][y];
 			// Add the tile to valid tiles if it is unoccupied
 			if (tile.getUnit() == null) {
@@ -188,8 +188,8 @@ public class GameService {
 	}
 
 	// Checks if a tile position is within the boundaries of the game board
-	private boolean isValidTile(Tile[][] board, int x, int y) {
-		return x >= 0 && y >= 0 && x < board.length && y < board[0].length;
+	private boolean isValidTile(int x, int y) {
+		return x >= 0 && y >= 0 && x < 9 && y < 5; // Assuming a 9x5 board
 	}
 
 	// Determines if a unit is considered friendly based on current game state
@@ -274,73 +274,59 @@ public class GameService {
 
 	// highlight tiles for summoning units (does not currently take into account special units)
 	public void highlightSummonRange(Card card, Player player) {
-		Board board = gs.getBoard();
-
-		if (card == null || board == null || player == null) {
-			System.out.println("One or more required parameters are null.");
+		// Validate inputs
+		if (card == null || !card.isCreature() || player == null) {
+			System.out.println("Invalid parameters for highlighting summon range.");
 			return;
 		}
 
-		// Check if card is a creature (spells can not be summoned)
-		if (!card.isCreature()) {
-			System.out.println(card.getCardname() + " is not a creature.");
-			return;
-		}
+		System.out.println("Highlighting summon range for " + card.getCardname());
+		Tile[][] tiles = gs.getBoard().getTiles();
 
-		System.out.println("highlightSummonRange for " + card.getCardname());
-		Tile[][] tiles = board.getTiles();
-
-		if (tiles == null) {
-			System.out.println("Tiles array is null.");
-			return;
-		}
-
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 5; j++) {
+		// Iterate over all tiles on the board
+		for (int i = 0; i < tiles.length; i++) {
+			for (int j = 0; j < tiles[i].length; j++) {
 				Tile currentTile = tiles[i][j];
-				if (currentTile == null) {
-					System.out.println("Tile at position " + i + ", " + j + " is null.");
-					continue;
-				}
-				// Check if tile is occupied by a friendly unit
-				if (currentTile.isOccupied()) {
-					Unit unit = currentTile.getUnit();
-					if (unit != null && unit.getOwner() == player) {
-						System.out.println("Tile " + i + ", " + j + " is occupied by a friendly unit");
-						// Highlight adjacent tiles that are not occupied
-						for (int x = -1; x <= 1; x++) {
-							for (int y = -1; y <= 1; y++) {
-								// Skip the current tile
-								if (x == 0 && y == 0) {
-									continue;
-								}
-								int adjX = i + x;
-								int adjY = j + y;
-								// Check if adjacent tile is within board bounds
-								if (adjX >= 0 && adjX < 9 && adjY >= 0 && adjY < 5) {
-									Tile adjTile = tiles[adjX][adjY];
-									if (adjTile != null && !adjTile.isOccupied()) {
-										updateTileHighlight(adjTile, 1); // Use 1 for summonable highlight mode
-									}
-								}
-							}
-						}
-					}
+
+				// Check if tile is adjacent to a friendly unit
+				if (isAdjacentToFriendlyUnit(i, j, player) && !currentTile.isOccupied()) {
+					updateTileHighlight(currentTile, 1); // 1 for summonable highlight mode
 				}
 			}
 		}
 	}
 
+	// Check if a tile is adjacent to a friendly unit of the specified player
+	private boolean isAdjacentToFriendlyUnit(int x, int y, Player player) {
+		Tile[][] tiles = gs.getBoard().getTiles();
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dy = -1; dy <= 1; dy++) {
+				if (dx == 0 && dy == 0) continue; // Skip the current tile
+				int adjX = x + dx;
+				int adjY = y + dy;
+				if (isValidTile(adjX, adjY)) {
+					Tile adjTile = tiles[adjX][adjY];
+					if (adjTile.isOccupied() && adjTile.getUnit().getOwner() == player) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
 
 	// check if summoning is valid
     public boolean isValidSummon(Card card, Tile tile) {
         // depending on cards, this may change
         // for now, all cards can move to tiles highlighted white
+		System.out.println("isValidSummon: " + tile.getHighlightMode());
         return tile.getHighlightMode() == 1;
     }
 
 	// helper method to update tile highlight
 	public void updateTileHighlight(Tile tile, int tileHighlightMode) {
+		try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+
 		tile.setHighlightMode(tileHighlightMode);
 		BasicCommands.drawTile(out, tile, tileHighlightMode);
 	}
@@ -354,11 +340,16 @@ public class GameService {
 	}
 
 	public void updateUnitPositionAndMove(Unit unit, Tile newTile) {
+		if (newTile.getHighlightMode() != 1) {
+			System.out.println("New tile is not highlighted for movement");
+			return;
+		}
+
 		Board board = gs.getBoard();
 
 		// get position of unit and find the tile it is on
 		Position position = unit.getPosition();
-		Tile currentTile = board.getTile(position.getTilex(), position.getTiley());
+		Tile currentTile = unit.getCurrentTile(board);
 
 		// update unit position
 		currentTile.removeUnit();
@@ -459,7 +450,7 @@ public class GameService {
         }
     }
 
-	public void setCurrentCardClicked(int handPosition) {
+	public void setCurrentCardClickedAndHighlight(int handPosition) {
 		notClickingCard();
 		Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(handPosition);
 		gs.setCurrentCardPosition(handPosition);
