@@ -4,11 +4,13 @@ import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
 import structures.basic.cards.Card;
+import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
-import utils.OrderedCardLoader;
 import utils.StaticConfFiles;
+
+import static utils.BasicObjectBuilders.loadUnit;
 
 public class GameService {
 	private ActorRef out;
@@ -30,6 +32,18 @@ public class GameService {
 		}
 	}
 
+	public void updatePlayerMana(Player player, int newMana){
+		// Set the new mana value on the player object first
+		player.setMana(newMana);
+
+		// Now update the mana on the frontend using the BasicCommands
+		if (player instanceof HumanPlayer){
+			BasicCommands.setPlayer1Mana(out, player);
+		} else {
+			BasicCommands.setPlayer2Mana(out, player);
+		}
+	}
+
 	// initial board setup
 	public Board loadBoard() {
 		Board board = new Board();
@@ -43,6 +57,7 @@ public class GameService {
 		}
 		return board;
 	}
+
 
 	public void loadAvatar(Board board, Player player) {
 		// check if player is human or AI
@@ -67,9 +82,11 @@ public class GameService {
 		Tile[][] tiles = board.getTiles();
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 5; j++) {
-				Tile currentTile = tiles[i][j];
-				currentTile.setHighlightMode(0);
-				BasicCommands.drawTile(out, currentTile, 0);
+				if(tiles[i][j].getHighlightMode() != 0){
+					Tile currentTile = tiles[i][j];
+					currentTile.setHighlightMode(0);
+					BasicCommands.drawTile(out, currentTile, 0);
+				}
 			}
 		}
 	}
@@ -117,6 +134,71 @@ public class GameService {
 		}
 	}
 
+    // highlight tiles for summoning units (does not currently take into account special units)
+	public void highlightSummonRange(Card card, Board board, Player player) {
+		if (card == null || board == null || player == null) {
+			System.out.println("One or more required parameters are null.");
+			return;
+		}
+
+		// Check if card is a creature (spells can not be summoned)
+		if (!card.isCreature()) {
+			System.out.println(card.getCardname() + " is not a creature.");
+			return;
+		}
+
+		System.out.println("highlightSummonRange for " + card.getCardname());
+		Tile[][] tiles = board.getTiles();
+
+		if (tiles == null) {
+			System.out.println("Tiles array is null.");
+			return;
+		}
+
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 5; j++) {
+				Tile currentTile = tiles[i][j];
+				if (currentTile == null) {
+					System.out.println("Tile at position " + i + ", " + j + " is null.");
+					continue;
+				}
+				// Check if tile is occupied by a friendly unit
+				if (currentTile.isOccupied()) {
+					Unit unit = currentTile.getUnit();
+					if (unit != null && unit.getOwner() == player) {
+						System.out.println("Tile " + i + ", " + j + " is occupied by a friendly unit");
+						// Highlight adjacent tiles that are not occupied
+						for (int x = -1; x <= 1; x++) {
+							for (int y = -1; y <= 1; y++) {
+								// Skip the current tile
+								if (x == 0 && y == 0) {
+									continue;
+								}
+								int adjX = i + x;
+								int adjY = j + y;
+								// Check if adjacent tile is within board bounds
+								if (adjX >= 0 && adjX < 9 && adjY >= 0 && adjY < 5) {
+									Tile adjTile = tiles[adjX][adjY];
+									if (adjTile != null && !adjTile.isOccupied()) {
+										updateTileHighlight(adjTile, 1); // Use 1 for summonable highlight mode
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	// check if summoning is valid
+    public boolean isValidSummon(Card card, Tile tile) {
+        // depending on cards, this may change
+        // for now, all cards can move to tiles highlighted white
+        return tile.getHighlightMode() == 1;
+    }
+
 	// helper method to update tile highlight
 	public void updateTileHighlight(Tile tile, int tileHighlightMode) {
 		tile.setHighlightMode(tileHighlightMode);
@@ -152,17 +234,88 @@ public class GameService {
 		}
 	}
 	
-	public void drawingCards(int cardsToDraw, int handPosition) {
-
-	    int currentCardIndex = 0;
-
-	    for (int i = 0; i < cardsToDraw; i++) {
-	        Card card = OrderedCardLoader.getPlayer1Cards(1).get(currentCardIndex);
-	        BasicCommands.drawCard(out, card, handPosition, 0);
-	        try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
-	        handPosition++;
-	        currentCardIndex++;
-	    }
+	public void drawCards(Player player, int numberOfCards) {
+		if (player instanceof HumanPlayer) {
+			for (int i = 0; i < numberOfCards; i++) {
+				Card cardDrawn = player.drawCard();
+				int handPosition = player.getHand().getNumberOfCardsInHand();
+				BasicCommands.drawCard(out, cardDrawn, handPosition, 0);
+				try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+			}
+		} else {
+			for (int i = 0; i < numberOfCards; i++) {
+				player.drawCard();
+			}
+		}
 	}
 
+    // remove card from hand and summon unit
+    public void removeCardFromHandAndSummonUnit(Board board, Card card, Tile tile, Hand hand, int handPosition, Player player) {
+		if (board == null || card == null || tile == null || hand == null) {
+			System.out.println("removeCardFromHandAndSummonUnit: One or more arguments are null");
+			return;
+		}
+		if (handPosition < 1 || handPosition > hand.getNumberOfCardsInHand()) {
+			System.out.println("removeCardFromHandAndSummonUnit: handPosition is out of bounds");
+			return;
+		}
+
+		// check if enough mana
+		if (player.getMana() < card.getManacost()) {
+			BasicCommands.addPlayer1Notification(out, "Not enough mana to summon " + card.getCardname(), 2);
+			return;
+		}
+
+		// update player mana
+		player.setMana(player.getMana() - card.getManacost());
+		BasicCommands.setPlayer1Mana(out, player);
+
+		// remove card from hand
+		BasicCommands.deleteCard(out, handPosition + 1);
+		hand.removeCardAtPosition(handPosition);
+
+		// update the positions of the remaining cards if the player is human
+		if (player instanceof HumanPlayer) {
+			updateHandPositions(hand);
+		}
+
+		// summon unit
+		Unit unit = loadUnit(card.getUnitConfig(), card.getId(), Unit.class);
+		if (unit == null) {
+			System.out.println("removeCardFromHandAndSummonUnit: Failed to load unit");
+			return;
+		}
+
+        // set unit position
+        tile.setUnit(unit);
+        unit.setPositionByTile(tile);
+		unit.setOwner(player);
+
+        // remove highlight from all tiles
+        removeHighlightFromAll(board);
+
+
+		// for now, set health and attack to default values
+		// doesn't seem to work, idk why
+		BasicCommands.setUnitHealth(out, unit, 20);
+		BasicCommands.setUnitAttack(out, unit, 10);
+
+        // draw unit on new tile
+        BasicCommands.drawUnit(out, unit, tile);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+	private void updateHandPositions(Hand hand) {
+		// Iterate over the remaining cards in the hand
+		for (int i = 0; i < hand.getNumberOfCardsInHand(); i++) {
+			// Draw each card in its new position, positions are usually 1-indexed on the UI
+			BasicCommands.deleteCard(out, i + 2);
+			BasicCommands.drawCard(out, hand.getCardAtIndex(i), i + 1, 0);
+		}
+	}
 }

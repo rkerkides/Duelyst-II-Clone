@@ -23,8 +23,6 @@ public class Initalize implements EventProcessor {
 
 		gameState.gameInitalised = true;
 
-		gameState.something = true;
-
 		// Initialise the game and it's assets
 		gameState.init(out);
 

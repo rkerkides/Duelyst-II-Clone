@@ -16,10 +16,8 @@ public class AIPlayer extends Player {
 	}
 
 	@Override
-	public void drawCards(int cardsToDraw) {
-		
-//		for (int i = 0; i < cardsToDraw; i++) {
-//		    Card card = aiDeck.getCards().pop();
-//		    hand.addCard(card);
+	public String toString() {
+		return "AIPlayer";
 	}
+
 }
