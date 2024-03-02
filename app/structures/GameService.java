@@ -189,7 +189,9 @@ public class GameService {
 	}
 
     // highlight tiles for summoning units (does not currently take into account special units)
-	public void highlightSummonRange(Card card, Board board, Player player) {
+	public void highlightSummonRange(Card card, Player player) {
+		Board board = gs.getBoard();
+
 		if (card == null || board == null || player == null) {
 			System.out.println("One or more required parameters are null.");
 			return;

@@ -16,8 +16,14 @@ public class CardAction {
 
     public void creaturePreAction() {
         preAction();
+
+        Card currentCard = gameState.getCurrentCardClicked();
+
 		// Highlight the summon range of the current card clicked
-		gameState.gameService.highlightSummonRange(gameState.getCurrentCardClicked(), gameState.getBoard(), gameState.getHuman());
+		gameState.gameService.highlightSummonRange(currentCard, gameState.getHuman());
+
+        // Push the current card clicked to the action history
+        gameState.getActionHistory().push(currentCard);
     }
 
 }

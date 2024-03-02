@@ -124,11 +124,6 @@ public class TileClicked implements EventProcessor {
 		// Highlight move and attack range based on unit's turn state
 		if (!unit.attackedThisTurn() && !unit.movedThisTurn()) {
 			gameState.gameService.highlightMoveAndAttackRange(unit);
-			for (int i = 0; i < gameState.getBoard().getTiles().length; i++) {
-				for (int j = 0; j < gameState.getBoard().getTiles()[i].length; j++) {
-					System.out.println("Tile " + i + ", " + j + " highlight mode: " + gameState.getBoard().getTiles()[i][j].getHighlightMode());
-				}
-			}
 		// Highlight attack range only, if unit has moved but not attacked
 		} else if (unit.movedThisTurn()) {
 			gameState.gameService.highlightAttackRange(unit);
