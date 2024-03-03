@@ -93,6 +93,9 @@ public class GameService {
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		unit.setHealth(newHealth);
 		BasicCommands.setUnitHealth(out, unit, newHealth);
+		if (unit.getId() == 0 || unit.getId() == 1) {
+			updatePlayerHealth(unit.getOwner(), newHealth);
+		}
 	}
 
 	// Update a unit's attack on the board
