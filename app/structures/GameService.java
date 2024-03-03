@@ -427,9 +427,11 @@ public class GameService {
 		BasicCommands.playEffectAnimation(out, effect, tile);
         BasicCommands.drawUnit(out, unit, tile);
 
-		// update unit health and attack
-		updateUnitHealth(unit, unit.getHealth());
-		updateUnitAttack(unit, unit.getAttack());
+
+		// use BigCard data to update unit health and attack
+		BigCard bigCard = card.getBigCard();
+		updateUnitHealth(unit, bigCard.getHealth());
+		updateUnitAttack(unit, bigCard.getAttack());
 
 		// wait for animation to play out
 		try {
