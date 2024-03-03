@@ -30,8 +30,9 @@ public class OtherClicked implements EventProcessor{
 		gameState.gameService.removeHighlightFromAll();
 
 		// Remove the previous action
-		gameState.getActionHistory().pop();
-
+		if (!gameState.getActionHistory().isEmpty()) {
+			gameState.getActionHistory().pop();
+		}
 	}
 
 }

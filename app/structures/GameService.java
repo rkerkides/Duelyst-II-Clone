@@ -91,6 +91,10 @@ public class GameService {
 	// Update a unit's health on the board
 	public void updateUnitHealth(Unit unit, int newHealth) {
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		if (newHealth <= 0) {
+			performUnitDeath(unit);
+			return;
+		}
 		unit.setHealth(newHealth);
 		BasicCommands.setUnitHealth(out, unit, newHealth);
 		if (unit.getId() == 0 || unit.getId() == 1) {
@@ -103,6 +107,19 @@ public class GameService {
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		unit.setAttack(newAttack);
 		BasicCommands.setUnitAttack(out, unit, newAttack);
+	}
+
+	public void performUnitDeath (Unit unit) {
+		// remove unit from board
+		unit.getCurrentTile(gs.getBoard()).removeUnit();
+		unit.setHealth(0);
+		unit.getOwner().removeUnit(unit);
+		unit.setOwner(null);
+		gs.removeFromTotalUnits(1);
+		BasicCommands.deleteUnit(out, unit);
+		if (unit.getId() == 0 || unit.getId() == 1) {
+			updatePlayerHealth(unit.getOwner(), 0);
+		}
 	}
 
 	// remove highlight from all tiles
@@ -323,6 +340,8 @@ public class GameService {
 	// Attack an enemy unit and play the attack animation
 	public void adjacentAttack(Unit attacker, Unit attacked) {
 		if (!attacker.attackedThisTurn()) {
+			// remove highlight from all tiles
+			removeHighlightFromAll();
 
 			BasicCommands.playUnitAnimation(out, attacker, UnitAnimationType.attack);
 			try {Thread.sleep(1500);} catch (InterruptedException e) {e.printStackTrace();}
@@ -335,10 +354,19 @@ public class GameService {
 			// update health
 			updateUnitHealth(attacked, attacked.getHealth() - attacker.getAttack());
 
-			attacker.setAttackedThisTurn(true);
-			attacker.setMovedThisTurn(true);
+			// Only counter attack if the attacker is the current player
+			// To avoid infinitely recursive counter attacking
+			if (attacker.getOwner() == gs.getCurrentPlayer()) {
+				counterAttack(attacker, attacked);
+			}
+		}
+	}
 
-			/*counterAttack(attacker, attacked);*/
+	// Counter attack an enemy unit and play the attack animation
+	public void counterAttack(Unit originalAttacker, Unit counterAttacker) {
+		if (counterAttacker.getHealth() > 0) {
+			System.out.println("Counter attacking");
+			adjacentAttack(counterAttacker, originalAttacker);
 		}
 	}
 

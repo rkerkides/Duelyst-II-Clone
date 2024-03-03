@@ -99,11 +99,13 @@ public class TileClicked implements EventProcessor {
 				gameState.gameService.adjacentAttack(unit, targetTile.getUnit());
 				System.out.println("Unit " + unit.getId() + " attacked unit " + targetTile.getUnit().getId());
 				unit.setAttackedThisTurn(true);
+				unit.setMovedThisTurn(true);
 			} else {
 				// Move and attack
 				gameState.gameService.moveAndAttack(unit, targetTile.getUnit());
 				System.out.println("Unit " + unit.getId() + " attacked unit " + targetTile.getUnit().getId());
 				unit.setAttackedThisTurn(true);
+				unit.setMovedThisTurn(true);
 			}
 
 			// Remove highlight from all tiles after action
