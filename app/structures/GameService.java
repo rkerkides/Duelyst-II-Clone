@@ -331,14 +331,6 @@ public class GameService {
 		BasicCommands.drawTile(out, tile, tileHighlightMode);
 	}
 
-	// check if move is valid
-	public boolean isValidMove(Unit unit, Tile tile) {
-		// depending on unit, this may change
-		// for now, all units can move to tiles highlighted white
-		System.out.println("isValidMove: " + tile.getHighlightMode());
-		return tile.getHighlightMode() == 1;
-	}
-
 	public void updateUnitPositionAndMove(Unit unit, Tile newTile) {
 		if (newTile.getHighlightMode() != 1) {
 			System.out.println("New tile is not highlighted for movement");
@@ -359,6 +351,7 @@ public class GameService {
 		// remove highlight from all tiles
 		removeHighlightFromAll();
 
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		// draw unit on new tile and wait for animation to play out
 		BasicCommands.moveUnitToTile(out, unit, newTile);
 		try {
@@ -390,16 +383,6 @@ public class GameService {
 		Hand hand = player.getHand();
 		int handPosition = gs.getCurrentCardPosition();
 
-		// check if any of the required parameters are null
-		if (board == null || card == null || tile == null || hand == null) {
-			System.out.println("removeCardFromHandAndSummonUnit: One or more arguments are null");
-			return;
-		}
-		if (handPosition < 1 || handPosition > hand.getNumberOfCardsInHand()) {
-			System.out.println("removeCardFromHandAndSummonUnit: handPosition is out of bounds");
-			return;
-		}
-
 		// check if enough mana
 		if (player.getMana() < card.getManacost()) {
 			BasicCommands.addPlayer1Notification(out, "Not enough mana to summon " + card.getCardname(), 2);
@@ -407,11 +390,16 @@ public class GameService {
 		}
 
 		// update player mana
-		player.setMana(player.getMana() - card.getManacost());
-		BasicCommands.setPlayer1Mana(out, player);
+		updatePlayerMana(player, player.getMana() - card.getManacost());
 
-		// remove card from hand
-		BasicCommands.deleteCard(out, handPosition + 1);
+		// get unit config and id
+		String unit_conf = card.getUnitConfig();
+		int unit_id = card.getId();
+
+		// remove card from hand and delete from UI
+		if (player.equals(gs.getHuman())) {
+			BasicCommands.deleteCard(out, handPosition + 1);
+		}
 		hand.removeCardAtPosition(handPosition);
 
 		// update the positions of the remaining cards if the player is human
@@ -419,30 +407,29 @@ public class GameService {
 			updateHandPositions(hand);
 		}
 
-		// summon unit
-		Unit unit = loadUnit(card.getUnitConfig(), card.getId(), Unit.class);
-		if (unit == null) {
-			System.out.println("removeCardFromHandAndSummonUnit: Failed to load unit");
-			return;
-		}
+		// load unit
+		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
 
         // set unit position
         tile.setUnit(unit);
         unit.setPositionByTile(tile);
 		unit.setOwner(player);
+		player.addUnit(unit);
+		gs.addToTotalUnits(1);
 
         // remove highlight from all tiles
         removeHighlightFromAll();
 
-        // draw unit on new tile
+        // draw unit on new tile and play summon animation
+		EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_summon);
+		BasicCommands.playEffectAnimation(out, effect, tile);
         BasicCommands.drawUnit(out, unit, tile);
 
-		// for now, set health and attack to default values
-		// doesn't seem to work, idk why
-		BasicCommands.setUnitHealth(out, unit, 20);
-		BasicCommands.setUnitAttack(out, unit, 10);
+		// update unit health and attack
+		updateUnitHealth(unit, unit.getHealth());
+		updateUnitAttack(unit, unit.getAttack());
 
-
+		// wait for animation to play out
 		try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {

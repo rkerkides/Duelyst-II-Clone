@@ -28,9 +28,9 @@ public class Unit implements Actionable {
 	Position position;
 	UnitAnimationSet animations;
 	ImageCorrection correction;
-	// Keep track of the unit's health
+	// Keep track of the unit's current health
 	int health;
-	// Keep track of the unit's attack
+	// Keep track of the unit's current attack
 	int attack;
 	// Keep track of the owner of the unit
 	@JsonBackReference
