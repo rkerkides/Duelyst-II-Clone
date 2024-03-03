@@ -1,2 +1,4 @@
-package structures.basic;public class Provoke {
+package structures.basic;
+
+public class Provoke {
 }

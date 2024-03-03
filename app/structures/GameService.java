@@ -124,7 +124,7 @@ public class GameService {
 	public void highlightMoveAndAttackRange(Unit unit) {
 		Tile[][] tiles = gs.getBoard().getTiles();
 		Set<Tile> validMovementTiles = calculateValidMovement(tiles, unit);
-		Set<Tile> validAttackTiles = determineTargets(unit);
+		Set<Tile> validAttackTiles = calculateAttackTargets(unit);
 
 		// Highlight valid movement tiles
 		if (validMovementTiles != null) {
@@ -223,13 +223,14 @@ public class GameService {
 
 	// Highlight tiles for attacking only
 	public void highlightAttackRange(Unit unit) {
-		Set<Tile> validAttackTiles = determineTargets(unit);
+		Set<Tile> validAttackTiles = calculateAttackTargets(unit);
 
 		// Highlight valid attack tiles
 		validAttackTiles.forEach(tile -> updateTileHighlight(tile, 2)); // 2 for attack highlight mode
 	}
 
-	public Set<Tile> determineTargets(Unit unit) {
+	// Calculate and return the set of valid attack targets for a given unit
+	public Set<Tile> calculateAttackTargets(Unit unit) {
 		Set<Tile> validAttacks = new HashSet<>();
 		Player opponent = gs.getInactivePlayer();
 
@@ -251,7 +252,7 @@ public class GameService {
 		return validAttacks;
 	}
 
-	// Simplified to demonstrate concept
+	// Returns the set of valid attack targets for a given unit
 	public Set<Tile> getValidTargets(Unit unit, Player opponent) {
 		Set<Tile> validAttacks = new HashSet<>();
 		Tile unitTile = unit.getCurrentTile(gs.getBoard());
@@ -273,6 +274,28 @@ public class GameService {
 	private Set<Tile> findProvokedTargets(Unit unit) {
 		// Logic to identify tiles when unit is provoked
 		return new HashSet<>();
+	}
+
+	// Attack an enemy unit and play the attack animation
+	public void adjacentAttack(Unit attacker, Unit attacked) {
+		if (!attacker.attackedThisTurn()) {
+
+			BasicCommands.playUnitAnimation(out, attacker, UnitAnimationType.attack);
+			try {Thread.sleep(1500);} catch (InterruptedException e) {e.printStackTrace();}
+
+			BasicCommands.playUnitAnimation(out, attacked, UnitAnimationType.hit);
+			try {Thread.sleep(750);} catch (InterruptedException e) {e.printStackTrace();}
+			BasicCommands.playUnitAnimation(out, attacker, UnitAnimationType.idle);
+			BasicCommands.playUnitAnimation(out, attacked, UnitAnimationType.idle);
+
+			// update health
+			updateUnitHealth(attacked, attacked.getHealth() - attacker.getAttack());
+
+			attacker.setAttackedThisTurn(true);
+			attacker.setMovedThisTurn(true);
+
+			/*counterAttack(attacker, attacked);*/
+		}
 	}
 
 	// highlight tiles for summoning units (does not currently take into account special units)

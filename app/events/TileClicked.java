@@ -92,8 +92,8 @@ public class TileClicked implements EventProcessor {
 		} else if (targetTile.getHighlightMode() == 2) {
 			// Directly handle attack as validity should have been ensured beforehand
 			System.out.println("Attacking unit on tile " + targetTile.getTilex() + ", " + targetTile.getTiley());
-			// Placeholder for actual attack logic
-			System.out.println("NO ATTACK LOGIC IMPLEMENTED YET");
+			gameState.gameService.adjacentAttack(unit, targetTile.getUnit());
+			System.out.println("Unit " + unit.getId() + " attacked unit " + targetTile.getUnit().getId());
 			unit.setAttackedThisTurn(true);
 		}
 
