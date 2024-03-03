@@ -120,25 +120,72 @@ public class GameService {
 		}
 	}
 
+
+	// Move to the closest adjacent unit to defender, and call adjacent attack
+	public void moveAndAttack(Unit attacker, Unit attacked) {
+		// Retrieve the tiles of the board and the valid movement tiles for the attacker
+		Tile[][] tiles = gs.getBoard().getTiles();
+		Set<Tile> validMovementTiles = calculateValidMovement(tiles, attacker);
+		Tile defenderTile = attacked.getCurrentTile(gs.getBoard());
+
+		// Initialize variables to keep track of the closest tile and its distance
+		Tile closestTile = null;
+		double closestDistance = Double.MAX_VALUE;
+
+		// Iterate over each valid movement tile
+		for (Tile tile : validMovementTiles) {
+			// Ensure the tile is not occupied
+			if (!tile.isOccupied()) {
+				// Calculate the distance to the defender's tile
+				double distance = Math.sqrt(Math.pow(tile.getTilex() - defenderTile.getTilex(), 2) + Math.pow(tile.getTiley() - defenderTile.getTiley(), 2));
+				// If this tile is closer than any previously examined tile, update closestTile and closestDistance
+				if (distance < closestDistance) {
+					closestTile = tile;
+					closestDistance = distance;
+				}
+			}
+		}
+
+		// If a closest tile has been found, move the attacker to this tile
+		if (closestTile != null) {
+			updateUnitPositionAndMove(attacker, closestTile);
+			// Ensure a small delay to let the move action complete before attacking
+			try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+		}
+
+		// After moving, perform the attack if the attacker is now adjacent to the defender
+		if (isWithinAttackRange(attacker.getCurrentTile(gs.getBoard()), defenderTile)) {
+			adjacentAttack(attacker, attacked);
+		} else {
+			System.out.println("Attacker could not move close enough to perform an attack.");
+		}
+	}
+
+
 	// Highlight tiles for movement and attack
 	public void highlightMoveAndAttackRange(Unit unit) {
 		Tile[][] tiles = gs.getBoard().getTiles();
 		Set<Tile> validMovementTiles = calculateValidMovement(tiles, unit);
 		Set<Tile> validAttackTiles = calculateAttackTargets(unit);
 
-		// Highlight valid movement tiles
+		// Highlight valid movement and attack tiles
 		if (validMovementTiles != null) {
 			for (Tile tile : validMovementTiles) {
 				if (!tile.isOccupied()) {
 					// Highlight tile for movement
-					updateTileHighlight(tile, 1); // Assuming 1 is the highlight mode for movement
+					updateTileHighlight(tile, 1);
+				} else if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
+					// Highlight tile for attack
+					updateTileHighlight(tile, 2);
 				}
 			}
 		}
 
 		// Highlight valid attack tiles
 		for (Tile tile : validAttackTiles) {
+			System.out.println("Tile is occupied: " + tile.isOccupied() + " and unit owner is: " + tile.getUnit().getOwner() + " and unit id is: " + tile.getUnit().getId());
 			if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
+				System.out.println("Highlighting attack tile");
 				// Highlight tile for attack
 				updateTileHighlight(tile, 2); // Assuming 2 is the highlight mode for attack
 			}
@@ -183,10 +230,7 @@ public class GameService {
 		// Check if the new position is within board bounds and potentially valid for action
 		if (isValidTile(x, y)) {
 			Tile tile = board[x][y];
-			// Add the tile to valid tiles if it is unoccupied
-			if (tile.getUnit() == null) {
-				validTiles.add(tile);
-			}
+			validTiles.add(tile);
 		}
 	}
 
@@ -265,7 +309,7 @@ public class GameService {
 		return validAttacks;
 	}
 
-	private boolean isWithinAttackRange(Tile unitTile, Tile targetTile) {
+	public boolean isWithinAttackRange(Tile unitTile, Tile targetTile) {
 		int dx = Math.abs(unitTile.getTilex() - targetTile.getTilex());
 		int dy = Math.abs(unitTile.getTiley() - targetTile.getTiley());
 		return dx < 2 && dy < 2;

@@ -92,13 +92,23 @@ public class TileClicked implements EventProcessor {
 		} else if (targetTile.getHighlightMode() == 2) {
 			// Directly handle attack as validity should have been ensured beforehand
 			System.out.println("Attacking unit on tile " + targetTile.getTilex() + ", " + targetTile.getTiley());
-			gameState.gameService.adjacentAttack(unit, targetTile.getUnit());
-			System.out.println("Unit " + unit.getId() + " attacked unit " + targetTile.getUnit().getId());
-			unit.setAttackedThisTurn(true);
-		}
+			Tile attackerTile = unit.getCurrentTile(gameState.getBoard());
 
-		// Remove highlight from all tiles after action
-		gameState.gameService.removeHighlightFromAll();
+			if (gameState.gameService.isWithinAttackRange(attackerTile, targetTile)) {
+				// Attack adjacent unit
+				gameState.gameService.adjacentAttack(unit, targetTile.getUnit());
+				System.out.println("Unit " + unit.getId() + " attacked unit " + targetTile.getUnit().getId());
+				unit.setAttackedThisTurn(true);
+			} else {
+				// Move and attack
+				gameState.gameService.moveAndAttack(unit, targetTile.getUnit());
+				System.out.println("Unit " + unit.getId() + " attacked unit " + targetTile.getUnit().getId());
+				unit.setAttackedThisTurn(true);
+			}
+
+			// Remove highlight from all tiles after action
+			gameState.gameService.removeHighlightFromAll();
+		}
 	}
 
 	// Place unit card on board if tile is valid
