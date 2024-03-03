@@ -24,7 +24,8 @@ public class OrderedCardLoader {
 	public static List<Card> getPlayer1Cards(int copies) {
 	
 		List<Card> cardsInDeck = new ArrayList<Card>(20);
-		int counter = 0;	
+		// Start from 2, bcs 0 and 1 are reserved for the avatars
+		int counter = 2;
 		for (int i =0; i<copies; i++) {
 			String[] filenames = new File(cardsDIR).list();
 			Arrays.sort(filenames);

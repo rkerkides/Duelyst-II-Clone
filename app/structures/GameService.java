@@ -378,7 +378,6 @@ public class GameService {
 
     // remove card from hand and summon unit
     public void removeCardFromHandAndSummonUnit(Card card, Tile tile) {
-		Board board = gs.getBoard();
 		Player player = gs.getCurrentPlayer();
 		Hand hand = player.getHand();
 		int handPosition = gs.getCurrentCardPosition();

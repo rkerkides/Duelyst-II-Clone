@@ -26,6 +26,9 @@ public class CardAction {
 
         // Push the current card clicked to the action history
         gameState.getActionHistory().push(currentCard);
+
+        // For debug
+        System.out.println("Pushed to action history: " + currentCard.getCardname() + " " + currentCard.getId());
     }
 
 }
