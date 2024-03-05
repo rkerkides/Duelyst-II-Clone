@@ -20,7 +20,7 @@ public class Wraithling extends Unit{
 	
 	
 		
-	public static void Summon( int numberOfinstances, Unit u, Player player, ActorRef out, GameState gameState, GameService gs) {
+	public static Unit Summon( int numberOfinstances, Unit u, Player player, ActorRef out, GameState gameState, GameService gs) {
 		System.out.println("Summoning Wraithling");
 
             // get the tile of the unit
@@ -30,15 +30,18 @@ public class Wraithling extends Unit{
 			Tile toTheLeft = gameState.getBoard().getTile(newTileX, newTileY); // Get the tile at the new position
 	
 			Unit unit = loadUnit(StaticConfFiles.wraithling, 0, Unit.class);
-			gameState.getHuman().addUnit(unit);
 			// set unit position
 			toTheLeft.setUnit(unit);
 			unit.setPositionByTile(toTheLeft);
 			unit.setOwner(player);
 			unit.setName("Wraithling");
 			player.addUnit(unit);
+			System.out.println("health block");
+			try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		    System.out.println("unit to be: "+ unit.getName());
 			BasicCommands.setUnitHealth(out, unit, 1);
             BasicCommands.setUnitAttack(out, unit, 1);
+            
 			EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_summon);
 			BasicCommands.playEffectAnimation(out, effect, toTheLeft);
 			BasicCommands.drawUnit(out, unit, toTheLeft);
@@ -48,6 +51,7 @@ public class Wraithling extends Unit{
 	} catch (InterruptedException e) {
 		e.printStackTrace();
 	}
+		return unit;
 		
     }
 
