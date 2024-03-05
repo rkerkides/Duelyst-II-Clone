@@ -116,6 +116,8 @@ public class GameService {
 		unit.getOwner().removeUnit(unit);
 		unit.setOwner(null);
 		gs.removeFromTotalUnits(1);
+		BasicCommands.playUnitAnimation(out, unit, UnitAnimationType.death);
+		try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
 		BasicCommands.deleteUnit(out, unit);
 		if (unit.getId() == 0 || unit.getId() == 1) {
 			updatePlayerHealth(unit.getOwner(), 0);
