@@ -8,7 +8,9 @@ import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -45,6 +47,11 @@ public class GameState {
 
 	private Player ai;
 	private Board board;
+
+	public static Set<Tile> validMoves = new HashSet<>();
+	public static Set<Tile> validAttacks = new HashSet<>();
+
+
 
 	/**
 	 * This function initialises all the assets Board, Player etc As well as

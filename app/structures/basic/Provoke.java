@@ -5,7 +5,7 @@ import java.util.Set;
 import structures.GameState;
 
 
-public class Provoke {
+public class Provoke extends Unit {
     private String name = null;
     private Set<Tile> validAttacks;
 
@@ -35,7 +35,7 @@ public class Provoke {
     public void disableUnit(Unit other) {
 
         System.out.println("Unit disabled");
-        other.setMoved();
+        other.setMovedThisTurn(true);
 
     }
 }

@@ -277,6 +277,25 @@ public class GameService {
 		return gs.getCurrentPlayer().getUnits().contains(unit);
 	}
 
+	// Checks if provoke unit is present on the board and around the tile on which an alleged enemy unit (target) is located
+	public static Set<Position> checkProvoker(Tile tile) {
+
+		Set<Position> provoker = new HashSet<>();
+
+		for (Unit unit : currentPlayer().getUnits()) {
+			int tilex = tile.getTilex();
+			int tiley = tile.getTiley();
+
+			if (Math.abs(tilex - unit.getPosition().getTilex()) < 2 && Math.abs(tiley - unit.getPosition().getTiley()) < 2) {
+				if (unit.getName().equals("Rock Pulveriser") || unit.getName().equals("Swamp Entangler") ||
+						unit.getName().equals("Silverguard Knight") || unit.getName().equals("Ironcliffe Guardian")) {
+					System.out.println("Provoker in the house");
+					provoker.add(unit.getPosition());
+				}
+			}
+		}
+		return provoker;
+	}
 
 	// Returns true if the unit should be provoked based on adjacent opponents
 	public boolean checkProvoked(Unit unit) {
@@ -337,7 +356,15 @@ public class GameService {
 	// Returns the set of valid attack targets for a given unit
 	public Set<Tile> getValidTargets(Unit unit, Player opponent) {
 		Set<Tile> validAttacks = new HashSet<>();
+		Set<Position> provoker = checkProvoker(tile);
 		Tile unitTile = unit.getCurrentTile(gs.getBoard());
+
+		if (!provoker.isEmpty()){
+			for (Position pos : provoker){
+				validAttacks.add(board[pos.getTilex()][pos.getTiley()]);
+			}
+			return validAttacks;
+		}
 
 		opponent.getUnits().stream()
 				.map(opponentUnit -> opponentUnit.getCurrentTile(gs.getBoard()))
