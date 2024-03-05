@@ -528,20 +528,7 @@ public class GameService {
     }
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
-		ArrayList<Unit> units = gs.getUnitsOnBoard();
-		System.out.println("Summoning unit units");
-		
-		for(Unit u:units){
-			System.out.println(u.getName()+ " is on the board loops");
-			if (u.getName().equals("Gloom Chaser")) {
-				System.out.println("Gloom Chaser is on the board");
-	            Unit i= Wraithling.Summon(1,u,player, out, gs, this);
-	            BasicCommands.setUnitHealth(out, i, 1);
-	            BasicCommands.setUnitAttack(out, i, 1);
-
-	            break;
-				}        
-			}
+		Wraithling.check(out, gs, this);
 
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);

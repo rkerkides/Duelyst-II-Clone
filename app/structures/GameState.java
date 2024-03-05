@@ -131,7 +131,6 @@ public class GameState {
 		this.board = board;
 	}
 	public ArrayList<Unit> getUnitsOnBoard() {
-		unitsOnBoard.addAll(unitsOnBoard);
 		return unitsOnBoard;
 	}
 
