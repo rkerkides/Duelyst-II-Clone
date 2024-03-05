@@ -8,6 +8,7 @@ import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -19,6 +20,7 @@ import java.util.Stack;
  *
  */
 public class GameState {
+	
 
 	public boolean gameInitalised = false;
 
@@ -43,6 +45,8 @@ public class GameState {
 
 	private Player ai;
 	private Board board;
+	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
+	
 
 	/**
 	 * This function initialises all the assets Board, Player etc As well as
@@ -52,6 +56,9 @@ public class GameState {
 	 */
 
 	public void init(ActorRef out) {
+		
+		
+		
 		this.gameService = new GameService(out, this);
 		this.board = gameService.loadBoard();
 
@@ -122,6 +129,19 @@ public class GameState {
 
 	public void setBoard(Board board) {
 		this.board = board;
+	}
+	public ArrayList<Unit> getUnitsOnBoard() {
+		unitsOnBoard.addAll(unitsOnBoard);
+		return unitsOnBoard;
+	}
+
+	public void addUnitstoBoard(Unit unit) {
+		this.unitsOnBoard.add(unit);
+		}
+	 
+
+	public void setTotalUnits(int totalUnits) {
+		this.totalUnits = totalUnits;
 	}
 
 	public Player getHuman() {
@@ -194,6 +214,7 @@ public class GameState {
 	public void removeFromTotalUnits(int numberToRemove) {
 		this.totalUnits -= numberToRemove;
 	}
+	
 
 	/**
 	 * Checks and see if the game has ended If so it will send the apropiate

@@ -4,13 +4,16 @@ import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
 import structures.basic.cards.Card;
+import structures.basic.cards.Wraithling;
 import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static utils.BasicObjectBuilders.loadUnit;
@@ -525,6 +528,20 @@ public class GameService {
     }
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
+		ArrayList<Unit> units = gs.getUnitsOnBoard();
+		System.out.println("Summoning unit units");
+		
+		for(Unit u:units){
+			System.out.println(u.getName()+ " is on the board loops");
+			if (u.getName().equals("Gloom Chaser")) {
+				System.out.println("Gloom Chaser is on the board");
+	            Wraithling.Summon(1,u,player, out, gs, this);
+	            System.out.println("Gloom Chaser summoned a Wraithling");
+	            break;
+				}        
+			}
+		System.out.println("Summoning unit units");
+
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
 
@@ -535,7 +552,8 @@ public class GameService {
 		unit.setName(card.getCardname());
 		player.addUnit(unit);
 		gs.addToTotalUnits(1);
-
+		gs.addUnitstoBoard(unit);
+		System.out.println("Unit added to board: " + ( gs.getUnitsOnBoard()).size());
 		// remove highlight from all tiles
 		removeHighlightFromAll();
 
@@ -552,6 +570,7 @@ public class GameService {
 
 		unit.setMovedThisTurn(true);
 		unit.setAttackedThisTurn(true);
+		gs.addUnitstoBoard(unit);
 
 		// wait for animation to play out
 		try {
