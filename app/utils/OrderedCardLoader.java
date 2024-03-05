@@ -16,6 +16,8 @@ import structures.basic.cards.Card;
 public class OrderedCardLoader {
 
 	public static String cardsDIR = "conf/gameconfs/cards/";
+	// Counter is used to set IDs. Start from 2, because 0 and 1 are reserved for the avatars.
+	public static int counter = 2;
 	
 	/**
 	 * Returns all of the cards in the human player's deck in order
@@ -24,7 +26,6 @@ public class OrderedCardLoader {
 	public static List<Card> getPlayer1Cards(int copies) {
 	
 		List<Card> cardsInDeck = new ArrayList<Card>(20);
-		int counter = 0;	
 		for (int i =0; i<copies; i++) {
 			String[] filenames = new File(cardsDIR).list();
 			Arrays.sort(filenames);
@@ -49,8 +50,6 @@ public class OrderedCardLoader {
 	public static List<Card> getPlayer2Cards(int copies) {
 	
 		List<Card> cardsInDeck = new ArrayList<Card>(20);
-		int counter = 0;	
-		
 		for (int i =0; i<copies; i++) {
 			String[] filenames = new File(cardsDIR).list();
 			Arrays.sort(filenames);

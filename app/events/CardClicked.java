@@ -23,8 +23,18 @@ public class CardClicked implements EventProcessor{
 
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
-		
+
+		// Ignore events when the AI is taking its turn
+		if (gameState.getCurrentPlayer().equals(gameState.getAi())) {
+			return;
+		}
+
 		int handPosition = message.get("position").asInt();
+
+		// CLear all highlighted tiles
+		gameState.gameService.removeHighlightFromAll();
+
+
 
 		CardAction cardAction = new CardAction(gameState, handPosition);
 		

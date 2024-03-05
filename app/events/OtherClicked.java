@@ -21,6 +21,18 @@ public class OtherClicked implements EventProcessor{
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 
+		// Ignore events when the AI is taking its turn
+		if (gameState.getCurrentPlayer().equals(gameState.getAi())) {
+			return;
+		}
+
+		// Clear all highlighted tiles
+		gameState.gameService.removeHighlightFromAll();
+
+		// Remove the previous action
+		if (!gameState.getActionHistory().isEmpty()) {
+			gameState.getActionHistory().pop();
+		}
 	}
 
 }
