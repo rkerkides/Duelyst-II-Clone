@@ -281,20 +281,34 @@ public class GameService {
 	// Returns true if the unit should be provoked based on adjacent opponents
 	public boolean checkProvoked(Unit unit) {
 
-		// Incomplete implementation yet to be tested, temporarily return false always
-		/*for (Unit other : gs.getInactivePlayer().getUnits()) {
+		Set<Position> provoker = new HashSet<>();
 
-			int unitx = unit.getPosition().getTilex();
-			int unity = unit.getPosition().getTiley();
+		Player opponent = gs.getCurrentPlayer();
 
-			if(other.getId() == 3 || other.getId() == 10 || other.getId() == 6 || other.getId() == 16 || other.getId() == 20 || other.getId() == 30) {
-				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
+		int unitX = unit.getPosition().getTilex();
+		int unitY = unit.getPosition().getTiley();
+
+		// Iterate over the opponent's units to check for adjacency and provoking units
+		for (Unit opponentUnit : opponent.getUnits()) {
+			// Skip units that are not within attack range
+			if (!isWithinAttackRange(unit.getCurrentTile(gs.getBoard()), opponentUnit.getCurrentTile(gs.getBoard()))) {
+				continue;
+			}
+
+			// Check if the opponent unit's name matches any provoking unit
+			if (opponentUnit.getName().equals("Rock Pulveriser") || opponentUnit.getName().equals("Swamp Entangler") ||
+					opponentUnit.getName().equals("Silverguard Knight") || opponentUnit.getName().equals("Ironcliffe Guardian")) {
+				// Calculate the distance between the units
+				int distanceX = Math.abs(unitX - opponentUnit.getPosition().getTilex());
+				int distanceY = Math.abs(unitY - opponentUnit.getPosition().getTiley());
+
+				// Check if the opponent unit is adjacent to the current unit
+				if (distanceX <= 1 && distanceY <= 1) {
 					System.out.println("Unit is provoked!");
 					return true;
 				}
 			}
-
-		}*/
+		}
 		return false;
 	}
 
@@ -333,6 +347,9 @@ public class GameService {
 	public Set<Tile> getValidTargets(Unit unit, Player opponent) {
 		Set<Tile> validAttacks = new HashSet<>();
 		Tile unitTile = unit.getCurrentTile(gs.getBoard());
+
+		if (checkProvoked(unit))
+			return null;
 
 		opponent.getUnits().stream()
 				.map(opponentUnit -> opponentUnit.getCurrentTile(gs.getBoard()))
