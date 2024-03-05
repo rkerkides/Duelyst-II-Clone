@@ -528,6 +528,9 @@ public class GameService {
 		updateUnitHealth(unit, bigCard.getHealth());
 		updateUnitAttack(unit, bigCard.getAttack());
 
+		unit.setMovedThisTurn(true);
+		unit.setAttackedThisTurn(true);
+
 		// wait for animation to play out
 		try {
             Thread.sleep(500);
