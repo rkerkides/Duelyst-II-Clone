@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import commands.BasicCommands;
 import events.EndTurnClicked;
 import structures.GameState;
-import structures.basic.PossibleMove;
-import structures.basic.PossibleMovement;
-import structures.basic.Tile;
-import structures.basic.Unit;
+import structures.basic.*;
 
 import java.util.HashSet;
 import java.util.List;
@@ -113,32 +110,52 @@ public class AIPlayer extends Player {
 
 
 	private void makeBestMove(ActorRef out) {
-		// Your Minimax algorithm implementation will go here
-		// This is a placeholder for demonstration
-		int bestScore = Integer.MIN_VALUE;
-		String bestMove = "";
-
-		// Example: Loop through all possible moves
-		for (String move : getAllPossibleMoves(gameState)) {
-			// Apply the move temporarily
-			applyMove(gameState, move);
-
-			// Recursively get the score of the move
-			int score = minimax( 0, false);
-
-			// Undo the move
-			undoMove(gameState, move);
-
-			// Update best score and move
-			if (score > bestScore) {
-				bestScore = score;
-				bestMove = move;
-			}
+		try {
+			performAttacks();
+			performMovements();
+		} catch (Exception e) {
+			// Handle other exceptions or log them
 		}
+	}
 
-		// Apply the best move
-		applyMove(gameState, bestMove);
-		BasicCommands.addPlayer1Notification(out, "AI makes its move: " + bestMove, 2);
+
+	private void performAttacks() {
+		/*while (true) {
+			ArrayList<PossibleAttack> attacks = actions(gameState);
+			if (attacks == null || attacks.isEmpty()) {
+				log("No more actions left on the board");
+				break;
+			}
+
+			Set<PossibleAttack> evaluatedAttacks = new HashSet<>(evaluateAttacks(attacks, gameState));
+			PossibleAttack bestAttack = selectBestAttack(evaluatedAttacks);
+
+			if (bestAttack == null || bestAttack.unit.attackedThisTurn()) {
+				return;
+			}
+			if (isAdjacentAttack(bestAttack)) {
+				log("Launching an adjacent attack");
+				gameState.gameService.adjacentAttack(bestAttack.unit, bestAttack.tile.getUnit());
+			}
+		}*/
+	}
+
+	private void performMovements() {
+		while (true) {
+			ArrayList<PossibleMovement> possibleMoves = returnAllMovements(gameState);
+			if (possibleMoves == null || possibleMoves.isEmpty()) {
+				System.out.println("No more moves left on the board");
+				return;
+			}
+
+			try { Thread.sleep(1000); } catch (InterruptedException e) {
+				System.out.println("AIPlayer interrupted");
+			}
+
+			Set<PossibleMovement> rankedMovements = new HashSet<>(rankMovements(possibleMoves));
+			PossibleMovement bestMove = findBestMovement(rankedMovements);
+			gameState.gameService.updateUnitPositionAndMove(bestMove.unit, bestMove.tile);
+		}
 	}
 
 	// Example Minimax algorithm (needs to be implemented according to your game logic)
