@@ -24,6 +24,7 @@ public class Unit implements Actionable {
 																// objects from a file
 
 	int id;
+	String name;
 	UnitAnimationType animation;
 	Position position;
 	UnitAnimationSet animations;
@@ -79,6 +80,12 @@ public class Unit implements Actionable {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public UnitAnimationType getAnimation() {
@@ -164,7 +171,7 @@ public class Unit implements Actionable {
 
 	@Override
 	public String toString() {
-		return "Unit [id=" + id + ", position=" + position + ", owner=" + owner + ", movedThisTurn=" + movedThisTurn + "]";
+		return "Unit [id=" + id + ", name=" + name + ", position=" + position + ", owner=" + owner + ", movedThisTurn=" + movedThisTurn + "]";
 	}
 
 	public Tile getCurrentTile(Board board) {

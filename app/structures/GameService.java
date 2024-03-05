@@ -72,10 +72,12 @@ public class GameService {
 		if (player instanceof HumanPlayer) {
 			avatarTile = board.getTile(1, 2);
 			avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
+			avatar.setName("Player Avatar");
 
 		} else {
 			avatarTile = board.getTile(7, 2);
 			avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
+			avatar.setName("AI Avatar");
 		}
 		avatar.setPositionByTile(avatarTile);
 		avatarTile.setUnit(avatar);
@@ -530,6 +532,7 @@ public class GameService {
 		tile.setUnit(unit);
 		unit.setPositionByTile(tile);
 		unit.setOwner(player);
+		unit.setName(card.getCardname());
 		player.addUnit(unit);
 		gs.addToTotalUnits(1);
 
