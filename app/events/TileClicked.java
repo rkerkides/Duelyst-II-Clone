@@ -83,6 +83,12 @@ public class TileClicked implements EventProcessor {
 			return;
 		}
 
+		if (unit == null) {
+			System.out.println("Unit is null.");
+			gameState.gameService.removeHighlightFromAll();
+			return;
+		}
+
 		// Determine action based on tile's occupancy and highlight mode
 		if (!targetTile.isOccupied()) {
 			// Assuming all valid moves are already checked, directly move the unit
@@ -96,14 +102,18 @@ public class TileClicked implements EventProcessor {
 
 			if (gameState.gameService.isWithinAttackRange(attackerTile, targetTile)) {
 				// Attack adjacent unit
+				if (targetTile.isOccupied()) {
+					System.out.println("Target tile is occupied by " + targetTile.getUnit());
+				}
 				gameState.gameService.adjacentAttack(unit, targetTile.getUnit());
-				System.out.println("Unit " + unit.getId() + " attacked unit " + targetTile.getUnit().getId());
 				unit.setAttackedThisTurn(true);
 				unit.setMovedThisTurn(true);
 			} else {
 				// Move and attack
+				if (targetTile.isOccupied()) {
+					System.out.println("Target tile is occupied by " + targetTile.getUnit() + " and is attacked by " + unit);
+				}
 				gameState.gameService.moveAndAttack(unit, targetTile.getUnit());
-				System.out.println("Unit " + unit.getId() + " attacked unit " + targetTile.getUnit().getId());
 				unit.setAttackedThisTurn(true);
 				unit.setMovedThisTurn(true);
 			}

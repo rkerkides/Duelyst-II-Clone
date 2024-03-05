@@ -88,6 +88,17 @@ public class GameService {
 		updateUnitAttack(avatar, 2);
 	}
 
+	// load aiUnits for testing
+	public void loadUnitsForTesting(Player player) {
+		Deck aiDeck = player.getDeck();
+		Card card = aiDeck.drawCard();
+		Card card2 = aiDeck.drawCard();
+		Tile tile = gs.getBoard().getTile(5, 2);
+		Tile tile2 = gs.getBoard().getTile(6, 2);
+		summonUnit(card.getUnitConfig(), card.getId(), card, tile, player);
+		summonUnit(card2.getUnitConfig(), card2.getId(), card2, tile2, player);
+	}
+
 	// Update a unit's health on the board
 	public void updateUnitHealth(Unit unit, int newHealth) {
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
@@ -174,6 +185,7 @@ public class GameService {
 
 		// After moving, perform the attack if the attacker is now adjacent to the defender
 		if (isWithinAttackRange(attacker.getCurrentTile(gs.getBoard()), defenderTile)) {
+			System.out.println("Attacker moved to adjacent tile and is now attacking.");
 			adjacentAttack(attacker, attacked);
 		} else {
 			System.out.println("Attacker could not move close enough to perform an attack.");
@@ -506,23 +518,28 @@ public class GameService {
 			updateHandPositions(hand);
 		}
 
+		// summon unit
+		summonUnit(unit_conf, unit_id, card, tile, player);
+    }
+
+	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
 
-        // set unit position
-        tile.setUnit(unit);
-        unit.setPositionByTile(tile);
+		// set unit position
+		tile.setUnit(unit);
+		unit.setPositionByTile(tile);
 		unit.setOwner(player);
 		player.addUnit(unit);
 		gs.addToTotalUnits(1);
 
-        // remove highlight from all tiles
-        removeHighlightFromAll();
+		// remove highlight from all tiles
+		removeHighlightFromAll();
 
-        // draw unit on new tile and play summon animation
+		// draw unit on new tile and play summon animation
 		EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_summon);
 		BasicCommands.playEffectAnimation(out, effect, tile);
-        BasicCommands.drawUnit(out, unit, tile);
+		BasicCommands.drawUnit(out, unit, tile);
 
 
 		// use BigCard data to update unit health and attack
@@ -535,12 +552,14 @@ public class GameService {
 
 		// wait for animation to play out
 		try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
+
+		System.out.println("Summoning unit " + unit + " to tile " + tile.getTilex() + ", " + tile.getTiley());
+	}
 	public void setCurrentCardClickedAndHighlight(int handPosition) {
 		notClickingCard();
 		Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(handPosition);

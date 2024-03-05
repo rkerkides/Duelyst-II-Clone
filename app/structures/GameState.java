@@ -72,6 +72,7 @@ public class GameState {
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
 		gameService.loadAvatar(board, ai);
+		gameService.loadUnitsForTesting(ai);
 
 		// Set the current player to the human player
 		this.currentPlayer = human;
