@@ -41,7 +41,7 @@ public class EndTurnClicked implements EventProcessor{
 		gameState.getActionHistory().clear();
 
 		if (gameState.getCurrentPlayer() instanceof AIPlayer) {
-			((AIPlayer) gameState.getCurrentPlayer()).takeTurn(out, gameState, message);
+			((AIPlayer) gameState.getCurrentPlayer()).takeTurn(out, message);
 		}
 	}
 

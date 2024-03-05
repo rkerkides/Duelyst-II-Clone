@@ -69,7 +69,7 @@ public class GameState {
 
 		// Create the human and AI players
 		this.human = new HumanPlayer();
-		this.ai = new AIPlayer();
+		this.ai = new AIPlayer(this);
 
 		// Health initialised to 20
 		gameService.updatePlayerHealth(human,20);

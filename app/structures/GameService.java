@@ -478,8 +478,9 @@ public class GameService {
 	}
 
 	public void updateUnitPositionAndMove(Unit unit, Tile newTile) {
-		if (newTile.getHighlightMode() != 1) {
+		if (newTile.getHighlightMode() != 1 && gs.getCurrentPlayer() instanceof HumanPlayer) {
 			System.out.println("New tile is not highlighted for movement");
+			removeHighlightFromAll();
 			return;
 		}
 
@@ -505,6 +506,8 @@ public class GameService {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+		unit.setMovedThisTurn(true);
 	}
 	
 	public void drawCards(Player player, int numberOfCards) {
