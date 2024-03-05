@@ -53,6 +53,23 @@ public class AIPlayer extends Player {
 		return movements;
 	}
 
+	private ArrayList<PossibleAttack> returnAllAttacks(GameState gameState) {
+		System.out.println("Returning all attacks for AIPlayer");
+		ArrayList<PossibleAttack> attacks = new ArrayList<>();
+
+		for (Unit unit : this.units) {
+			if (unit.attackedThisTurn()) {
+				continue;
+			}
+			Set<Tile> targets = gameState.gameService.calculateAttackTargets(unit);
+
+			for (Tile tile : targets) {
+				attacks.add(new PossibleAttack(unit, tile));
+			}
+		}
+		return attacks;
+	}
+
 	private Set<PossibleMovement> rankMovements(ArrayList<PossibleMovement> movements) {
 		System.out.println("Ranking possible movements...");
 		if (movements == null) {
@@ -87,6 +104,36 @@ public class AIPlayer extends Player {
 		return moves;
 	}
 
+	private Set<PossibleAttack> rankAttacks(ArrayList<PossibleAttack> attacks) {
+		System.out.println("Ranking possible attacks...");
+		if (attacks == null) {
+			return null;
+		}
+
+		Set<PossibleAttack> rankedAttacks = new HashSet<>(attacks);
+
+		for (PossibleAttack attack : rankedAttacks) {
+			if (!attack.unit.movedThisTurn() && !attack.unit.attackedThisTurn()) {
+				attack.moveQuality = 1;
+
+				// Prioritize eliminating a unit by checking if the attack is lethal
+				if (attack.tile.getUnit().getHealth() <= attack.unit.getAttack()) {
+					attack.moveQuality = 10; // Assign the highest value for lethal attacks
+					// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
+				} else if (attack.tile.getUnit() == gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
+					attack.moveQuality = 8;
+					// Value for attacking any unit not being the avatar by non-avatar AI units
+				} else if (attack.tile.getUnit() != gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
+					attack.moveQuality = 5;
+				} else if (attack.unit.getAttack() == 0) {
+					attack.moveQuality = -5;
+				}
+			}
+
+		}
+		return rankedAttacks;
+	}
+
 	private PossibleMovement findBestMovement(Set<PossibleMovement> moves) {
 		System.out.println("AI finding best movement...");
 		Integer minValue = 0;
@@ -107,6 +154,31 @@ public class AIPlayer extends Player {
 	}
 
 
+	private PossibleAttack findBestAttack(Set<PossibleAttack> attacks) {
+		System.out.println("AI finding best attack...");
+		if (attacks == null || attacks.isEmpty()) {
+			System.out.println("No available attacks to evaluate.");
+			return null;
+		}
+
+		int maxValue = 0;
+		PossibleAttack bestAttack = null;
+
+		for (PossibleAttack attack : attacks) {
+			if (attack.moveQuality > maxValue) {
+				maxValue = attack.moveQuality;
+				bestAttack = attack;
+			}
+		}
+
+		if (bestAttack != null) {
+			System.out.println("Best action found: Tile " + bestAttack.tile + " and Unit " + bestAttack.unit + " with value = " + bestAttack.moveQuality);
+		} else {
+			System.out.println("No attack meets the evaluation criteria.");
+		}
+		return bestAttack;
+	}
+
 
 
 	private void makeBestMove(ActorRef out) {
@@ -120,24 +192,24 @@ public class AIPlayer extends Player {
 
 
 	private void performAttacks() {
-		/*while (true) {
-			ArrayList<PossibleAttack> attacks = actions(gameState);
+		while (true) {
+			ArrayList<PossibleAttack> attacks = returnAllAttacks(gameState);
 			if (attacks == null || attacks.isEmpty()) {
-				log("No more actions left on the board");
+				System.out.println("No more actions left on the board");
 				break;
 			}
 
-			Set<PossibleAttack> evaluatedAttacks = new HashSet<>(evaluateAttacks(attacks, gameState));
-			PossibleAttack bestAttack = selectBestAttack(evaluatedAttacks);
+			Set<PossibleAttack> rankedAttacks = new HashSet<>(rankAttacks(attacks));
+			PossibleAttack bestAttack = findBestAttack(rankedAttacks);
 
 			if (bestAttack == null || bestAttack.unit.attackedThisTurn()) {
 				return;
 			}
-			if (isAdjacentAttack(bestAttack)) {
-				log("Launching an adjacent attack");
+			if (gameState.gameService.isWithinAttackRange(bestAttack.unit.getCurrentTile(gameState.getBoard()), bestAttack.tile)) {
+				System.out.println("Attacking unit on tile " + bestAttack.tile.getTilex() + ", " + bestAttack.tile.getTiley());
 				gameState.gameService.adjacentAttack(bestAttack.unit, bestAttack.tile.getUnit());
 			}
-		}*/
+		}
 	}
 
 	private void performMovements() {
@@ -157,73 +229,6 @@ public class AIPlayer extends Player {
 			gameState.gameService.updateUnitPositionAndMove(bestMove.unit, bestMove.tile);
 		}
 	}
-
-	// Example Minimax algorithm (needs to be implemented according to your game logic)
-	private int minimax(int depth, boolean isMaximizingPlayer) {
-		// Base case: check for game end
-		if (gameOver(gameState)) {
-			return evaluateGameState(gameState);
-		}
-
-		if (isMaximizingPlayer) {
-			int bestScore = Integer.MIN_VALUE;
-			// Loop through all possible moves
-			for (String move : getAllPossibleMoves(gameState)) {
-				// Apply the move
-				applyMove(gameState, move);
-				// Recurse
-				int score = minimax(depth + 1, false);
-				// Undo the move
-				undoMove(gameState, move);
-				// Update best score
-				bestScore = Math.max(bestScore, score);
-			}
-			return bestScore;
-		} else {
-			int bestScore = Integer.MAX_VALUE;
-			// Loop through all possible moves
-			for (String move : getAllPossibleMoves(gameState)) {
-				// Apply the move
-				applyMove(gameState, move);
-				// Recurse
-				int score = minimax( depth + 1, true);
-				// Undo the move
-				undoMove(gameState, move);
-				// Update best score
-				bestScore = Math.min(bestScore, score);
-			}
-			return bestScore;
-		}
-	}
-
-	// Placeholder methods for getAllPossibleMoves, applyMove, undoMove, gameOver, evaluateGameState
-	private List<String> getAllPossibleMoves(GameState gameState) {
-		// This method should return a list of all possible moves. Each move can be represented as a string or custom object.
-		// For simplicity, let's assume it's a list of strings.
-		List<String> possibleMoves = new ArrayList<>();
-		// Add logic to populate this list based on the current game state
-		return possibleMoves;
-	}
-
-	private void applyMove(GameState gameState, String move) {
-		// Apply the move to the gameState. You'll need to parse the move string and apply its effects.
-	}
-
-	private void undoMove(GameState gameState, String move) {
-		// Revert the move applied to the gameState.
-	}
-
-	private boolean gameOver(GameState gameState) {
-		// Determine if the game has ended
-		return gameState.isGameFinished;
-	}
-
-	private int evaluateGameState(GameState gameState) {
-		// Evaluate the game state from the AI's perspective.
-		// Simple heuristic: difference in health between AI and human player
-		return gameState.getAi().getHealth() - gameState.getHuman().getHealth();
-	}
-
 
 	@Override
 	public String toString() {
