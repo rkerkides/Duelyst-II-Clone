@@ -108,6 +108,11 @@ public class GameActor extends AbstractActor {
 	@SuppressWarnings({"deprecation"})
 	public void processMessage(String messageType, JsonNode message) throws Exception{
 
+		if (gameState.isGameFinished) {
+			System.out.println("Game is finished, no more events will be processed");
+			return;
+		}
+
 		EventProcessor processor = eventProcessors.get(messageType);
 		if (processor==null) {
 			// Unknown event type received
