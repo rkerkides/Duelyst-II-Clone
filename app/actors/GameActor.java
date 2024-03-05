@@ -105,43 +105,15 @@ public class GameActor extends AbstractActor {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "deprecation" })
-	public void processMessage(String messageType, JsonNode message) throws Exception {
+	@SuppressWarnings({"deprecation"})
+	public void processMessage(String messageType, JsonNode message) throws Exception{
+
 		EventProcessor processor = eventProcessors.get(messageType);
-		if (processor == null) {
+		if (processor==null) {
 			// Unknown event type received
-			System.err.println("GameActor: Received unknown event type " + messageType);
+			System.err.println("GameActor: Recieved unknown event type "+messageType);
 		} else {
-			// If the event is not a heartbeat, initalize, unitMoving, or unitStopped event:
-			if (!Objects.equals(messageType, "heartbeat") && !Objects.equals(messageType, "initalize")
-					&& !Objects.equals(messageType, "unitMoving") && !Objects.equals(messageType, "unitstopped")) {
-				// Block all events if a unit is currently moving
-				// Add a null check for lastEvent before comparing it
-				if (gameState.lastEvent != null && gameState.lastEvent.equals("unitMoving")) {
-					System.out.println("Ignoring event because a unit is currently moving.");
-					System.out.println("Last event: " + gameState.lastEvent);
-					return;
-				}
-				// Reset currentUnitClicked if this event is not a tile click
-				if (!messageType.equals("tileclicked")) {
-					System.out.println("Message type: " + messageType + " so resetting currentUnitClicked.");
-					gameState.currentUnitClicked = null;
-				}
-				// Skip processing the event further if it's the AI's turn
-				if (gameState.currentPlayer instanceof AIPlayer) {
-					System.out.println("Ignoring player action because it's the AI's turn.");
-					return;
-				}
-			}
-
-			// Process the event
-			processor.processEvent(out, gameState, message);
-
-			// Set the last event to the current event type (excluding heartbeat)
-			if (!messageType.equals("heartbeat")) {
-				System.out.println("Setting last event to " + messageType);
-				gameState.lastEvent = messageType;
-			}
+			processor.processEvent(out, gameState, message); // process the event
 		}
 	}
 

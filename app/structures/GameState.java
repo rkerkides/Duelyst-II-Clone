@@ -8,6 +8,9 @@ import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 
+import java.util.List;
+import java.util.Stack;
+
 /**
  * This class can be used to hold information about the on-going game. Its
  * created with the GameActor.
@@ -20,21 +23,23 @@ public class GameState {
 	public boolean gameInitalised = false;
 
 	// Keep track of the player currently taking their turn
-	public Player currentPlayer;
+	private Player currentPlayer;
 
 	// Keep track of the unit that is currently clicked
-	public Unit currentUnitClicked;
+	private Unit currentUnitClicked;
 	// Keep track of the card that is currently clicked
-	public Card currentCardClicked;
+	private Card currentCardClicked;
 	// Keep track of the position of the card that is currently clicked
-	public int currentCardPosition;
+	private int currentCardPosition;
 
-	// Keep track of the last event that was processed
-	public String lastEvent;
+	// Keep track of the previous plays of the current turn
+	private Stack<Actionable> actionHistory;
+	// Keep track of the total number of units on the board
+	private int totalUnits = 0;
 
 	// Entity objects that are part of the game state
 	public GameService gameService;
-	private HumanPlayer human;
+	private Player human;
 
 	private Player ai;
 	private Board board;
@@ -47,8 +52,11 @@ public class GameState {
 	 */
 
 	public void init(ActorRef out) {
-		this.gameService = new GameService(out);
+		this.gameService = new GameService(out, this);
 		this.board = gameService.loadBoard();
+
+		// Initialize stack of action history
+		this.actionHistory = new Stack<>();
 
 		// Create the human and AI players
 		this.human = new HumanPlayer();
@@ -64,6 +72,7 @@ public class GameState {
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
 		gameService.loadAvatar(board, ai);
+		gameService.loadUnitsForTesting(ai);
 
 		// Set the current player to the human player
 		this.currentPlayer = human;
@@ -121,6 +130,69 @@ public class GameState {
 
 	public Player getAi() {
 		return this.ai;
+	}
+
+	public Player getCurrentPlayer() {
+		return currentPlayer;
+	}
+
+	public void setCurrentPlayer(Player player) {
+		currentPlayer = player;
+	}
+
+	public Unit getCurrentUnitClicked() {
+		return currentUnitClicked;
+	}
+	public Player getInactivePlayer() {
+		if (currentPlayer == human) {
+			return ai;
+		} else {
+			return human;
+		}
+	}
+
+	public void setCurrentUnitClicked(Unit unit) {
+		currentUnitClicked = unit;
+	}
+
+	public Card getCurrentCardClicked() {
+		return currentCardClicked;
+	}
+
+	public void setCurrentCardClicked(Card card) {
+		currentCardClicked = card;
+	}
+
+	public int getCurrentCardPosition() {
+		return currentCardPosition;
+	}
+
+	public void setCurrentCardPosition(int position) {
+		currentCardPosition = position;
+	}
+
+	public Stack<Actionable> getActionHistory() {
+		return actionHistory;
+	}
+
+	public void addActionToHistory(Actionable action) {
+		actionHistory.add(action);
+	}
+
+	public void removeFromActionHistory() {
+		actionHistory.pop();
+	}
+
+	public int getTotalUnits() {
+		return totalUnits;
+	}
+
+	public void addToTotalUnits(int numberToAdd) {
+		this.totalUnits += numberToAdd;
+	}
+
+	public void removeFromTotalUnits(int numberToRemove) {
+		this.totalUnits -= numberToRemove;
 	}
 
 	/**

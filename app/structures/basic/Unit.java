@@ -1,5 +1,6 @@
 package structures.basic;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -16,22 +17,29 @@ import structures.basic.player.Player;
  * @author Dr. Richard McCreadie
  *
  */
-public class Unit {
+public class Unit implements Actionable {
 
 	@JsonIgnore
 	protected static ObjectMapper mapper = new ObjectMapper(); // Jackson Java Object Serializer, is used to read java
 																// objects from a file
 
 	int id;
+	String name;
 	UnitAnimationType animation;
 	Position position;
 	UnitAnimationSet animations;
 	ImageCorrection correction;
+	// Keep track of the unit's current health
+	int health;
+	// Keep track of the unit's current attack
+	int attack;
 	// Keep track of the owner of the unit
+	@JsonBackReference
 	Player owner;
 	// Keep track of whether the unit has moved in the current turn
 	boolean movedThisTurn = false;
-
+	// Keep track of whether the unit has attacked in the current turn
+	boolean attackedThisTurn = false;
 	public Unit() {
 	}
 
@@ -73,6 +81,12 @@ public class Unit {
 	public void setId(int id) {
 		this.id = id;
 	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public UnitAnimationType getAnimation() {
 		return animation;
@@ -105,6 +119,21 @@ public class Unit {
 	public void setAnimations(UnitAnimationSet animations) {
 		this.animations = animations;
 	}
+	public int getHealth() {
+		return health;
+	}
+	public void setHealth(int health) {
+		this.health = health;
+	}
+
+	public int getAttack() {
+		return attack;
+	}
+
+	public void setAttack(int attack) {
+		this.attack = attack;
+	}
+
 
 	public Player getOwner() {
 		return owner;
@@ -114,12 +143,20 @@ public class Unit {
 		this.owner = owner;
 	}
 
-	public boolean isMovedThisTurn() {
+	public boolean movedThisTurn() {
 		return movedThisTurn;
 	}
 
 	public void setMovedThisTurn(boolean movedThisTurn) {
 		this.movedThisTurn = movedThisTurn;
+	}
+
+	public boolean attackedThisTurn() {
+		return attackedThisTurn;
+	}
+
+	public void setAttackedThisTurn(boolean attackedThisTurn) {
+		this.attackedThisTurn = attackedThisTurn;
 	}
 
 	/**
@@ -134,7 +171,11 @@ public class Unit {
 
 	@Override
 	public String toString() {
-		return "Unit [id=" + id + ", position=" + position + ", owner=" + owner + ", movedThisTurn=" + movedThisTurn + "]";
+		return "Unit [id=" + id + ", name=" + name + ", position=" + position + ", owner=" + owner + ", movedThisTurn=" + movedThisTurn + "]";
 	}
 
+	public Tile getCurrentTile(Board board) {
+		return board.getTile(position.getTilex(), position.getTiley());
+
+	}
 }
