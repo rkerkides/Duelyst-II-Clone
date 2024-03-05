@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import akka.actor.ActorRef;
 import structures.GameState;
+import structures.basic.Unit;
 import structures.basic.player.AIPlayer;
 
 /**
@@ -29,7 +30,9 @@ public class EndTurnClicked implements EventProcessor{
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 5; j++) {
 				if (gameState.getBoard().getTile(i, j).isOccupied()) {
-					gameState.getBoard().getTile(i, j).getUnit().setMovedThisTurn(false);
+					Unit unit = gameState.getBoard().getTile(i, j).getUnit();
+					unit.setMovedThisTurn(false);
+					unit.setAttackedThisTurn(false);
 				}
 			}
 		}
