@@ -45,7 +45,9 @@ public class AIPlayer extends Player {
 
 			}
 			for (Tile tile : positions) {
-				movements.add(new PossibleMovement(unit, tile));
+				if (!tile.isOccupied()) {
+					movements.add(new PossibleMovement(unit, tile));
+				}
 			}
 		}
 
@@ -85,15 +87,28 @@ public class AIPlayer extends Player {
 
 				for (Unit enemy : enemyUnits) {
 					int score = 0;
-					// Calculate distance score inversely; closer enemies should increase score
-					score += (9 - Math.abs(move.tile.getTilex() - enemy.getPosition().getTilex()));
-					score += (9 - Math.abs(move.tile.getTiley() - enemy.getPosition().getTiley()));
-					// Lower health enemies contribute more to the score
-					score += (20 - enemy.getHealth());
-					if (!enemy.equals(enemyUnits.get(0))) {
-						score += 5; // Moving towards the avatar increases score
+					int distanceX = Math.abs(move.tile.getTilex() - enemy.getPosition().getTilex());
+					int distanceY = Math.abs(move.tile.getTiley() - enemy.getPosition().getTiley());
+					int distanceScore = 9 - (distanceX + distanceY);
+
+					if (move.unit.getAttack() == 0) {
+						// If unit has low attack, invert the score to prioritize moving away
+						distanceScore = -(distanceScore);
 					}
-					if (score > maxScore && !move.tile.isOccupied()) {
+
+					if (move.unit.getName().equals("AI Avatar")) {
+						// Prioritize keeping the avatar close to other friendly units
+
+					}
+
+					score += distanceScore;
+					score += (20 - enemy.getHealth()); // More aggressively move towards lower health units
+
+					if (enemy == gameState.getHuman().getAvatar()) {
+						score += 5; // Prioritize attacking the primary human player unit
+					}
+
+					if (score > maxScore) {
 						move.moveQuality = score; // Higher score for more desirable moves
 						maxScore = score;
 					}
@@ -113,22 +128,30 @@ public class AIPlayer extends Player {
 
 		for (PossibleAttack attack : rankedAttacks) {
 			if (!attack.unit.movedThisTurn() && !attack.unit.attackedThisTurn()) {
-				attack.moveQuality = 1;
-
 				// Prioritize eliminating a unit by checking if the attack is lethal
 				if (attack.tile.getUnit().getHealth() <= attack.unit.getAttack()) {
 					attack.moveQuality = 10; // Assign the highest value for lethal attacks
+
 					// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
 				} else if (attack.tile.getUnit() == gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
 					attack.moveQuality = 8;
+
 					// Value for attacking any unit not being the avatar by non-avatar AI units
 				} else if (attack.tile.getUnit() != gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
 					attack.moveQuality = 5;
-				} else if (attack.unit.getAttack() == 0) {
-					attack.moveQuality = -5;
+
+					// Generic attack value
+				} else {
+					attack.moveQuality = 0;
+				}
+				// Penalize units with no attack
+				if (attack.unit.getAttack() == 0) {
+					System.out.println("Unit " + attack.unit + " has no attack");
+					attack.moveQuality = -1;
 				}
 			}
 
+			System.out.println("Attack " + attack.unit + " value = " + attack.moveQuality);
 		}
 		return rankedAttacks;
 	}
@@ -160,12 +183,12 @@ public class AIPlayer extends Player {
 			return null;
 		}
 
-		int maxValue = 0;
+		int minValue = 0;
 		PossibleAttack bestAttack = null;
 
 		for (PossibleAttack attack : attacks) {
-			if (attack.moveQuality > maxValue) {
-				maxValue = attack.moveQuality;
+			if (attack.moveQuality > minValue) {
+				minValue = attack.moveQuality;
 				bestAttack = attack;
 			}
 		}

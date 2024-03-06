@@ -106,14 +106,14 @@ public class GameService {
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		if (newHealth <= 0) {
 			performUnitDeath(unit);
-			if (unit.getId() == 0 || unit.getId() == 1) {
+			if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
 				updatePlayerHealth(unit.getOwner(), newHealth);
 			}
 			return;
 		}
 		unit.setHealth(newHealth);
 		BasicCommands.setUnitHealth(out, unit, newHealth);
-		if (unit.getId() == 0 || unit.getId() == 1) {
+		if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
 			updatePlayerHealth(unit.getOwner(), newHealth);
 		}
 	}
