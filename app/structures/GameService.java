@@ -314,11 +314,6 @@ public class GameService {
 		Set<Tile> validAttacks = new HashSet<>();
 		Player opponent = gs.getInactivePlayer();
 
-		// Special ability or ranged attack logic (not implemented yet)
-		/*if (unit instanceof RangedAttack && !unit.attackedThisTurn()) {
-			return ((RangedAttack) unit).specialAbility(gs.getBoard());
-		}*/
-
 		// Provocation check
 		if (!unit.movedThisTurn() && checkProvoked(unit)) {
 			return findProvokedTargets(unit);
@@ -378,6 +373,9 @@ public class GameService {
 			if (attacker.getOwner() == gs.getCurrentPlayer()) {
 				counterAttack(attacker, attacked);
 			}
+
+			attacker.setAttackedThisTurn(true);
+			attacker.setMovedThisTurn(true);
 		}
 	}
 
@@ -449,8 +447,9 @@ public class GameService {
 	}
 
 	public void updateUnitPositionAndMove(Unit unit, Tile newTile) {
-		if (newTile.getHighlightMode() != 1) {
+		if (newTile.getHighlightMode() != 1 && gs.getCurrentPlayer() instanceof HumanPlayer) {
 			System.out.println("New tile is not highlighted for movement");
+			removeHighlightFromAll();
 			return;
 		}
 
@@ -476,6 +475,8 @@ public class GameService {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+
+		unit.setMovedThisTurn(true);
 	}
 	
 	public void drawCards(Player player, int numberOfCards) {

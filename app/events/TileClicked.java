@@ -94,7 +94,6 @@ public class TileClicked implements EventProcessor {
 			// Assuming all valid moves are already checked, directly move the unit
 			gameState.gameService.updateUnitPositionAndMove(unit, targetTile);
 			System.out.println("Unit " + unit.getId() + " moved to " + targetTile.getTilex() + ", " + targetTile.getTiley());
-			unit.setMovedThisTurn(true);
 		} else if (targetTile.getHighlightMode() == 2) {
 			// Directly handle attack as validity should have been ensured beforehand
 			System.out.println("Attacking unit on tile " + targetTile.getTilex() + ", " + targetTile.getTiley());
