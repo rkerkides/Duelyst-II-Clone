@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
 import structures.basic.cards.Card;
+import structures.basic.cards.ShadowWatcher;
 import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
@@ -123,6 +124,9 @@ public class GameService {
 	}
 
 	public void performUnitDeath (Unit unit) {
+
+		//invoke Shadow Watcher Deathwatch ability
+		ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
 		// remove unit from board
 		unit.getCurrentTile(gs.getBoard()).removeUnit();
 		unit.setHealth(0);
