@@ -13,9 +13,7 @@ public class ShadowWatcher extends Unit{
 
     // method to check if shadow watcher is on the board and increment attack and health by 1 each time someone dies.
     public static void ShadowWatcherDeathwatch(ActorRef out, GameState gameState, GameService gs) {
-        ArrayList<Unit> units = (ArrayList<Unit>) gameState.getAi().getUnits();
-        units.addAll(gameState.getHuman().getUnits());
-        for (Unit unit : units) {
+        for (Unit unit : gameState.getUnits()) {
             if (unit.getName().equals("Shadow Watcher")) {
                 System.out.println("Found ShadowWatcher");
                 int newHealth = unit.getHealth() + 1;
