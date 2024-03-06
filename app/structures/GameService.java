@@ -311,11 +311,6 @@ public class GameService {
 		Set<Tile> validAttacks = new HashSet<>();
 		Player opponent = gs.getInactivePlayer();
 
-		// Special ability or ranged attack logic (not implemented yet)
-		/*if (unit instanceof RangedAttack && !unit.attackedThisTurn()) {
-			return ((RangedAttack) unit).specialAbility(gs.getBoard());
-		}*/
-
 		// Provocation check
 		if (!unit.movedThisTurn() && checkProvoked(unit)) {
 			return findProvokedTargets(unit);
@@ -375,6 +370,9 @@ public class GameService {
 			if (attacker.getOwner() == gs.getCurrentPlayer()) {
 				counterAttack(attacker, attacked);
 			}
+
+			attacker.setAttackedThisTurn(true);
+			attacker.setMovedThisTurn(true);
 		}
 	}
 
