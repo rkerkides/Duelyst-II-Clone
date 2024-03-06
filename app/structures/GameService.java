@@ -257,6 +257,12 @@ public class GameService {
 		return validTiles;
 	}
 
+	public Set<Tile> calculateSpellTargets(Card card) {
+		Set<Tile> validSpellTargets = new HashSet<>();
+		// Logic to determine valid spell targets
+		return validSpellTargets;
+	}
+
 	// Helper method to add a valid tile to the set of valid actions if the conditions are met
 	private void addValidTileInDirection(Tile[][] board, Unit unit, int dx, int dy, Set<Tile> validTiles) {
 		// Calculate new position based on direction offsets

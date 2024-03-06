@@ -6,11 +6,10 @@ import commands.BasicCommands;
 import events.EndTurnClicked;
 import structures.GameState;
 import structures.basic.*;
+import structures.basic.cards.Card;
+import structures.basic.cards.SpellCard;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 
 public class AIPlayer extends Player {
 
@@ -230,6 +229,37 @@ public class AIPlayer extends Player {
 		}
 	}
 
+	private Set<SpellCard> identifySpellCardsInHand() {
+		Set<SpellCard> availableSpellCards = new HashSet<>();
+		// Loop through each card in the AI player's hand
+		for (Card card : this.hand.getCards()) {
+			// Check if the card is a spell card and if there's enough mana to play it
+			if (card instanceof SpellCard && this.mana >= card.getManacost()) {
+				availableSpellCards.add((SpellCard) card);
+			}
+		}
+		return availableSpellCards;
+	}
+
+	private HashMap<SpellCard, ArrayList<PossibleSpell>> generatePossibleSpells(Set<SpellCard> spellCards) {
+		HashMap<SpellCard, ArrayList<PossibleSpell>> spellActions = new HashMap<>();
+		// Loop through each identified spell card
+		for (SpellCard card : spellCards) {
+			ArrayList<PossibleSpell> possibleSpells = new ArrayList<>();
+			// Determine valid targets based on the spell card's characteristics
+			Set<Tile> validTargets = gameState.gameService.calculateSpellTargets(card);
+			// Create a possible spell for each valid target
+			for (Tile target : validTargets) {
+				if (card.isValidTarget(target, gameState)) {
+					possibleSpells.add(new PossibleSpell(card, target));
+				}
+			}
+			if (!possibleSpells.isEmpty()) {
+				spellActions.put(card, possibleSpells);
+			}
+		}
+		return spellActions;
+	}
 	@Override
 	public String toString() {
 		return "AIPlayer";
