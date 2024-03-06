@@ -22,7 +22,7 @@ public class BadOmen extends Unit {
 
     // method to check if bad omen is onthe board and increment attack each time someone dies.
     public static void BadOmenDeathwatch( ActorRef out, GameState gameState, GameService gs) {
-        for(Unit unit : gameState.getUnitsOnBoard()){
+        for(Unit unit : gameState.getUnits()){
             if (unit.getName().equals("Bad Omen")) {
                 gameState.removeFromTotalUnits(1); // method that removes one unit from the total count
                 int newAttack = unit.getAttack() + 1;
