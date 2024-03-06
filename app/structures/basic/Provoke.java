@@ -7,7 +7,6 @@ import structures.GameState;
 
 public class Provoke extends Unit {
     private String name = null;
-    private Set<Tile> validAttacks;
 
 
     /**
@@ -19,7 +18,7 @@ public class Provoke extends Unit {
 
         // How many provoke units does the enemy has on the boards
         Board board = gameState.getBoard();
-        validAttacks = new HashSet<>();
+        Set<Tile> validAttacks = new HashSet<>();
         validAttacks.add(board.getTiles()[this.getPosition().getTilex()][this.getPosition().getTiley()]);
 
         return validAttacks;
