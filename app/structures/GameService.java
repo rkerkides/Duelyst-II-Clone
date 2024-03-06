@@ -418,17 +418,23 @@ public class GameService {
 		System.out.println("Highlighting summon range for " + card.getCardname());
 		Tile[][] tiles = gs.getBoard().getTiles();
 
-		// Iterate over all tiles on the board
+		Set<Tile> validTiles = getValidSummonTiles();
+		validTiles.forEach(tile -> updateTileHighlight(tile, 1));
+	}
+
+	public Set<Tile> getValidSummonTiles() {
+		Player player = gs.getCurrentPlayer();
+		Set<Tile> validTiles = new HashSet<>();
+		Tile[][] tiles = gs.getBoard().getTiles();
 		for (int i = 0; i < tiles.length; i++) {
 			for (int j = 0; j < tiles[i].length; j++) {
 				Tile currentTile = tiles[i][j];
-
-				// Check if tile is adjacent to a friendly unit
 				if (isAdjacentToFriendlyUnit(i, j, player) && !currentTile.isOccupied()) {
-					updateTileHighlight(currentTile, 1); // 1 for summonable highlight mode
+					validTiles.add(currentTile);
 				}
 			}
 		}
+		return validTiles;
 	}
 
 	// Check if a tile is adjacent to a friendly unit of the specified player
