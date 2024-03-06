@@ -8,6 +8,7 @@ import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -45,6 +46,8 @@ public class GameState {
 
 	private Player ai;
 	private Board board;
+
+	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
 
 	/**
 	 * This function initialises all the assets Board, Player etc As well as
@@ -125,6 +128,20 @@ public class GameState {
 	public void setBoard(Board board) {
 		this.board = board;
 	}
+
+	public ArrayList<Unit> getUnitsOnBoard() {
+		return unitsOnBoard;
+	}
+
+
+	public void addUnitstoBoard(Unit unit) {
+		this.unitsOnBoard.add(unit);
+	}
+
+	public void setTotalUnits(int totalUnits) {
+		this.totalUnits = totalUnits;
+	}
+
 
 	public Player getHuman() {
 		return this.human;
