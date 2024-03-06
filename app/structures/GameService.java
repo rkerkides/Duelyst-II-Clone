@@ -107,6 +107,9 @@ public class GameService {
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		if (newHealth <= 0) {
 			performUnitDeath(unit);
+			if (unit.getId() == 0 || unit.getId() == 1) {
+				updatePlayerHealth(unit.getOwner(), newHealth);
+			}
 			return;
 		}
 		unit.setHealth(newHealth);

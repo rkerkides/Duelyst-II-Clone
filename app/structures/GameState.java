@@ -210,6 +210,15 @@ public class GameState {
 		this.totalUnits -= numberToRemove;
 	}
 
+	// Get all the units on the board
+	public ArrayList<Unit> getUnits() {
+		ArrayList<Unit> combinedUnits = new ArrayList<>();
+		combinedUnits.addAll(ai.getUnits());
+		combinedUnits.addAll(human.getUnits());
+		return combinedUnits;
+	}
+
+
 	/**
 	 * Checks and see if the game has ended If so it will send the apropiate
 	 * notifcation
