@@ -529,7 +529,6 @@ public class GameService {
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
 		Wraithling.check(out, gs, this);
-
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
 

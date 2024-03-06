@@ -27,6 +27,8 @@ public class StaticConfFiles {
 	public final static String f1_projectiles = "conf/gameconfs/effects/f1_projectiles.json";
 	public final static String f1_summon = "conf/gameconfs/effects/f1_summon.json";
 	public final static String wsummon = "conf/gameconfs/effects/f1_wraithsummon.json";
+	public final static String something = "conf/gameconfs/effects/f1_soulshatter.json";
+
 
 	
 	//class
