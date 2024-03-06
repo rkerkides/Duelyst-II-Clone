@@ -27,7 +27,7 @@ public class AIPlayer extends Player {
 
 		// ends turn
 		EndTurnClicked endTurn = new EndTurnClicked();
-		BasicCommands.addPlayer1Notification(out, "AI takes turn (and immediately ends it)", 2);
+		BasicCommands.addPlayer1Notification(out, "AI ends its turn", 2);
 		endTurn.processEvent(out, gameState, message);
 	}
 

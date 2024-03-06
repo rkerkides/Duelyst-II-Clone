@@ -153,6 +153,9 @@ public class GameService {
 				}
 			}
 		}
+		if (!gs.getHuman().getHand().getCards().isEmpty()) {
+			notClickingCard();
+		}
 	}
 
 
@@ -596,8 +599,8 @@ public class GameService {
 		gs.setCurrentCardClicked(null);
 		gs.setCurrentCardPosition(0);
 
-		for (int i = 1; i <= gs.getCurrentPlayer().getHand().getNumberOfCardsInHand(); i++) {
-			Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(i);
+		for (int i = 1; i <= gs.getHuman().getHand().getNumberOfCardsInHand(); i++) {
+			Card card = gs.getHuman().getHand().getCardAtPosition(i);
 			BasicCommands.drawCard(out, card, i, 0);
 		}
 	}
