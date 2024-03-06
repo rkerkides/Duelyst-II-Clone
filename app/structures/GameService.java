@@ -308,7 +308,7 @@ public class GameService {
 
 			// Check if the opponent unit's name matches any provoking unit
 			if (other.getName().equals("Rock Pulveriser") || other.getName().equals("Swamp Entangler") ||
-					other.getName().equals("Silverguard Knight") || other.getName().equals("Ironcliffe Guardian")) {
+					other.getName().equals("Silverguard Knight") || other.getName().equals("Ironcliffe Guardian") || other.getId() == 0) {
 				// Check if the opponent unit is adjacent to the current unit
 				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
 					System.out.println("Unit is provoked!");
