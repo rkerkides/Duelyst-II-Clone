@@ -7,8 +7,8 @@ import structures.basic.cards.Card;
 import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
-
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -203,6 +203,15 @@ public class GameState {
 	public void removeFromTotalUnits(int numberToRemove) {
 		this.totalUnits -= numberToRemove;
 	}
+
+	// Get all the units on the board
+	public ArrayList<Unit> getUnits() {
+		ArrayList<Unit> combinedUnits = new ArrayList<>();
+		combinedUnits.addAll(ai.getUnits());
+		combinedUnits.addAll(human.getUnits());
+		return combinedUnits;
+	}
+
 
 	/**
 	 * Checks and see if the game has ended If so it will send the apropiate
