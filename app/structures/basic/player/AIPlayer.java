@@ -156,6 +156,47 @@ public class AIPlayer extends Player {
 		return rankedAttacks;
 	}
 
+	private Set<PossibleSummon> rankSummons(ArrayList<PossibleSummon> summons) {
+		System.out.println("Ranking possible summons...");
+		if (summons == null) {
+			return null;
+		}
+
+		Set<PossibleSummon> rankedSummons = new HashSet<>(summons);
+
+		for (PossibleSummon summon : rankedSummons) {
+			if (summon.card.getManacost() <= this.mana) {
+				summon.moveQuality = 5;
+			}
+		}
+		return rankedSummons;
+	}
+
+	private PossibleSummon findBestSummon(Set<PossibleSummon> summons) {
+		System.out.println("AI finding best summon...");
+		if (summons == null || summons.isEmpty()) {
+			System.out.println("No available summons to evaluate.");
+			return null;
+		}
+
+		int minValue = 0;
+		PossibleSummon bestSummon = null;
+
+		for (PossibleSummon summon : summons) {
+			if (summon.moveQuality > minValue) {
+				minValue = summon.moveQuality;
+				bestSummon = summon;
+			}
+		}
+
+		if (bestSummon != null) {
+			System.out.println("Best action found: Tile " + bestSummon.tile + " and Unit " + bestSummon.card + " with value = " + bestSummon.moveQuality);
+		} else {
+			System.out.println("No summon meets the evaluation criteria.");
+		}
+		return bestSummon;
+	}
+
 	private PossibleMovement findBestMovement(Set<PossibleMovement> moves) {
 		System.out.println("AI finding best movement...");
 		Integer minValue = 0;
@@ -205,11 +246,63 @@ public class AIPlayer extends Player {
 
 	private void makeBestMove(ActorRef out) {
 		try {
+			performCardActions();
+			System.out.println("Went past card actions");
 			performAttacks();
 			performMovements();
 		} catch (Exception e) {
 			// Handle other exceptions or log them
 		}
+	}
+
+	private void performCardActions() {
+		while (true) {
+			System.out.println("Performing card actions");
+			ArrayList<Card> cards = (ArrayList<Card>) this.hand.getCards();
+			System.out.println("Cards in hand: " + cards.size());
+			if (cards.isEmpty()) {
+				System.out.println("Cards is empty");
+				return;
+			}
+			// Implement creature card summoning
+			System.out.println("Creature card summoning");
+			ArrayList<PossibleSummon> possibleSummons = returnAllSummons(gameState);
+			if (possibleSummons.isEmpty()) {
+				System.out.println("Summons is empty");
+				return;
+			}
+			Set<PossibleSummon> rankedSummons = new HashSet<>(rankSummons(possibleSummons));
+			PossibleSummon bestMove = findBestSummon(rankedSummons);
+			if (bestMove != null) {
+				gameState.gameService.removeCardFromHandAndSummonUnit(bestMove.card, bestMove.tile);
+				System.out.println("Summoning unit " + bestMove.card.getCardname() + " on tile " + bestMove.tile.getTilex() + ", " + bestMove.tile.getTiley());
+			} else {
+				System.out.println("No summon found");
+				return;
+			}
+		}
+	}
+
+	private ArrayList<PossibleSummon> returnAllSummons(GameState gameState) {
+		ArrayList<PossibleSummon> summons = new ArrayList<>();
+		for (Card card : this.hand.getCards()) {
+			System.out.println("Checking card " + card.getCardname() + " for summoning");
+			System.out.println("Card is creature: " + card.isCreature());
+			System.out.println("Card manacost: " + card.getManacost());
+			System.out.println("AIPlayer mana: " + this.mana);
+			if (card.isCreature() && card.getManacost() <= this.mana) {
+				Set<Tile> positions;
+				positions = gameState.gameService.getValidSummonTiles();
+				for (Tile tile : positions) {
+					System.out.println("Returning summon for unit " + card.getCardname() + " on tile " + tile.getTilex() + ", " + tile.getTiley());
+					if (!tile.isOccupied()) {
+						System.out.println("Tile is not occupied");
+						summons.add(new PossibleSummon(card, tile));
+					}
+				}
+			}
+		}
+		return summons;
 	}
 
 
