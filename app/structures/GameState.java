@@ -48,6 +48,7 @@ public class GameState {
 	private Board board;
 
 	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
+	ArrayList<Unit> units = new ArrayList<Unit>();
 
 	/**
 	 * This function initialises all the assets Board, Player etc As well as
