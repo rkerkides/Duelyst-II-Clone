@@ -20,7 +20,7 @@ public class CardAction {
         Card currentCard = gameState.getCurrentCardClicked();
 
 		// Highlight the summon range of the current card clicked
-		gameState.gameService.highlightSummonRange(currentCard, gameState.getHuman());
+		gameState.gameService.highlightSummonRange();
 
 
 
