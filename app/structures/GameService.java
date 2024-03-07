@@ -22,31 +22,31 @@ public class GameService {
 	
 	private final ActorRef out;
 	private final GameState gs;
-	
+
 
 	public GameService(ActorRef out, GameState gs) {
 		this.out = out;
 		this.gs = gs;
 	}
 
-	public void updatePlayerHealth(Player player, int newHealth){
+	public void updatePlayerHealth(Player player, int newHealth) {
 		// Set the new health value on the player object first
 		player.setHealth(newHealth);
 
 		// Now update the health on the frontend using the BasicCommands
-		if (player instanceof HumanPlayer){
+		if (player instanceof HumanPlayer) {
 			BasicCommands.setPlayer1Health(out, player);
 		} else {
 			BasicCommands.setPlayer2Health(out, player);
 		}
 	}
 
-	public void updatePlayerMana(Player player, int newMana){
+	public void updatePlayerMana(Player player, int newMana) {
 		// Set the new mana value on the player object first
 		player.setMana(newMana);
 
 		// Now update the mana on the frontend using the BasicCommands
-		if (player instanceof HumanPlayer){
+		if (player instanceof HumanPlayer) {
 			BasicCommands.setPlayer1Mana(out, player);
 		} else {
 			BasicCommands.setPlayer2Mana(out, player);
@@ -62,7 +62,11 @@ public class GameService {
 				tile.setHighlightMode(0);
 				board.setTile(tile, i, j);
 				BasicCommands.drawTile(out, tile, 0);
-				try {Thread.sleep(5);} catch (InterruptedException e) {e.printStackTrace();}
+				try {
+					Thread.sleep(5);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return board;
@@ -94,9 +98,17 @@ public class GameService {
 		updateUnitAttack(avatar, 2);
 		avatar.setHealth(20);
 		avatar.setAttack(2);
-		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		try {
+			Thread.sleep(30);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		BasicCommands.setUnitHealth(out, avatar, 20);
-		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		try {
+			Thread.sleep(30);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		BasicCommands.setUnitAttack(out, avatar, 2);
 	}
 
@@ -127,6 +139,7 @@ public class GameService {
 	}
 	
 	public void updateUnitHealth(Unit unit, int newHealth) {
+
 		if (unit.getName().equals("Player Avatar")){
 			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
 		}
@@ -134,12 +147,20 @@ public class GameService {
 			Wraithling.summonWraithling(gs.getHuman().getAvatar(), out, gs, this);
 		}
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		try {
+			Thread.sleep(30);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		if (newHealth <= 0) {
 			performUnitDeath(unit);
 			if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
 				updatePlayerHealth(unit.getOwner(), newHealth);
 			}
 			return;
+		}
+		if (unit.getHealth() > newHealth && unit.getName().equals("AI Avatar")) {
+			zeal();
 		}
 		unit.setHealth(newHealth);
 		BasicCommands.setUnitHealth(out, unit, newHealth);
@@ -150,12 +171,16 @@ public class GameService {
 
 	// Update a unit's attack on the board
 	public void updateUnitAttack(Unit unit, int newAttack) {
-		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		try {
+			Thread.sleep(30);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		unit.setAttack(newAttack);
 		BasicCommands.setUnitAttack(out, unit, newAttack);
 	}
 
-	public void performUnitDeath (Unit unit) {
+	public void performUnitDeath(Unit unit) {
 		// remove unit from board
 		unit.getCurrentTile(gs.getBoard()).removeUnit();
 		unit.setHealth(0);
@@ -163,7 +188,11 @@ public class GameService {
 		unit.setOwner(null);
 		gs.removeFromTotalUnits(1);
 		BasicCommands.playUnitAnimation(out, unit, UnitAnimationType.death);
-		try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		BasicCommands.deleteUnit(out, unit);
 		if (unit.getId() == 0 || unit.getId() == 1) {
 			updatePlayerHealth(unit.getOwner(), 0);
@@ -176,7 +205,7 @@ public class GameService {
 		Tile[][] tiles = board.getTiles();
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 5; j++) {
-				if(tiles[i][j].getHighlightMode() != 0){
+				if (tiles[i][j].getHighlightMode() != 0) {
 					Tile currentTile = tiles[i][j];
 					currentTile.setHighlightMode(0);
 					BasicCommands.drawTile(out, currentTile, 0);
@@ -218,7 +247,11 @@ public class GameService {
 		if (closestTile != null) {
 			updateUnitPositionAndMove(attacker, closestTile);
 			// Ensure a small delay to let the move action complete before attacking
-			try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 
 		// After moving, perform the attack if the attacker is now adjacent to the defender
@@ -323,8 +356,6 @@ public class GameService {
 			}
 		}
 	}
-
-
 
 
 	// Checks if a tile position is within the boundaries of the game board
@@ -437,10 +468,18 @@ public class GameService {
 			removeHighlightFromAll();
 
 			BasicCommands.playUnitAnimation(out, attacker, UnitAnimationType.attack);
-			try {Thread.sleep(1500);} catch (InterruptedException e) {e.printStackTrace();}
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
 			BasicCommands.playUnitAnimation(out, attacked, UnitAnimationType.hit);
-			try {Thread.sleep(750);} catch (InterruptedException e) {e.printStackTrace();}
+			try {
+				Thread.sleep(750);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			BasicCommands.playUnitAnimation(out, attacker, UnitAnimationType.idle);
 			BasicCommands.playUnitAnimation(out, attacked, UnitAnimationType.idle);
 
@@ -548,16 +587,20 @@ public class GameService {
 	}
 
 	// check if summoning is valid
-    public boolean isValidSummon(Card card, Tile tile) {
-        // depending on cards, this may change
-        // for now, all cards can move to tiles highlighted white
+	public boolean isValidSummon(Card card, Tile tile) {
+		// depending on cards, this may change
+		// for now, all cards can move to tiles highlighted white
 		System.out.println("isValidSummon: " + tile.getHighlightMode());
-        return tile.getHighlightMode() == 1;
-    }
+		return tile.getHighlightMode() == 1;
+	}
 
 	// helper method to update tile highlight
 	public void updateTileHighlight(Tile tile, int tileHighlightMode) {
-		try {Thread.sleep(20);} catch (InterruptedException e) {e.printStackTrace();}
+		try {
+			Thread.sleep(20);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		tile.setHighlightMode(tileHighlightMode);
 		BasicCommands.drawTile(out, tile, tileHighlightMode);
@@ -584,7 +627,11 @@ public class GameService {
 		// remove highlight from all tiles
 		removeHighlightFromAll();
 
-		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		try {
+			Thread.sleep(30);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		// draw unit on new tile and wait for animation to play out
 		BasicCommands.moveUnitToTile(out, unit, newTile);
 		try {
@@ -595,14 +642,18 @@ public class GameService {
 
 		unit.setMovedThisTurn(true);
 	}
-	
+
 	public void drawCards(Player player, int numberOfCards) {
 		if (player instanceof HumanPlayer) {
 			for (int i = 0; i < numberOfCards; i++) {
 				Card cardDrawn = player.drawCard();
 				int handPosition = player.getHand().getNumberOfCardsInHand();
 				BasicCommands.drawCard(out, cardDrawn, handPosition, 0);
-				try { Thread.sleep(1000); } catch (InterruptedException e) { e.printStackTrace(); }
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		} else {
 			for (int i = 0; i < numberOfCards; i++) {
@@ -611,9 +662,12 @@ public class GameService {
 		}
 	}
 
+
+
     // remove card from hand and summon unit
     public void removeCardFromHandAndSummon(Card card, Tile tile) {
     	System.out.println("Removing card from hand and summoning" + card.getCardname());
+
 		Player player = gs.getCurrentPlayer();
 		Hand hand = player.getHand();
 		int handPosition = gs.getCurrentCardPosition();
@@ -652,8 +706,9 @@ public class GameService {
 			summonUnit(unit_conf, unit_id, card, tile, player);
 		}
 		// summon unit
+
 		
-    }
+    }	
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
 		Wraithling.check(out, gs, this);
@@ -697,6 +752,7 @@ public class GameService {
 
 		System.out.println("Summoning unit " + unit + " to tile " + tile.getTilex() + ", " + tile.getTiley());
 	}
+
 	public void setCurrentCardClickedAndHighlight(int handPosition) {
 		notClickingCard();
 		Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(handPosition);
@@ -706,7 +762,7 @@ public class GameService {
 		if (card.isCreature()) {
 			//displayMessageForSpell(card);
 		}
-		
+	
 	}
 
 	public void notClickingCard() {
@@ -729,17 +785,25 @@ public class GameService {
 	}
 	
 	public void HornOfTheForesaken(Card card) {
-		EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.something);
-        BasicCommands.playEffectAnimation(out,effect, gs.getHuman()
-                .getAvatar().getCurrentTile(gs.getBoard()));
+        EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.something);
+        BasicCommands.playEffectAnimation(out, effect, gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()));
         notClickingCard();
-        
         BasicCommands.addPlayer1Notification(out, "Horn of the Forsaken is used, you have 3 more robustness", 2);
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		};
-	}
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void zeal() {
+        for (Unit unit : gs.getAi().getUnits()) {
+            if (unit.getName().equals("Silverguard Knight")) {
+                System.out.println("BUFFED");
+                int newAttack = unit.getAttack() + 2;
+                updateUnitAttack(unit, newAttack);
+            }
+        }
+    }
 }
