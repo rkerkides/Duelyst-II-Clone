@@ -10,6 +10,7 @@ import structures.basic.Actionable;
 import structures.basic.Tile;
 import structures.basic.Unit;
 import structures.basic.cards.Card;
+import structures.basic.cards.Wraithling;
 
 /**
  * Indicates that the user has clicked an object on the game canvas, in this case a tile.
@@ -74,8 +75,8 @@ public class TileClicked implements EventProcessor {
 	    if (card.getCardname().equals("Horn of the Forsaken")) {
 	        if (gameState.getHuman().getMana() >= card.getManacost()) {
 	            // Sufficient mana for casting the spell
-	            gameState.gameService.HornOfTheForesaken(card);//to change to fit other spells
-	            gameState.getHuman().setRobustness(gameState.getHuman().getRobustness() + 3);	            
+	            gameState.gameService.HornOfTheForesaken(card);//to change to fit other spell	            	            
+	            gameState.getCurrentPlayer().setRobustness(gameState.getCurrentPlayer().getRobustness() + 3);	            
 	            System.out.println("Player's robustness: " + gameState.getHuman().getRobustness());
 	            gameState.gameService.removeCardFromHandAndSummon(card, tile);
 	            
@@ -87,6 +88,17 @@ public class TileClicked implements EventProcessor {
 	    	    gameState.gameService.notClickingCard();
 
 	        }
+	    }
+		if (card.getCardname().equals("Dark Terminus") &&
+				tile.getUnit().getOwner() != gameState.getHuman()) {
+			    gameState.gameService.performUnitDeath(tile.getUnit());
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			    Wraithling.summonWraithlingToTile(tile, out, gameState);
+	    	
 	    }
 	    
 	    // Remove highlight from all tiles

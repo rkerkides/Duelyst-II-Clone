@@ -19,7 +19,7 @@ import utils.StaticConfFiles;
 
 public class Wraithling extends Unit{
 	
-	private static int id=1000;
+	private static int id=90;
 	
 	private static int GloomChaserWraitlingsCount = 0;
 
@@ -37,25 +37,27 @@ public class Wraithling extends Unit{
 			}
 		System.out.println("Units on the board: "+gameState.getUnitsOnBoard().size());
 		
-		try {Thread.sleep(500);} catch (InterruptedException e) {e.printStackTrace();
+		try {Thread.sleep(100);} catch (InterruptedException e) {e.printStackTrace();
 		}
 	}
 	
-	private static Unit summonWraithling(Unit parent, ActorRef out, GameState gameState, GameService gs) {
-	    if (parent.getName().equals("Player Avatar") && gameState.getCurrentPlayer().getRobustness() > 0) {
+	public static void summonWraithling(Unit parent, ActorRef out, GameState gameState, GameService gs) {
+	    if ( parent!= null && parent.getName().equals("Player Avatar") && gameState.getCurrentPlayer().getRobustness() > 0) {
 	        Tile currentTile = parent.getCurrentTile(gameState.getBoard());
 	        Tile randomAdjacentTile = getRandomAdjacentUnoccupiedTile(currentTile, gameState.getBoard());
 	        
 	        if (randomAdjacentTile != null) {
 	            summonWraithlingToTile(randomAdjacentTile, out, gameState);
-	            return null;
 	        }
-	    } else if (parent.getName().equals("Gloom Chaser")) {
+	    } 
+	    if (parent.getName().equals("Gloom Chaser")) {
 	        Tile toTheLeft = findTileToLeft(parent, gameState);
 	        
 	        if (toTheLeft != null && !toTheLeft.isOccupied()) {
-	            return summonWraithlingToTile(toTheLeft, out, gameState);
+	          summonWraithlingToTile(toTheLeft, out, gameState);
+
 	        }
+	       
 	    }
 	    
 	    try {
@@ -64,7 +66,6 @@ public class Wraithling extends Unit{
 	        e.printStackTrace();
 	    }
 	    
-	    return null;
 	}
 
 	private static Tile findTileToLeft(Unit parent, GameState gameState) {
@@ -74,22 +75,33 @@ public class Wraithling extends Unit{
 	    return gameState.getBoard().getTile(newTileX, newTileY);
 	}
 
-	private static Unit summonWraithlingToTile(Tile tile, ActorRef out, GameState gameState) {
-	    Unit unit = loadUnit(StaticConfFiles.wraithling, id, Unit.class);
+	public static Unit summonWraithlingToTile(Tile tile, ActorRef out, GameState gameState) {
+	    Unit wraithling = loadUnit(StaticConfFiles.wraithling, id, Unit.class);
+	    tile.setUnit(wraithling);
+	    wraithling.setPositionByTile(tile);
+	    wraithling.setOwner(gameState.getHuman());
+	    wraithling.setName("Wraithling_" + id);
 	    id++;
-	    tile.setUnit(unit);
-	    unit.setPositionByTile(tile);
-	    unit.setOwner(gameState.getHuman());
-	    unit.setName("Wraithling" + id);
-	    gameState.getHuman().addUnit(unit);
+	    gameState.getHuman().addUnit(wraithling);
 	    EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.wsummon);
 	    BasicCommands.playEffectAnimation(out, effect, tile);
-	    BasicCommands.drawUnit(out, unit, tile);
-	    unit.setAttack(1);
-	    unit.setHealth(1);
-	    BasicCommands.setUnitHealth(out, unit, 1);
-	    BasicCommands.setUnitAttack(out, unit, 1);
-	    return unit;
+	    BasicCommands.drawUnit(out, wraithling, tile);
+	    
+	    try {
+	        Thread.sleep(30);
+	    } catch (InterruptedException e) {
+	        e.printStackTrace();
+	    }
+	    
+	    wraithling.setAttack(1);
+	    wraithling.setHealth(1);
+	    System.out.println("Wraithling summoned to " + tile.getTilex() + ", " + tile.getTiley()+
+				" with id: " + wraithling.getId() + " and name: " + wraithling.getName()
+				+ " and attack: " + wraithling.getAttack() + " and health: "
+				+ wraithling.getHealth());
+	    BasicCommands.setUnitHealth(out, wraithling, 1);
+	    BasicCommands.setUnitAttack(out, wraithling, 1);
+	    return wraithling;
 	}
 
 	private static Tile getRandomAdjacentUnoccupiedTile(Tile currentTile, Board board) {

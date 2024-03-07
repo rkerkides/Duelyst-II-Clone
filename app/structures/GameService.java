@@ -75,12 +75,12 @@ public class GameService {
 		Unit avatar;
 		if (player instanceof HumanPlayer) {
 			avatarTile = board.getTile(1, 2);
-			avatar =  BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
+			avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
 			avatar.setName("Player Avatar");
 
 		} else {
 			avatarTile = board.getTile(7, 2);
-			avatar =  BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
+			avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
 			avatar.setName("AI Avatar");
 		}
 		avatar.setPositionByTile(avatarTile);
@@ -90,9 +90,10 @@ public class GameService {
 		player.setAvatar(avatar);
 		player.addUnit(avatar);
 		gs.addToTotalUnits(1);
-		updateUnitHealth(avatar, 20);
+		setUnitHealth(avatar, 20);
 		updateUnitAttack(avatar, 2);
 	}
+
 
 	// load aiUnits for testing
 	public void loadUnitsForTesting(Player player) {
@@ -106,7 +107,26 @@ public class GameService {
 	}
 
 	// Update a unit's health on the board
+	public void setUnitHealth(Unit unit, int newHealth) {
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		if (newHealth <= 0) {
+			performUnitDeath(unit);
+			return;
+		}
+		unit.setHealth(newHealth);
+		BasicCommands.setUnitHealth(out, unit, newHealth);
+		if (unit.getId() == 0 || unit.getId() == 1) {
+			updatePlayerHealth(unit.getOwner(), newHealth);
+		}
+	}
+	
 	public void updateUnitHealth(Unit unit, int newHealth) {
+		if (unit.getName().equals("Player Avatar")){
+			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
+		}
+		if (!(unit.getOwner() instanceof HumanPlayer) && gs.getHuman().getRobustness() > 0){
+			Wraithling.summonWraithling(gs.getHuman().getAvatar(), out, gs, this);
+		}
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		if (newHealth <= 0) {
 			performUnitDeath(unit);
@@ -561,7 +581,7 @@ public class GameService {
 
 		// use BigCard data to update unit health and attack
 		BigCard bigCard = card.getBigCard();
-		updateUnitHealth(unit, bigCard.getHealth());
+		setUnitHealth(unit, bigCard.getHealth());
 		updateUnitAttack(unit, bigCard.getAttack());
 
 		unit.setMovedThisTurn(true);

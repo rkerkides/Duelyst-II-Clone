@@ -115,7 +115,11 @@ public abstract class Player {
 
 	public void setRobustness(int i) {
 		this.robustness = i;
-	};
+		this.robustness = this.robustness < 0 ? 0 : this.robustness;
+	    System.out.println("Player's robustness: " + this.robustness);
+	}
+
+
 	
 	public int getRobustness() {
 		return this.robustness;
