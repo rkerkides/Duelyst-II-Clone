@@ -19,7 +19,7 @@ import utils.StaticConfFiles;
 
 public class Wraithling extends Unit{
 	
-	private static int id=900;
+	private static int id=1000;
 	
 	private static int GloomChaserWraitlingsCount = 0;
 
@@ -42,47 +42,56 @@ public class Wraithling extends Unit{
 	}
 	
 	private static Unit summonWraithling(Unit parent, ActorRef out, GameState gameState, GameService gs) {
-		if(parent.getName().equals("Player Avatar")){
-		       Tile currentTile = parent.getCurrentTile(gameState.getBoard());
-		        
-				EffectAnimation effect2 = BasicObjectBuilders.loadEffect(StaticConfFiles.something);
-				BasicCommands.playEffectAnimation(out, effect2, currentTile);
-		        Tile randomAdjacentTile = getRandomAdjacentUnoccupiedTile(currentTile, gameState.getBoard());
-		        
-		        if(randomAdjacentTile != null) {
-		    		System.out.println("will be summoned");
-		            return null;
-		        }
-			
-		}
-		Tile current = parent.getCurrentTile(gameState.getBoard());
-		int newTileX = current.getTilex()-1; // Two tiles to the right
-		int newTileY = current.getTiley(); // Same Y coordinate
-		Tile toTheLeft = gameState.getBoard().getTile(newTileX, newTileY); // Get the tile at the new position
-		
-		if(!toTheLeft.isOccupied()) {
-			Unit unit = loadUnit(StaticConfFiles.wraithling, id, Unit.class);
-			id++;
-			toTheLeft.setUnit(unit);
-			unit.setPositionByTile(toTheLeft);
-			unit.setOwner(gameState.getHuman());
-			unit.setName("Wraithling");
-			gameState.getHuman().addUnit(unit);
-			EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.wsummon);
-			BasicCommands.playEffectAnimation(out, effect, toTheLeft);
-			BasicCommands.drawUnit(out, unit, toTheLeft);
-			unit.setAttack(1);
-			unit.setHealth(1); 
-			BasicCommands.setUnitHealth(out, unit, 1);
-			BasicCommands.setUnitAttack(out, unit, 1);
-			return unit;
-		}
-        
-		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
-		return null;
-
-
+	    if (parent.getName().equals("Player Avatar") && gameState.getCurrentPlayer().getRobustness() > 0) {
+	        Tile currentTile = parent.getCurrentTile(gameState.getBoard());
+	        Tile randomAdjacentTile = getRandomAdjacentUnoccupiedTile(currentTile, gameState.getBoard());
+	        
+	        if (randomAdjacentTile != null) {
+	            summonWraithlingToTile(randomAdjacentTile, out, gameState);
+	            return null;
+	        }
+	    } else if (parent.getName().equals("Gloom Chaser")) {
+	        Tile toTheLeft = findTileToLeft(parent, gameState);
+	        
+	        if (toTheLeft != null && !toTheLeft.isOccupied()) {
+	            return summonWraithlingToTile(toTheLeft, out, gameState);
+	        }
+	    }
+	    
+	    try {
+	        Thread.sleep(30);
+	    } catch (InterruptedException e) {
+	        e.printStackTrace();
+	    }
+	    
+	    return null;
 	}
+
+	private static Tile findTileToLeft(Unit parent, GameState gameState) {
+	    Tile currentTile = parent.getCurrentTile(gameState.getBoard());
+	    int newTileX = currentTile.getTilex() - 1; // Two tiles to the left
+	    int newTileY = currentTile.getTiley(); // Same Y coordinate
+	    return gameState.getBoard().getTile(newTileX, newTileY);
+	}
+
+	private static Unit summonWraithlingToTile(Tile tile, ActorRef out, GameState gameState) {
+	    Unit unit = loadUnit(StaticConfFiles.wraithling, id, Unit.class);
+	    id++;
+	    tile.setUnit(unit);
+	    unit.setPositionByTile(tile);
+	    unit.setOwner(gameState.getHuman());
+	    unit.setName("Wraithling" + id);
+	    gameState.getHuman().addUnit(unit);
+	    EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.wsummon);
+	    BasicCommands.playEffectAnimation(out, effect, tile);
+	    BasicCommands.drawUnit(out, unit, tile);
+	    unit.setAttack(1);
+	    unit.setHealth(1);
+	    BasicCommands.setUnitHealth(out, unit, 1);
+	    BasicCommands.setUnitAttack(out, unit, 1);
+	    return unit;
+	}
+
 	private static Tile getRandomAdjacentUnoccupiedTile(Tile currentTile, Board board) {
 	    int currentX = currentTile.getTilex();
 	    int currentY = currentTile.getTiley();

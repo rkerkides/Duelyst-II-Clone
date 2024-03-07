@@ -10,8 +10,6 @@ import structures.basic.Actionable;
 import structures.basic.Tile;
 import structures.basic.Unit;
 import structures.basic.cards.Card;
-import structures.basic.cards.CreatureCard;
-import structures.basic.cards.SpellCard;
 
 /**
  * Indicates that the user has clicked an object on the game canvas, in this case a tile.
@@ -28,6 +26,8 @@ import structures.basic.cards.SpellCard;
  *
  */
 public class TileClicked implements EventProcessor {
+
+	private ActorRef out;
 
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
@@ -46,8 +46,8 @@ public class TileClicked implements EventProcessor {
 			Actionable lastAction = gameState.getActionHistory().peek();
 
 			// Handle spell casting or unit interaction based on last action type
-			if (lastAction instanceof SpellCard) {
-				handleSpellCasting(gameState, (SpellCard) lastAction, tile);
+			if (lastAction instanceof Card && !((Card) lastAction).isCreature()) {
+				handleSpellCasting(gameState, (Card) lastAction, tile);
 			} else if (lastAction instanceof Unit) {
 				handleUnitAction(gameState, (Unit) lastAction, tile);
 			// Change this to instanceof CreatureCard in the future
@@ -69,11 +69,30 @@ public class TileClicked implements EventProcessor {
 
 
 	// Process spell casting based on target tile
-	private void handleSpellCasting(GameState gameState, SpellCard spellCard, Tile tile) {
-		// Spell casting logic
-		System.out.println("NO SPELL CASTING LOGIC IMPLEMENTED YET");
-	}
+	private void handleSpellCasting(GameState gameState, Card card, Tile tile) {
+	    // Spell casting logic
+	    if (card.getCardname().equals("Horn of the Forsaken")) {
+	        if (gameState.getHuman().getMana() >= card.getManacost()) {
+	            // Sufficient mana for casting the spell
+	            gameState.gameService.HornOfTheForesaken(card);//to change to fit other spells
+	            gameState.getHuman().setRobustness(gameState.getHuman().getRobustness() + 3);	            
+	            System.out.println("Player's robustness: " + gameState.getHuman().getRobustness());
+	            gameState.gameService.removeCardFromHandAndSummon(card, tile);
+	            
+	        } else {
+	            // Insufficient mana for casting the spell
+//	            BasicCommands.addPlayer1Notification(out, "Not enough mana", 2);
+	        	System.out.println("Not enough mana");
+	    	    gameState.gameService.removeHighlightFromAll();
+	    	    gameState.gameService.notClickingCard();
 
+	        }
+	    }
+	    
+	    // Remove highlight from all tiles
+	    gameState.gameService.removeHighlightFromAll();
+	}
+	
 	// Process unit move or attack based on targetTile's state
 	private void handleUnitAction(GameState gameState, Unit unit, Tile targetTile) {
 		// Early return if targetTile is null
@@ -125,7 +144,7 @@ public class TileClicked implements EventProcessor {
 	// Place unit card on board if tile is valid
 	private void handleCardSummoning(GameState gameState, Card card, Tile tile) {
 		if (gameState.gameService.isValidSummon(card, tile)) {
-			gameState.gameService.removeCardFromHandAndSummonUnit(card, tile);
+			gameState.gameService.removeCardFromHandAndSummon(card, tile);
 		} else {
 			gameState.gameService.removeHighlightFromAll();
 		}

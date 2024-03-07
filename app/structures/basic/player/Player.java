@@ -25,6 +25,7 @@ public abstract class Player {
 	protected Unit avatar;
 	// Units on the board belonging to the player
 	protected List<Unit> units;
+	private int robustness;
 
 	public Player() {
 		super();
@@ -110,6 +111,14 @@ public abstract class Player {
 		System.out.println("Player " + this + " drew card " + card + " from deck");
         this.hand.addCard(card);
 		return card;
+	}
+
+	public void setRobustness(int i) {
+		this.robustness = i;
+	};
+	
+	public int getRobustness() {
+		return this.robustness;
 	}
 
 }

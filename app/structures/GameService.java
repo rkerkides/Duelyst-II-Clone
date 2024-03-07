@@ -19,6 +19,7 @@ import java.util.Set;
 import static utils.BasicObjectBuilders.loadUnit;
 
 public class GameService {
+	
 	private final ActorRef out;
 	private final GameState gs;
 	
@@ -74,12 +75,12 @@ public class GameService {
 		Unit avatar;
 		if (player instanceof HumanPlayer) {
 			avatarTile = board.getTile(1, 2);
-			avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
+			avatar =  BasicObjectBuilders.loadUnit(StaticConfFiles.humanAvatar, 0, Unit.class);
 			avatar.setName("Player Avatar");
 
 		} else {
 			avatarTile = board.getTile(7, 2);
-			avatar = BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
+			avatar =  BasicObjectBuilders.loadUnit(StaticConfFiles.aiAvatar, 1, Unit.class);
 			avatar.setName("AI Avatar");
 		}
 		avatar.setPositionByTile(avatarTile);
@@ -390,9 +391,16 @@ public class GameService {
 	// highlight tiles for summoning units (does not currently take into account special units)
 	public void highlightSummonRange(Card card, Player player) {
 		// Validate inputs
-		if (card == null || !card.isCreature() || player == null) {
+		if (card == null  || player == null) {
 			System.out.println("Invalid parameters for highlighting summon range.");
 			return;
+		}
+		if (!card.isCreature()) {
+			if (card.getCardname().equals("Horn of the Forsaken")) {
+				updateTileHighlight(gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()), 1);
+				BasicCommands.addPlayer1Notification(out, "Click on the Avatar to apply the spell", 2);
+				return;
+			}
 		}
 
 		System.out.println("Highlighting summon range for " + card.getCardname());
@@ -495,7 +503,8 @@ public class GameService {
 	}
 
     // remove card from hand and summon unit
-    public void removeCardFromHandAndSummonUnit(Card card, Tile tile) {
+    public void removeCardFromHandAndSummon(Card card, Tile tile) {
+    	System.out.println("Removing card from hand and summoning" + card.getCardname());
 		Player player = gs.getCurrentPlayer();
 		Hand hand = player.getHand();
 		int handPosition = gs.getCurrentCardPosition();
@@ -509,23 +518,22 @@ public class GameService {
 		// update player mana
 		updatePlayerMana(player, player.getMana() - card.getManacost());
 
-		// get unit config and id
-		String unit_conf = card.getUnitConfig();
-		int unit_id = card.getId();
-
 		// remove card from hand and delete from UI
-		if (player.equals(gs.getHuman())) {
-			BasicCommands.deleteCard(out, handPosition + 1);
-		}
+		BasicCommands.deleteCard(out, handPosition + 1);
 		hand.removeCardAtPosition(handPosition);
 
 		// update the positions of the remaining cards if the player is human
 		if (player instanceof HumanPlayer) {
 			updateHandPositions(hand);
 		}
-
+		if (card.isCreature()) {
+			// get unit config and id
+			String unit_conf = card.getUnitConfig();
+			int unit_id = card.getId();
+			summonUnit(unit_conf, unit_id, card, tile, player);
+		}
 		// summon unit
-		summonUnit(unit_conf, unit_id, card, tile, player);
+		
     }
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
@@ -576,6 +584,10 @@ public class GameService {
 		gs.setCurrentCardPosition(handPosition);
 		gs.setCurrentCardClicked(card);
 		BasicCommands.drawCard(out, card, handPosition,1);
+		if (card.isCreature()) {
+			//displayMessageForSpell(card);
+		}
+		
 	}
 
 	public void notClickingCard() {
@@ -595,5 +607,20 @@ public class GameService {
 			BasicCommands.deleteCard(out, i + 2);
 			BasicCommands.drawCard(out, hand.getCardAtIndex(i), i + 1, 0);
 		}
+	}
+	
+	public void HornOfTheForesaken(Card card) {
+		EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.something);
+        BasicCommands.playEffectAnimation(out,effect, gs.getHuman()
+                .getAvatar().getCurrentTile(gs.getBoard()));
+        notClickingCard();
+        
+        BasicCommands.addPlayer1Notification(out, "Horn of the Forsaken is used, you have 3 more robustness", 2);
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		};
 	}
 }
