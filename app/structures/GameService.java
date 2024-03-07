@@ -620,7 +620,7 @@ public class GameService {
 		}
 	}
 
-	private void updateHandPositions(Hand hand) {
+	public void updateHandPositions(Hand hand) {
 		// Iterate over the remaining cards in the hand
 		for (int i = 0; i < hand.getNumberOfCardsInHand(); i++) {
 			// Draw each card in its new position, positions are usually 1-indexed on the UI

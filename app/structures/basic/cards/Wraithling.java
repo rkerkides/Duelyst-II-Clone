@@ -76,6 +76,9 @@ public class Wraithling extends Unit{
 	}
 
 	public static Unit summonWraithlingToTile(Tile tile, ActorRef out, GameState gameState) {
+		
+		System.out.println("Summoning Wraithling to " + tile.getTilex() + ", " + tile.getTiley());
+		
 	    Unit wraithling = loadUnit(StaticConfFiles.wraithling, id, Unit.class);
 	    tile.setUnit(wraithling);
 	    wraithling.setPositionByTile(tile);
