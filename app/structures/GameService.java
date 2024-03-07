@@ -479,6 +479,11 @@ public class GameService {
 				BasicCommands.addPlayer1Notification(out, "Click on the Avatar to apply the spell", 2);
 				return;
 			}
+			if (card.getCardname().equals("Dark Terminus")) {
+				Set<Tile> validSummonTiles = getSpellRange();
+				validSummonTiles.forEach(tile -> updateTileHighlight(tile, 2));
+				return;
+			}
 		}
 
 		System.out.println("Highlighting summon range for " + card.getCardname());
@@ -502,6 +507,26 @@ public class GameService {
 		}
 		return validTiles;
 	}
+	
+	//Check for spell range 
+	public Set<Tile> getSpellRange() {
+	    Set<Tile> validTiles = new HashSet<>();
+	    Tile[][] tiles = gs.getBoard().getTiles();
+	    
+	    for (int i = 0; i < tiles.length; i++) {
+	        for (int j = 0; j < tiles[i].length; j++) {
+	            Tile currentTile = tiles[i][j];
+	            Unit unit = currentTile.getUnit();
+	            
+	            // Check if the tile is adjacent to a friendly unit and not occupied
+	            if ( unit != null && !(unit.getOwner() instanceof HumanPlayer) && !unit.getName().equals("AI Avatar")) {
+	                validTiles.add(currentTile);
+	            }
+	        }
+	    }
+	    return validTiles;
+	}
+
 
 	// Check if a tile is adjacent to a friendly unit of the specified player
 	private boolean isAdjacentToFriendlyUnit(int x, int y, Player player) {
