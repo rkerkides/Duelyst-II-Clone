@@ -506,7 +506,7 @@ public class GameService {
 	}
 
 	// highlight tiles for summoning units (does not currently take into account special units)
-	public void highlightSummonRange(Card card, Player player) {
+	public void highlightSpellRange(Card card, Player player) {
 		// Validate inputs
 		if (card == null  || player == null) {
 			System.out.println("Invalid parameters for highlighting summon range.");
@@ -525,9 +525,11 @@ public class GameService {
 			}
 		}
 
-		System.out.println("Highlighting summon range for " + card.getCardname());
-		Tile[][] tiles = gs.getBoard().getTiles();
+		System.out.println("Highlighting spellragne " + card.getCardname());
+	}
 
+	// highlight tiles for summoning units
+	public void highlightSummonRange() {
 		Set<Tile> validTiles = getValidSummonTiles();
 		validTiles.forEach(tile -> updateTileHighlight(tile, 1));
 	}
@@ -615,8 +617,7 @@ public class GameService {
 
 		Board board = gs.getBoard();
 
-		// get position of unit and find the tile it is on
-		Position position = unit.getPosition();
+		// get current tile
 		Tile currentTile = unit.getCurrentTile(board);
 
 		// update unit position
@@ -627,13 +628,10 @@ public class GameService {
 		// remove highlight from all tiles
 		removeHighlightFromAll();
 
-		try {
-			Thread.sleep(30);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		// draw unit on new tile and wait for animation to play out
-		BasicCommands.moveUnitToTile(out, unit, newTile);
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		// Move unit to tile according to the result of yFirst
+		BasicCommands.moveUnitToTile(out, unit, newTile, yFirst(currentTile, newTile, unit));
+
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
@@ -641,6 +639,28 @@ public class GameService {
 		}
 
 		unit.setMovedThisTurn(true);
+	}
+
+	private boolean yFirst(Tile currentTile, Tile newTile, Unit unit) {
+		Board board = gs.getBoard();
+
+		// Calculate the movement direction in both axes
+		int dx = newTile.getTilex() - currentTile.getTilex();
+		int dy = newTile.getTiley() - currentTile.getTiley();
+
+		// Check if the move is diagonal (both dx and dy are non-zero)
+		if (Math.abs(dx) == 1 && Math.abs(dy) == 1) {
+			// Determine if there's an enemy unit directly in front or behind
+			Tile frontTile = board.getTile(currentTile.getTilex() + dx, currentTile.getTiley());
+			Tile behindTile = board.getTile(currentTile.getTilex(), currentTile.getTiley() - dy);
+
+			boolean isEnemyInFront = frontTile.isOccupied() && frontTile.getUnit().getOwner() != unit.getOwner();
+			boolean isEnemyBehind = behindTile.isOccupied() && behindTile.getUnit().getOwner() != unit.getOwner();
+
+			// Set yFirst to true if there's an enemy directly in front or behind
+            return isEnemyInFront || isEnemyBehind;
+		}
+		return false;
 	}
 
 	public void drawCards(Player player, int numberOfCards) {

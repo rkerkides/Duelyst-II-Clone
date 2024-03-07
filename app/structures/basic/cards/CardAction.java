@@ -19,20 +19,24 @@ public class CardAction {
     public CardAction(GameState gameState, int handPosition) {
         this.gameState = gameState;
         this.handPosition = handPosition;
+
     }
 
     public void preAction() {
         // Set the current card clicked to the card at the specified position in the player's hand
         gameState.gameService.setCurrentCardClickedAndHighlight(handPosition);
     }
+    
 
     public void creaturePreAction() {
-        preAction();
-
         Card currentCard = gameState.getCurrentCardClicked();
 
         // Highlight the summon range of the current card clicked
         gameState.gameService.highlightSummonRange(currentCard, gameState.getHuman());
+		// Highlight the summon range of the current card clicked
+		gameState.gameService.highlightSummonRange();
+
+
 
         // Push the current card clicked to the action history
         gameState.getActionHistory().push(currentCard);
@@ -45,6 +49,11 @@ public class CardAction {
     	
         
         }
+    
+
+
+    public void spellPreAction() {
+
     }
 
-
+}
