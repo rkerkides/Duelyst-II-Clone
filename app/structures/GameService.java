@@ -12,12 +12,15 @@ import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 import structures.basic.cards.BadOmen;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static utils.BasicObjectBuilders.loadUnit;
 
 public class GameService {
+	
 	private final ActorRef out;
 	private final GameState gs;
 
@@ -92,6 +95,8 @@ public class GameService {
 		player.setAvatar(avatar);
 		player.addUnit(avatar);
 		gs.addToTotalUnits(1);
+		setUnitHealth(avatar, 20);
+		updateUnitAttack(avatar, 2);
 		avatar.setHealth(20);
 		avatar.setAttack(2);
 		try {
@@ -108,6 +113,7 @@ public class GameService {
 		BasicCommands.setUnitAttack(out, avatar, 2);
 	}
 
+
 	// load aiUnits for testing
 	public void loadUnitsForTesting(Player player) {
 		Deck aiDeck = player.getDeck();
@@ -120,7 +126,28 @@ public class GameService {
 	}
 
 	// Update a unit's health on the board
+	public void setUnitHealth(Unit unit, int newHealth) {
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		if (newHealth <= 0) {
+			performUnitDeath(unit);
+			return;
+		}
+		unit.setHealth(newHealth);
+		BasicCommands.setUnitHealth(out, unit, newHealth);
+		if (unit.getId() == 0 || unit.getId() == 1) {
+			updatePlayerHealth(unit.getOwner(), newHealth);
+		}
+	}
+	
 	public void updateUnitHealth(Unit unit, int newHealth) {
+
+		if (unit.getName().equals("Player Avatar")){
+			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
+		}
+		if (!(unit.getOwner() instanceof HumanPlayer) && gs.getHuman().getRobustness() > 0){
+			Wraithling.summonWraithling(gs.getHuman().getAvatar(), out, gs, this);
+		}
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			Thread.sleep(30);
 		} catch (InterruptedException e) {
@@ -487,16 +514,30 @@ public class GameService {
 	}
 
 	// highlight tiles for summoning units (does not currently take into account special units)
-	public void highlightSummonRange(Card card, Player player) {
+	public void highlightSpellRange(Card card, Player player) {
 		// Validate inputs
-		if (card == null || !card.isCreature() || player == null) {
+		if (card == null  || player == null) {
 			System.out.println("Invalid parameters for highlighting summon range.");
 			return;
 		}
+		if (!card.isCreature()) {
+			if (card.getCardname().equals("Horn of the Forsaken")) {
+				updateTileHighlight(gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()), 1);
+				BasicCommands.addPlayer1Notification(out, "Click on the Avatar to apply the spell", 2);
+				return;
+			}
+			if (card.getCardname().equals("Dark Terminus")) {
+				Set<Tile> validSummonTiles = getSpellRange();
+				validSummonTiles.forEach(tile -> updateTileHighlight(tile, 2));
+				return;
+			}
+		}
 
-		System.out.println("Highlighting summon range for " + card.getCardname());
-		Tile[][] tiles = gs.getBoard().getTiles();
+		System.out.println("Highlighting spellragne " + card.getCardname());
+	}
 
+	// highlight tiles for summoning units
+	public void highlightSummonRange() {
 		Set<Tile> validTiles = getValidSummonTiles();
 		validTiles.forEach(tile -> updateTileHighlight(tile, 1));
 	}
@@ -515,6 +556,26 @@ public class GameService {
 		}
 		return validTiles;
 	}
+	
+	//Check for spell range 
+	public Set<Tile> getSpellRange() {
+	    Set<Tile> validTiles = new HashSet<>();
+	    Tile[][] tiles = gs.getBoard().getTiles();
+	    
+	    for (int i = 0; i < tiles.length; i++) {
+	        for (int j = 0; j < tiles[i].length; j++) {
+	            Tile currentTile = tiles[i][j];
+	            Unit unit = currentTile.getUnit();
+	            
+	            // Check if the tile is adjacent to a friendly unit and not occupied
+	            if ( unit != null && !(unit.getOwner() instanceof HumanPlayer) && !unit.getName().equals("AI Avatar")) {
+	                validTiles.add(currentTile);
+	            }
+	        }
+	    }
+	    return validTiles;
+	}
+
 
 	// Check if a tile is adjacent to a friendly unit of the specified player
 	private boolean isAdjacentToFriendlyUnit(int x, int y, Player player) {
@@ -564,8 +625,7 @@ public class GameService {
 
 		Board board = gs.getBoard();
 
-		// get position of unit and find the tile it is on
-		Position position = unit.getPosition();
+		// get current tile
 		Tile currentTile = unit.getCurrentTile(board);
 
 		// update unit position
@@ -576,13 +636,10 @@ public class GameService {
 		// remove highlight from all tiles
 		removeHighlightFromAll();
 
-		try {
-			Thread.sleep(30);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		// draw unit on new tile and wait for animation to play out
-		BasicCommands.moveUnitToTile(out, unit, newTile);
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		// Move unit to tile according to the result of yFirst
+		BasicCommands.moveUnitToTile(out, unit, newTile, yFirst(currentTile, newTile, unit));
+
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
@@ -590,6 +647,28 @@ public class GameService {
 		}
 
 		unit.setMovedThisTurn(true);
+	}
+
+	private boolean yFirst(Tile currentTile, Tile newTile, Unit unit) {
+		Board board = gs.getBoard();
+
+		// Calculate the movement direction in both axes
+		int dx = newTile.getTilex() - currentTile.getTilex();
+		int dy = newTile.getTiley() - currentTile.getTiley();
+
+		// Check if the move is diagonal (both dx and dy are non-zero)
+		if (Math.abs(dx) == 1 && Math.abs(dy) == 1) {
+			// Determine if there's an enemy unit directly in front or behind
+			Tile frontTile = board.getTile(currentTile.getTilex() + dx, currentTile.getTiley());
+			Tile behindTile = board.getTile(currentTile.getTilex(), currentTile.getTiley() - dy);
+
+			boolean isEnemyInFront = frontTile.isOccupied() && frontTile.getUnit().getOwner() != unit.getOwner();
+			boolean isEnemyBehind = behindTile.isOccupied() && behindTile.getUnit().getOwner() != unit.getOwner();
+
+			// Set yFirst to true if there's an enemy directly in front or behind
+            return isEnemyInFront || isEnemyBehind;
+		}
+		return false;
 	}
 
 	public void drawCards(Player player, int numberOfCards) {
@@ -611,8 +690,12 @@ public class GameService {
 		}
 	}
 
-	// remove card from hand and summon unit
-	public void removeCardFromHandAndSummonUnit(Card card, Tile tile) {
+
+
+    // remove card from hand and summon unit
+    public void removeCardFromHandAndSummon(Card card, Tile tile) {
+    	System.out.println("Removing card from hand and summoning" + card.getCardname());
+
 		Player player = gs.getCurrentPlayer();
 		Hand hand = player.getHand();
 		int handPosition = gs.getCurrentCardPosition();
@@ -636,24 +719,24 @@ public class GameService {
 		// update player mana
 		updatePlayerMana(player, player.getMana() - card.getManacost());
 
-		// get unit config and id
-		String unit_conf = card.getUnitConfig();
-		int unit_id = card.getId();
-
 		// remove card from hand and delete from UI
-		if (player.equals(gs.getHuman())) {
-			BasicCommands.deleteCard(out, handPosition + 1);
-		}
+		BasicCommands.deleteCard(out, handPosition + 1);
 		hand.removeCardAtPosition(handPosition);
 
 		// update the positions of the remaining cards if the player is human
 		if (player instanceof HumanPlayer) {
 			updateHandPositions(hand);
 		}
-
+		if (card.isCreature()) {
+			// get unit config and id
+			String unit_conf = card.getUnitConfig();
+			int unit_id = card.getId();
+			summonUnit(unit_conf, unit_id, card, tile, player);
+		}
 		// summon unit
-		summonUnit(unit_conf, unit_id, card, tile, player);
-	}
+
+		
+    }	
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
 		Wraithling.check(out, gs, this);
@@ -681,7 +764,7 @@ public class GameService {
 
 		// use BigCard data to update unit health and attack
 		BigCard bigCard = card.getBigCard();
-		updateUnitHealth(unit, bigCard.getHealth());
+		setUnitHealth(unit, bigCard.getHealth());
 		updateUnitAttack(unit, bigCard.getAttack());
 
 		unit.setMovedThisTurn(true);
@@ -704,7 +787,11 @@ public class GameService {
 		Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(handPosition);
 		gs.setCurrentCardPosition(handPosition);
 		gs.setCurrentCardClicked(card);
-		BasicCommands.drawCard(out, card, handPosition, 1);
+		BasicCommands.drawCard(out, card, handPosition,1);
+		if (card.isCreature()) {
+			//displayMessageForSpell(card);
+		}
+	
 	}
 
 	public void notClickingCard() {
@@ -717,7 +804,7 @@ public class GameService {
 		}
 	}
 
-	private void updateHandPositions(Hand hand) {
+	public void updateHandPositions(Hand hand) {
 		// Iterate over the remaining cards in the hand
 		for (int i = 0; i < hand.getNumberOfCardsInHand(); i++) {
 			// Draw each card in its new position, positions are usually 1-indexed on the UI
@@ -725,14 +812,27 @@ public class GameService {
 			BasicCommands.drawCard(out, hand.getCardAtIndex(i), i + 1, 0);
 		}
 	}
+	
+	public void HornOfTheForesaken(Card card) {
+        EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.something);
+        BasicCommands.playEffectAnimation(out, effect, gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()));
+        notClickingCard();
+        BasicCommands.addPlayer1Notification(out, "Horn of the Forsaken is used, you have 3 more robustness", 2);
 
-	public void zeal() {
-		for (Unit unit : gs.getAi().getUnits()) {
-			if (unit.getName().equals("Silverguard Knight")) {
-				System.out.println("BUFFED");
-				int newAttack = unit.getAttack() + 2;
-				updateUnitAttack(unit, newAttack);
-			}
-		}
-	}
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void zeal() {
+        for (Unit unit : gs.getAi().getUnits()) {
+            if (unit.getName().equals("Silverguard Knight")) {
+                System.out.println("BUFFED");
+                int newAttack = unit.getAttack() + 2;
+                updateUnitAttack(unit, newAttack);
+            }
+        }
+    }
 }

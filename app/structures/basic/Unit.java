@@ -181,11 +181,4 @@ public class Unit implements Actionable {
 
 	}
 
-	public boolean hasProvoke() {
-		return hasProvoke;
-	}
-
-	public void setHasProvoke(boolean hasProvoke) {
-		this.hasProvoke = hasProvoke;
-	}
 }

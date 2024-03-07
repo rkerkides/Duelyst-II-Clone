@@ -7,11 +7,8 @@ import structures.basic.cards.Card;
 import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+
+import java.util.*;
 
 /**
  * This class can be used to hold information about the on-going game. Its
@@ -21,6 +18,7 @@ import java.util.Stack;
  *
  */
 public class GameState {
+	
 
 	public boolean gameInitalised = false;
 
@@ -52,6 +50,7 @@ public class GameState {
 
 	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
 
+
 	/**
 	 * This function initialises all the assets Board, Player etc As well as
 	 * tracking critical game states
@@ -60,6 +59,9 @@ public class GameState {
 	 */
 
 	public void init(ActorRef out) {
+		
+		
+		
 		this.gameService = new GameService(out, this);
 		this.board = gameService.loadBoard();
 
@@ -129,15 +131,14 @@ public class GameState {
 	public void setBoard(Board board) {
 		this.board = board;
 	}
-
 	public ArrayList<Unit> getUnitsOnBoard() {
 		return unitsOnBoard;
 	}
 
-
 	public void addUnitstoBoard(Unit unit) {
 		this.unitsOnBoard.add(unit);
-	}
+		}
+	 
 
 	public void setTotalUnits(int totalUnits) {
 		this.totalUnits = totalUnits;
@@ -214,6 +215,7 @@ public class GameState {
 	public void removeFromTotalUnits(int numberToRemove) {
 		this.totalUnits -= numberToRemove;
 	}
+	
 
 	// Get all the units on the board
 	public ArrayList<Unit> getUnits() {

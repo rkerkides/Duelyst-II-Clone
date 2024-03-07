@@ -7,7 +7,6 @@ import events.EndTurnClicked;
 import structures.GameState;
 import structures.basic.*;
 import structures.basic.cards.Card;
-import structures.basic.cards.SpellCard;
 
 import java.util.*;
 
@@ -272,12 +271,12 @@ public class AIPlayer extends Player {
 				if (bestSpell.moveQuality > bestSummon.moveQuality) {/*
 					gameState.gameService.removeCardFromHandAndCastSpell(bestSpell.card, bestSpell.tile);*/
 				} else {
-					gameState.gameService.removeCardFromHandAndSummonUnit(bestSummon.card, bestSummon.tile);
+					gameState.gameService.removeCardFromHandAndSummon(bestSummon.card, bestSummon.tile);
 				}
 			} else if (bestSpell != null) {/*
 				gameState.gameService.removeCardFromHandAndCastSpell(bestSpell.card, bestSpell.tile);*/
 			} else if (bestSummon != null) {
-				gameState.gameService.removeCardFromHandAndSummonUnit(bestSummon.card, bestSummon.tile);
+				gameState.gameService.removeCardFromHandAndSummon(bestSummon.card, bestSummon.tile);
 			} else {
 				return;
 			}

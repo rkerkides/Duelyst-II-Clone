@@ -1,0 +1,139 @@
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Hand.java:3:1: package structures.basic.cards does not exist
+[error] structures.basic.cards.Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Hand.java:10:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.Hand
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Hand.java:18:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.Hand
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Hand.java:22:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.Hand
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Hand.java:35:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.Hand
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:2:1: package org.junit does not exist
+[error] org.junit.Test
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:8:1: package akka.actor does not exist
+[error] akka.actor.ActorRef
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:10:1: package commands does not exist
+[error] commands.BasicCommands
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:11:1: package utils does not exist
+[error] utils.OrderedCardLoader
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:12:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: package structures.basic
+[error] structures.basic.Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:13:1: package structures.basic.cards does not exist
+[error] structures.basic.cards.BadOmen
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:14:1: package structures.basic.cards does not exist
+[error] structures.basic.cards.Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:15:1: package structures.basic.cards does not exist
+[error] structures.basic.cards.GloomChaser
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:16:1: package structures.basic.cards does not exist
+[error] structures.basic.cards.HornOfTheForsaken
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Player.java:4:1: package structures.basic.cards does not exist
+[error] structures.basic.cards.Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Player.java:5:1: package akka.actor does not exist
+[error] akka.actor.ActorRef
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:20:1: cannot find symbol
+[error]   symbol:   class ActorRef
+[error]   location: class structures.basic.player.HumanPlayer
+[error] ActorRef
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:21:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:21:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:25:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:25:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Player.java:19:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: class structures.basic.player.Player
+[error] Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Player.java:19:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.Player
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Player.java:23:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: class structures.basic.player.Player
+[error] Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Player.java:23:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.Player
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Player.java:27:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: class structures.basic.player.Player
+[error] Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Player.java:27:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.Player
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\Player.java:3:1: package structures.basic does not exist
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:40:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:40:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:48:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:48:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:55:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:55:1: cannot find symbol
+[error]   symbol:   class BadOmen
+[error]   location: class structures.basic.player.HumanPlayer
+[error] BadOmen
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:56:1: cannot find symbol
+[error]   symbol:   class HornOfTheForsaken
+[error]   location: class structures.basic.player.HumanPlayer
+[error] HornOfTheForsaken
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:57:1: cannot find symbol
+[error]   symbol:   class GloomChaser
+[error]   location: class structures.basic.player.HumanPlayer
+[error] GloomChaser
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:58:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:58:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:59:1: cannot find symbol
+[error]   symbol:   class Deck
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Deck
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:59:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Card
+[error] C:\Users\Kolik\University\Group_Project\mikki\app\structures\basic\player\HumanPlayer.java:65:1: cannot find symbol
+[error]   symbol:   class Card
+[error]   location: class structures.basic.player.HumanPlayer
+[error] Card
