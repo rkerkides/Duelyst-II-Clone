@@ -166,7 +166,12 @@ public class AIPlayer extends Player {
 
 		for (PossibleSummon summon : rankedSummons) {
 			if (summon.card.getManacost() <= this.mana) {
-				summon.moveQuality = 5;
+				if (summon.card.getManacost() < summon.card.getBigCard().getAttack()) {
+					summon.moveQuality = 6;
+				}
+				else {
+					summon.moveQuality = 5;
+				}
 			}
 		}
 		return rankedSummons;
@@ -190,7 +195,7 @@ public class AIPlayer extends Player {
 		}
 
 		if (bestSummon != null) {
-			System.out.println("Best action found: Tile " + bestSummon.tile + " and Unit " + bestSummon.card + " with value = " + bestSummon.moveQuality);
+			System.out.println("Best summon found: Tile " + bestSummon.tile.getTilex() + " " + bestSummon.tile.getTiley() + " and Unit " + bestSummon.card.getCardname() + " with value = " + bestSummon.moveQuality);
 		} else {
 			System.out.println("No summon meets the evaluation criteria.");
 		}
@@ -257,15 +262,12 @@ public class AIPlayer extends Player {
 
 	private void performCardActions() {
 		while (true) {
-			System.out.println("Performing card actions");
 			ArrayList<Card> cards = (ArrayList<Card>) this.hand.getCards();
-			System.out.println("Cards in hand: " + cards.size());
 			if (cards.isEmpty()) {
 				System.out.println("Cards is empty");
 				return;
 			}
 			// Implement creature card summoning
-			System.out.println("Creature card summoning");
 			ArrayList<PossibleSummon> possibleSummons = returnAllSummons(gameState);
 			if (possibleSummons.isEmpty()) {
 				System.out.println("Summons is empty");
@@ -275,7 +277,6 @@ public class AIPlayer extends Player {
 			PossibleSummon bestMove = findBestSummon(rankedSummons);
 			if (bestMove != null) {
 				gameState.gameService.removeCardFromHandAndSummonUnit(bestMove.card, bestMove.tile);
-				System.out.println("Summoning unit " + bestMove.card.getCardname() + " on tile " + bestMove.tile.getTilex() + ", " + bestMove.tile.getTiley());
 			} else {
 				System.out.println("No summon found");
 				return;
@@ -294,9 +295,7 @@ public class AIPlayer extends Player {
 				Set<Tile> positions;
 				positions = gameState.gameService.getValidSummonTiles();
 				for (Tile tile : positions) {
-					System.out.println("Returning summon for unit " + card.getCardname() + " on tile " + tile.getTilex() + ", " + tile.getTiley());
 					if (!tile.isOccupied()) {
-						System.out.println("Tile is not occupied");
 						summons.add(new PossibleSummon(card, tile));
 					}
 				}

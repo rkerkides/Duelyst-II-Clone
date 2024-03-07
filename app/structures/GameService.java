@@ -526,6 +526,16 @@ public class GameService {
 		Hand hand = player.getHand();
 		int handPosition = gs.getCurrentCardPosition();
 
+		if (handPosition == 0) {
+			for (int i = 1; i <= hand.getNumberOfCardsInHand(); i++) {
+				if (hand.getCardAtPosition(i).equals(card)) {
+					handPosition = i;
+					break;
+				}
+			}
+		}
+		System.out.println("Current card: " + card.getCardname() + " position " + handPosition);
+
 		// check if enough mana
 		if (player.getMana() < card.getManacost()) {
 			BasicCommands.addPlayer1Notification(out, "Not enough mana to summon " + card.getCardname(), 2);
