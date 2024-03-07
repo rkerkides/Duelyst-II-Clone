@@ -86,8 +86,12 @@ public class GameService {
 		player.setAvatar(avatar);
 		player.addUnit(avatar);
 		gs.addToTotalUnits(1);
-		updateUnitHealth(avatar, 20);
-		updateUnitAttack(avatar, 2);
+		avatar.setHealth(20);
+		avatar.setAttack(2);
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		BasicCommands.setUnitHealth(out, avatar, 20);
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		BasicCommands.setUnitAttack(out, avatar, 2);
 	}
 
 	// load aiUnits for testing
