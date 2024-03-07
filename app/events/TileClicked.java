@@ -99,8 +99,12 @@ public class TileClicked implements EventProcessor {
 		        }
 		    }
 			if (card.getCardname().equals("Dark Terminus") &&
-					tile.getUnit().getOwner() != gameState.getHuman()) {
+					tile.getUnit().getOwner() != gameState.getHuman() && !tile.getUnit().getName().equals("AI Avatar")) {
 				    gameState.gameService.performUnitDeath(tile.getUnit());
+				   // Wraithling.summonWraithlingToTile(tile, out, gameState);
+				    //commented to check for futher bugs
+                    hand.removeCardAtPosition(handPosition);
+		    		gameState.gameService.updateHandPositions(player.getHand());
 				    
 					try {
 						Thread.sleep(100);
@@ -108,7 +112,6 @@ public class TileClicked implements EventProcessor {
 						e.printStackTrace();
 					}
 					System.out.println("Dark Terminus is casted");
-				    Wraithling.summonWraithlingToTile(tile, out, gameState);
 		    	
 		    }
 		    
