@@ -240,7 +240,7 @@ public class GameService {
 		Set<Tile> validTiles = new HashSet<>();
 		// Skip calculation if unit is provoked or has moved/attacked this turn
 		if (checkProvoked(unit) || unit.movedThisTurn() || unit.attackedThisTurn()) {
-			return validTiles; // Return empty set or null depending on your game logic
+			return validTiles;
 		}
 
 		Player currentPlayer = unit.getOwner();
@@ -311,24 +311,45 @@ public class GameService {
 		return gs.getCurrentPlayer().getUnits().contains(unit);
 	}
 
+	// Checks if provoke unit is present on the board and around the tile on which an alleged enemy unit (target) is located
+	public Set<Position> checkProvoker(Tile tile) {
+		Set<Position> provoker = new HashSet<>();
+
+		for (Unit unit : gs.getInactivePlayer().getUnits()) {
+			int tilex = tile.getTilex();
+			int tiley = tile.getTiley();
+
+			if (Math.abs(tilex - unit.getPosition().getTilex()) < 2 && Math.abs(tiley - unit.getPosition().getTiley()) < 2) {
+				if (unit.getName().equals("Rock Pulveriser") || unit.getName().equals("Swamp Entangler") ||
+						unit.getName().equals("Silverguard Knight") || unit.getName().equals("Ironcliffe Guardian")) {
+					System.out.println("Provoker " + unit.getName() + " in the house.");
+					provoker.add(unit.getPosition());
+				}
+			}
+		}
+		return provoker;
+	}
 
 	// Returns true if the unit should be provoked based on adjacent opponents
 	public boolean checkProvoked(Unit unit) {
+		Player opponent = (gs.getCurrentPlayer() == gs.getHuman()) ? gs.getAi() : gs.getHuman();
+		// Iterate over the opponent's units to check for adjacency and provoking units
+		for (Unit other : opponent.getUnits()) {
 
-		// Incomplete implementation yet to be tested, temporarily return false always
-		/*for (Unit other : gs.getInactivePlayer().getUnits()) {
-
+			// Calculate the distance between the units
 			int unitx = unit.getPosition().getTilex();
 			int unity = unit.getPosition().getTiley();
 
-			if(other.getId() == 3 || other.getId() == 10 || other.getId() == 6 || other.getId() == 16 || other.getId() == 20 || other.getId() == 30) {
+			// Check if the opponent unit's name matches any provoking unit
+			if (other.getName().equals("Rock Pulveriser") || other.getName().equals("Swamp Entangler") ||
+					other.getName().equals("Silverguard Knight") || other.getName().equals("Ironcliffe Guardian")) {
+				// Check if the opponent unit is adjacent to the current unit
 				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
-					System.out.println("Unit is provoked!");
+					BasicCommands.addPlayer1Notification(out, "Unit is provoked by " + other.getName(), 2);
 					return true;
 				}
 			}
-
-		}*/
+		}
 		return false;
 	}
 
@@ -345,11 +366,6 @@ public class GameService {
 		Set<Tile> validAttacks = new HashSet<>();
 		Player opponent = gs.getInactivePlayer();
 
-		// Provocation check
-		if (!unit.movedThisTurn() && checkProvoked(unit)) {
-			return findProvokedTargets(unit);
-		}
-
 		// Default target determination
 		if (!unit.attackedThisTurn()) {
 			validAttacks.addAll(getValidTargets(unit, opponent));
@@ -361,7 +377,18 @@ public class GameService {
 	// Returns the set of valid attack targets for a given unit
 	public Set<Tile> getValidTargets(Unit unit, Player opponent) {
 		Set<Tile> validAttacks = new HashSet<>();
+		Set<Position> provokers = checkProvoker(unit.getCurrentTile(gs.getBoard()));
 		Tile unitTile = unit.getCurrentTile(gs.getBoard());
+
+		// Attack adjacent units if there are any
+		if (!provokers.isEmpty()) {
+			for (Position position : provokers) {
+				System.out.println(position + "provoker position");
+				Tile provokerTile = gs.getBoard().getTile(position.getTilex(), position.getTiley());
+				validAttacks.add(provokerTile);
+			}
+			return validAttacks;
+		}
 
 		opponent.getUnits().stream()
 				.map(opponentUnit -> opponentUnit.getCurrentTile(gs.getBoard()))
@@ -375,11 +402,6 @@ public class GameService {
 		int dx = Math.abs(unitTile.getTilex() - targetTile.getTilex());
 		int dy = Math.abs(unitTile.getTiley() - targetTile.getTiley());
 		return dx < 2 && dy < 2;
-	}
-
-	private Set<Tile> findProvokedTargets(Unit unit) {
-		// Logic to identify tiles when unit is provoked
-		return new HashSet<>();
 	}
 
 	// Attack an enemy unit and play the attack animation
