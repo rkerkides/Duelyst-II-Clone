@@ -182,6 +182,10 @@ public class Unit implements Actionable {
 	}
 
 	public boolean hasProvoke() {
-		return this instanceof Provoke; // This is a simple way if using subclassing, adjust as necessary
+		return hasProvoke;
+	}
+
+	public void setHasProvoke(boolean hasProvoke) {
+		this.hasProvoke = hasProvoke;
 	}
 }

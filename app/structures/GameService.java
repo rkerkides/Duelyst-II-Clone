@@ -282,7 +282,6 @@ public class GameService {
 
 	// Checks if provoke unit is present on the board and around the tile on which an alleged enemy unit (target) is located
 	public Set<Position> checkProvoker(Tile tile) {
-
 		Set<Position> provoker = new HashSet<>();
 
 		for (Unit unit : gs.getInactivePlayer().getUnits()) {
@@ -303,7 +302,6 @@ public class GameService {
 	// Returns true if the unit should be provoked based on adjacent opponents
 	public boolean checkProvoked(Unit unit) {
 		Player opponent = (gs.getCurrentPlayer() == gs.getHuman()) ? gs.getAi() : gs.getHuman();
-
 		// Iterate over the opponent's units to check for adjacency and provoking units
 		for (Unit other : opponent.getUnits()) {
 
@@ -313,7 +311,7 @@ public class GameService {
 
 			// Check if the opponent unit's name matches any provoking unit
 			if (other.getName().equals("Rock Pulveriser") || other.getName().equals("Swamp Entangler") ||
-					other.getName().equals("Silverguard Knight") || other.getName().equals("Ironcliffe Guardian") || other.getId() == 1) {
+					other.getName().equals("Silverguard Knight") || other.getName().equals("Ironcliffe Guardian")) {
 				// Check if the opponent unit is adjacent to the current unit
 				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
 					System.out.println("Unit is provoked!");
@@ -359,14 +357,15 @@ public class GameService {
 		Set<Position> provokers = checkProvoker(unit.getCurrentTile(gs.getBoard()));
 		Tile unitTile = unit.getCurrentTile(gs.getBoard());
 
+        /*
 		if (!provokers.isEmpty()){
 			for (Unit provoker : provokers) {
 				if (provoker instanceof Provoke) { // Ensure the unit has provoke ability
 					validAttacks.addAll(((Provoke) provoker).attractAttack(unitTile, gs));
 				}
 			}
-		} else
-
+		}
+         */
 		opponent.getUnits().stream()
 				.map(opponentUnit -> opponentUnit.getCurrentTile(gs.getBoard()))
 				.filter(opponentTile -> isWithinAttackRange(unitTile, opponentTile))
@@ -382,8 +381,39 @@ public class GameService {
 	}
 
 	private Set<Tile> findProvokedTargets(Unit unit) {
-		// Logic to identify tiles when unit is provoked
-		return new HashSet<>();
+		Set<Tile> provokedTargets = new HashSet<>();
+		Board board = gs.getBoard();
+		Position unitPosition = unit.getPosition();
+
+		// Check if the unit's current tile has provoke
+		Tile currentTile = board.getTile(unitPosition.getTilex(), unitPosition.getTiley());
+		if (currentTile.isOccupied() && currentTile.getUnit().getOwner() != unit.getOwner()) {
+			if (currentTile.getUnit().hasProvoke()) {
+				provokedTargets.add(currentTile);
+			}
+		}
+
+		// Iterate through adjacent tiles
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dy = -1; dy <= 1; dy++) {
+				if (dx == 0 && dy == 0) continue; // Skip the current tile
+
+				int x = unitPosition.getTilex() + dx;
+				int y = unitPosition.getTiley() + dy;
+
+				// Check if the adjacent tile is within the board bounds
+				if (isValidTile(x, y)) {
+					Tile adjacentTile = board.getTile(x, y);
+					if (adjacentTile.isOccupied() && adjacentTile.getUnit().getOwner() != unit.getOwner()) {
+						// Check if the adjacent unit can be targeted due to the provoke ability
+						if (adjacentTile.getUnit().hasProvoke()) {
+							provokedTargets.add(adjacentTile);
+						}
+					}
+				}
+			}
+		}
+		return provokedTargets;
 	}
 
 	// Attack an enemy unit and play the attack animation
@@ -441,27 +471,6 @@ public class GameService {
 				// Check if tile is adjacent to a friendly unit
 				if (isAdjacentToFriendlyUnit(i, j, player) && !currentTile.isOccupied()) {
 					updateTileHighlight(currentTile, 1); // 1 for summonable highlight mode
-				}
-			}
-		}
-	}
-
-	public void highlightMoveRange(Unit unit) {
-		Tile[][] tiles = gs.getBoard().getTiles();
-		boolean isProvoked = checkProvoked(unit);
-
-		for (Tile[] row : tiles) {
-			for (Tile tile : row) {
-				if (!isProvoked) {
-					// Existing logic for highlighting move range
-					if (!tile.isOccupied() && isWithinMoveRange(unit, tile)) {
-						updateTileHighlight(tile, 1); // Highlight for movement
-					}
-				} else {
-					// If provoked, highlight only tiles with provoking units for attack
-					if (tile.isOccupied() && tile.getUnit().isProvoking() && tile.getUnit().getOwner() != unit.getOwner()) {
-						updateTileHighlight(tile, 2); // Highlight for attack due to provoke
-					}
 				}
 			}
 		}
