@@ -86,8 +86,12 @@ public class GameService {
 		player.setAvatar(avatar);
 		player.addUnit(avatar);
 		gs.addToTotalUnits(1);
-		updateUnitHealth(avatar, 20);
-		updateUnitAttack(avatar, 2);
+		avatar.setHealth(20);
+		avatar.setAttack(2);
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		BasicCommands.setUnitHealth(out, avatar, 20);
+		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
+		BasicCommands.setUnitAttack(out, avatar, 2);
 	}
 
 	// load aiUnits for testing
@@ -106,11 +110,14 @@ public class GameService {
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		if (newHealth <= 0) {
 			performUnitDeath(unit);
+			if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
+				updatePlayerHealth(unit.getOwner(), newHealth);
+			}
 			return;
 		}
 		unit.setHealth(newHealth);
 		BasicCommands.setUnitHealth(out, unit, newHealth);
-		if (unit.getId() == 0 || unit.getId() == 1) {
+		if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
 			updatePlayerHealth(unit.getOwner(), newHealth);
 		}
 	}
@@ -149,6 +156,9 @@ public class GameService {
 					BasicCommands.drawTile(out, currentTile, 0);
 				}
 			}
+		}
+		if (!gs.getHuman().getHand().getCards().isEmpty()) {
+			notClickingCard();
 		}
 	}
 
@@ -228,44 +238,68 @@ public class GameService {
 	// Method to calculate and return the set of valid actions (tiles) for a given unit
 	public Set<Tile> calculateValidMovement(Tile[][] board, Unit unit) {
 		Set<Tile> validTiles = new HashSet<>();
-
-		// Check if the unit is in a provoked state, which may restrict its actions
-		if (checkProvoked(unit)) {
-			return null;
+		// Skip calculation if unit is provoked or has moved/attacked this turn
+		if (checkProvoked(unit) || unit.movedThisTurn() || unit.attackedThisTurn()) {
+			return validTiles;
 		}
 
-		// Only allow action calculation if the unit has not moved or attacked this turn
-		if (!unit.movedThisTurn() && !unit.attackedThisTurn()) {
-			// Extended directions array includes immediate adjacent and two steps away in cardinal directions
-			int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {1, 1}, {-1, 1}, {1, -1}};
-			int[][] extendedDirections = {{-2, 0}, {2, 0}, {0, -2}, {0, 2}}; // For two steps away
+		Player currentPlayer = unit.getOwner();
+		int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+		int[][] extendedDirections = {{-2, 0}, {2, 0}, {0, -2}, {0, 2}, {-1, -1}, {1, 1}, {-1, 1}, {1, -1}};
 
-			// Check adjacent and diagonal tiles
-			for (int[] direction : directions) {
-				addValidTileInDirection(board, unit, direction[0], direction[1], validTiles);
-			}
-
-			// Check tiles two steps away in cardinal directions
-			for (int[] direction : extendedDirections) {
-				addValidTileInDirection(board, unit, direction[0], direction[1], validTiles);
-			}
+		// Handle immediate adjacent tiles (including diagonals)
+		for (int[] direction : directions) {
+			addValidTileInDirection(board, unit, direction[0], direction[1], validTiles, currentPlayer, false);
 		}
-		// Return the set of valid tiles/actions
+
+		// Handle two tiles away horizontally or vertically, making sure not to pass through enemy units
+		for (int[] direction : extendedDirections) {
+			addValidTileInDirection(board, unit, direction[0], direction[1], validTiles, currentPlayer, true);
+		}
+
 		return validTiles;
 	}
 
+
+	public Set<Tile> calculateSpellTargets(Card card) {
+		Set<Tile> validSpellTargets = new HashSet<>();
+		// Logic to determine valid spell targets
+		return validSpellTargets;
+	}
+
 	// Helper method to add a valid tile to the set of valid actions if the conditions are met
-	private void addValidTileInDirection(Tile[][] board, Unit unit, int dx, int dy, Set<Tile> validTiles) {
-		// Calculate new position based on direction offsets
+	private void addValidTileInDirection(Tile[][] board, Unit unit, int dx, int dy, Set<Tile> validTiles, Player currentPlayer, boolean extendedMove) {
 		int x = unit.getPosition().getTilex() + dx;
 		int y = unit.getPosition().getTiley() + dy;
 
-		// Check if the new position is within board bounds and potentially valid for action
+		// For extended moves, check if the halfway tile is occupied by an enemy unit
+		if (extendedMove && Math.abs(dx) <= 2 && Math.abs(dy) <= 2) {
+			int halfwayX = unit.getPosition().getTilex() + (dx / 2);
+			int halfwayY = unit.getPosition().getTiley() + (dy / 2);
+			// Ensure halfway indices are within bounds before accessing the board
+			if (isValidTile(halfwayX, halfwayY)) {
+				Tile halfwayTile = board[halfwayX][halfwayY];
+				if (halfwayTile.isOccupied() && halfwayTile.getUnit().getOwner() != currentPlayer) {
+					// If the halfway tile is occupied by an enemy, this path is invalid
+					return;
+				}
+			} else {
+				// Halfway point is out of bounds; this direction is invalid
+				return;
+			}
+		}
+
+		// Ensure the tile is within the board's bounds and not occupied by an enemy
 		if (isValidTile(x, y)) {
 			Tile tile = board[x][y];
-			validTiles.add(tile);
+			if (!tile.isOccupied() || (tile.isOccupied() && tile.getUnit().getOwner() == currentPlayer)) {
+				validTiles.add(tile);
+			}
 		}
 	}
+
+
+
 
 	// Checks if a tile position is within the boundaries of the game board
 	private boolean isValidTile(int x, int y) {
@@ -277,24 +311,45 @@ public class GameService {
 		return gs.getCurrentPlayer().getUnits().contains(unit);
 	}
 
+	// Checks if provoke unit is present on the board and around the tile on which an alleged enemy unit (target) is located
+	public Set<Position> checkProvoker(Tile tile) {
+		Set<Position> provoker = new HashSet<>();
+
+		for (Unit unit : gs.getInactivePlayer().getUnits()) {
+			int tilex = tile.getTilex();
+			int tiley = tile.getTiley();
+
+			if (Math.abs(tilex - unit.getPosition().getTilex()) < 2 && Math.abs(tiley - unit.getPosition().getTiley()) < 2) {
+				if (unit.getName().equals("Rock Pulveriser") || unit.getName().equals("Swamp Entangler") ||
+						unit.getName().equals("Silverguard Knight") || unit.getName().equals("Ironcliffe Guardian")) {
+					System.out.println("Provoker " + unit.getName() + " in the house.");
+					provoker.add(unit.getPosition());
+				}
+			}
+		}
+		return provoker;
+	}
 
 	// Returns true if the unit should be provoked based on adjacent opponents
 	public boolean checkProvoked(Unit unit) {
+		Player opponent = (gs.getCurrentPlayer() == gs.getHuman()) ? gs.getAi() : gs.getHuman();
+		// Iterate over the opponent's units to check for adjacency and provoking units
+		for (Unit other : opponent.getUnits()) {
 
-		// Incomplete implementation yet to be tested, temporarily return false always
-		/*for (Unit other : gs.getInactivePlayer().getUnits()) {
-
+			// Calculate the distance between the units
 			int unitx = unit.getPosition().getTilex();
 			int unity = unit.getPosition().getTiley();
 
-			if(other.getId() == 3 || other.getId() == 10 || other.getId() == 6 || other.getId() == 16 || other.getId() == 20 || other.getId() == 30) {
+			// Check if the opponent unit's name matches any provoking unit
+			if (other.getName().equals("Rock Pulveriser") || other.getName().equals("Swamp Entangler") ||
+					other.getName().equals("Silverguard Knight") || other.getName().equals("Ironcliffe Guardian")) {
+				// Check if the opponent unit is adjacent to the current unit
 				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
-					System.out.println("Unit is provoked!");
+					BasicCommands.addPlayer1Notification(out, "Unit is provoked by " + other.getName(), 2);
 					return true;
 				}
 			}
-
-		}*/
+		}
 		return false;
 	}
 
@@ -311,11 +366,6 @@ public class GameService {
 		Set<Tile> validAttacks = new HashSet<>();
 		Player opponent = gs.getInactivePlayer();
 
-		// Provocation check
-		if (!unit.movedThisTurn() && checkProvoked(unit)) {
-			return findProvokedTargets(unit);
-		}
-
 		// Default target determination
 		if (!unit.attackedThisTurn()) {
 			validAttacks.addAll(getValidTargets(unit, opponent));
@@ -327,7 +377,18 @@ public class GameService {
 	// Returns the set of valid attack targets for a given unit
 	public Set<Tile> getValidTargets(Unit unit, Player opponent) {
 		Set<Tile> validAttacks = new HashSet<>();
+		Set<Position> provokers = checkProvoker(unit.getCurrentTile(gs.getBoard()));
 		Tile unitTile = unit.getCurrentTile(gs.getBoard());
+
+		// Attack adjacent units if there are any
+		if (!provokers.isEmpty()) {
+			for (Position position : provokers) {
+				System.out.println(position + "provoker position");
+				Tile provokerTile = gs.getBoard().getTile(position.getTilex(), position.getTiley());
+				validAttacks.add(provokerTile);
+			}
+			return validAttacks;
+		}
 
 		opponent.getUnits().stream()
 				.map(opponentUnit -> opponentUnit.getCurrentTile(gs.getBoard()))
@@ -341,11 +402,6 @@ public class GameService {
 		int dx = Math.abs(unitTile.getTilex() - targetTile.getTilex());
 		int dy = Math.abs(unitTile.getTiley() - targetTile.getTiley());
 		return dx < 2 && dy < 2;
-	}
-
-	private Set<Tile> findProvokedTargets(Unit unit) {
-		// Logic to identify tiles when unit is provoked
-		return new HashSet<>();
 	}
 
 	// Attack an enemy unit and play the attack animation
@@ -395,17 +451,23 @@ public class GameService {
 		System.out.println("Highlighting summon range for " + card.getCardname());
 		Tile[][] tiles = gs.getBoard().getTiles();
 
-		// Iterate over all tiles on the board
+		Set<Tile> validTiles = getValidSummonTiles();
+		validTiles.forEach(tile -> updateTileHighlight(tile, 1));
+	}
+
+	public Set<Tile> getValidSummonTiles() {
+		Player player = gs.getCurrentPlayer();
+		Set<Tile> validTiles = new HashSet<>();
+		Tile[][] tiles = gs.getBoard().getTiles();
 		for (int i = 0; i < tiles.length; i++) {
 			for (int j = 0; j < tiles[i].length; j++) {
 				Tile currentTile = tiles[i][j];
-
-				// Check if tile is adjacent to a friendly unit
 				if (isAdjacentToFriendlyUnit(i, j, player) && !currentTile.isOccupied()) {
-					updateTileHighlight(currentTile, 1); // 1 for summonable highlight mode
+					validTiles.add(currentTile);
 				}
 			}
 		}
+		return validTiles;
 	}
 
 	// Check if a tile is adjacent to a friendly unit of the specified player
@@ -497,6 +559,16 @@ public class GameService {
 		Hand hand = player.getHand();
 		int handPosition = gs.getCurrentCardPosition();
 
+		if (handPosition == 0) {
+			for (int i = 1; i <= hand.getNumberOfCardsInHand(); i++) {
+				if (hand.getCardAtPosition(i).equals(card)) {
+					handPosition = i;
+					break;
+				}
+			}
+		}
+		System.out.println("Current card: " + card.getCardname() + " position " + handPosition);
+
 		// check if enough mana
 		if (player.getMana() < card.getManacost()) {
 			BasicCommands.addPlayer1Notification(out, "Not enough mana to summon " + card.getCardname(), 2);
@@ -556,7 +628,7 @@ public class GameService {
 
 		// wait for animation to play out
 		try {
-			Thread.sleep(500);
+			Thread.sleep(250);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -576,8 +648,8 @@ public class GameService {
 		gs.setCurrentCardClicked(null);
 		gs.setCurrentCardPosition(0);
 
-		for (int i = 1; i <= gs.getCurrentPlayer().getHand().getNumberOfCardsInHand(); i++) {
-			Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(i);
+		for (int i = 1; i <= gs.getHuman().getHand().getNumberOfCardsInHand(); i++) {
+			Card card = gs.getHuman().getHand().getCardAtPosition(i);
 			BasicCommands.drawCard(out, card, i, 0);
 		}
 	}
