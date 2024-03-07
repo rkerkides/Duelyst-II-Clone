@@ -106,14 +106,14 @@ public class GameService {
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		if (newHealth <= 0) {
 			performUnitDeath(unit);
-			if (unit.getId() == 0 || unit.getId() == 1) {
+			if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
 				updatePlayerHealth(unit.getOwner(), newHealth);
 			}
 			return;
 		}
 		unit.setHealth(newHealth);
 		BasicCommands.setUnitHealth(out, unit, newHealth);
-		if (unit.getId() == 0 || unit.getId() == 1) {
+		if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
 			updatePlayerHealth(unit.getOwner(), newHealth);
 		}
 	}
@@ -152,6 +152,9 @@ public class GameService {
 					BasicCommands.drawTile(out, currentTile, 0);
 				}
 			}
+		}
+		if (!gs.getHuman().getHand().getCards().isEmpty()) {
+			notClickingCard();
 		}
 	}
 
@@ -231,44 +234,61 @@ public class GameService {
 	// Method to calculate and return the set of valid actions (tiles) for a given unit
 	public Set<Tile> calculateValidMovement(Tile[][] board, Unit unit) {
 		Set<Tile> validTiles = new HashSet<>();
-
-		// Check if the unit is in a provoked state, which may restrict its actions
-		if (checkProvoked(unit)) {
-			return null;
+		// Skip calculation if unit is provoked or has moved/attacked this turn
+		if (checkProvoked(unit) || unit.movedThisTurn() || unit.attackedThisTurn()) {
+			return validTiles; // Return empty set or null depending on your game logic
 		}
 
-		// Only allow action calculation if the unit has not moved or attacked this turn
-		if (!unit.movedThisTurn() && !unit.attackedThisTurn()) {
-			// Extended directions array includes immediate adjacent and two steps away in cardinal directions
-			int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {1, 1}, {-1, 1}, {1, -1}};
-			int[][] extendedDirections = {{-2, 0}, {2, 0}, {0, -2}, {0, 2}}; // For two steps away
+		Player currentPlayer = unit.getOwner();
+		int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+		int[][] extendedDirections = {{-2, 0}, {2, 0}, {0, -2}, {0, 2}, {-1, -1}, {1, 1}, {-1, 1}, {1, -1}};
 
-			// Check adjacent and diagonal tiles
-			for (int[] direction : directions) {
-				addValidTileInDirection(board, unit, direction[0], direction[1], validTiles);
-			}
-
-			// Check tiles two steps away in cardinal directions
-			for (int[] direction : extendedDirections) {
-				addValidTileInDirection(board, unit, direction[0], direction[1], validTiles);
-			}
+		// Handle immediate adjacent tiles (including diagonals)
+		for (int[] direction : directions) {
+			addValidTileInDirection(board, unit, direction[0], direction[1], validTiles, currentPlayer, false);
 		}
-		// Return the set of valid tiles/actions
+
+		// Handle two tiles away horizontally or vertically, making sure not to pass through enemy units
+		for (int[] direction : extendedDirections) {
+			addValidTileInDirection(board, unit, direction[0], direction[1], validTiles, currentPlayer, true);
+		}
+
 		return validTiles;
 	}
 
+
+	public Set<Tile> calculateSpellTargets(Card card) {
+		Set<Tile> validSpellTargets = new HashSet<>();
+		// Logic to determine valid spell targets
+		return validSpellTargets;
+	}
+
 	// Helper method to add a valid tile to the set of valid actions if the conditions are met
-	private void addValidTileInDirection(Tile[][] board, Unit unit, int dx, int dy, Set<Tile> validTiles) {
-		// Calculate new position based on direction offsets
+	private void addValidTileInDirection(Tile[][] board, Unit unit, int dx, int dy, Set<Tile> validTiles, Player currentPlayer, boolean extendedMove) {
 		int x = unit.getPosition().getTilex() + dx;
 		int y = unit.getPosition().getTiley() + dy;
 
-		// Check if the new position is within board bounds and potentially valid for action
+		// For extended moves, check if the halfway tile is occupied by an enemy unit
+		if (extendedMove && Math.abs(dx) <= 2 && Math.abs(dy) <= 2) {
+			int halfwayX = unit.getPosition().getTilex() + (dx / 2);
+			int halfwayY = unit.getPosition().getTiley() + (dy / 2);
+			Tile halfwayTile = board[halfwayX][halfwayY];
+			if (halfwayTile.isOccupied() && halfwayTile.getUnit().getOwner() != currentPlayer) {
+				// If the halfway tile is occupied by an enemy, this path is invalid
+				return;
+			}
+		}
+
+		// Ensure the tile is within the board's bounds and not occupied by an enemy
 		if (isValidTile(x, y)) {
 			Tile tile = board[x][y];
-			validTiles.add(tile);
+			if (!tile.isOccupied() || (tile.isOccupied() && tile.getUnit().getOwner() == currentPlayer)) {
+				validTiles.add(tile);
+			}
 		}
 	}
+
+
 
 	// Checks if a tile position is within the boundaries of the game board
 	private boolean isValidTile(int x, int y) {
@@ -398,17 +418,23 @@ public class GameService {
 		System.out.println("Highlighting summon range for " + card.getCardname());
 		Tile[][] tiles = gs.getBoard().getTiles();
 
-		// Iterate over all tiles on the board
+		Set<Tile> validTiles = getValidSummonTiles();
+		validTiles.forEach(tile -> updateTileHighlight(tile, 1));
+	}
+
+	public Set<Tile> getValidSummonTiles() {
+		Player player = gs.getCurrentPlayer();
+		Set<Tile> validTiles = new HashSet<>();
+		Tile[][] tiles = gs.getBoard().getTiles();
 		for (int i = 0; i < tiles.length; i++) {
 			for (int j = 0; j < tiles[i].length; j++) {
 				Tile currentTile = tiles[i][j];
-
-				// Check if tile is adjacent to a friendly unit
 				if (isAdjacentToFriendlyUnit(i, j, player) && !currentTile.isOccupied()) {
-					updateTileHighlight(currentTile, 1); // 1 for summonable highlight mode
+					validTiles.add(currentTile);
 				}
 			}
 		}
+		return validTiles;
 	}
 
 	// Check if a tile is adjacent to a friendly unit of the specified player
@@ -500,6 +526,16 @@ public class GameService {
 		Hand hand = player.getHand();
 		int handPosition = gs.getCurrentCardPosition();
 
+		if (handPosition == 0) {
+			for (int i = 1; i <= hand.getNumberOfCardsInHand(); i++) {
+				if (hand.getCardAtPosition(i).equals(card)) {
+					handPosition = i;
+					break;
+				}
+			}
+		}
+		System.out.println("Current card: " + card.getCardname() + " position " + handPosition);
+
 		// check if enough mana
 		if (player.getMana() < card.getManacost()) {
 			BasicCommands.addPlayer1Notification(out, "Not enough mana to summon " + card.getCardname(), 2);
@@ -559,7 +595,7 @@ public class GameService {
 
 		// wait for animation to play out
 		try {
-			Thread.sleep(500);
+			Thread.sleep(250);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -579,8 +615,8 @@ public class GameService {
 		gs.setCurrentCardClicked(null);
 		gs.setCurrentCardPosition(0);
 
-		for (int i = 1; i <= gs.getCurrentPlayer().getHand().getNumberOfCardsInHand(); i++) {
-			Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(i);
+		for (int i = 1; i <= gs.getHuman().getHand().getNumberOfCardsInHand(); i++) {
+			Card card = gs.getHuman().getHand().getCardAtPosition(i);
 			BasicCommands.drawCard(out, card, i, 0);
 		}
 	}

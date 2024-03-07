@@ -6,11 +6,10 @@ import commands.BasicCommands;
 import events.EndTurnClicked;
 import structures.GameState;
 import structures.basic.*;
+import structures.basic.cards.Card;
+import structures.basic.cards.SpellCard;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 
 public class AIPlayer extends Player {
 
@@ -28,7 +27,7 @@ public class AIPlayer extends Player {
 
 		// ends turn
 		EndTurnClicked endTurn = new EndTurnClicked();
-		BasicCommands.addPlayer1Notification(out, "AI takes turn (and immediately ends it)", 2);
+		BasicCommands.addPlayer1Notification(out, "AI ends its turn", 2);
 		endTurn.processEvent(out, gameState, message);
 	}
 
@@ -46,7 +45,9 @@ public class AIPlayer extends Player {
 
 			}
 			for (Tile tile : positions) {
-				movements.add(new PossibleMovement(unit, tile));
+				if (!tile.isOccupied()) {
+					movements.add(new PossibleMovement(unit, tile));
+				}
 			}
 		}
 
@@ -86,15 +87,28 @@ public class AIPlayer extends Player {
 
 				for (Unit enemy : enemyUnits) {
 					int score = 0;
-					// Calculate distance score inversely; closer enemies should increase score
-					score += (9 - Math.abs(move.tile.getTilex() - enemy.getPosition().getTilex()));
-					score += (9 - Math.abs(move.tile.getTiley() - enemy.getPosition().getTiley()));
-					// Lower health enemies contribute more to the score
-					score += (20 - enemy.getHealth());
-					if (!enemy.equals(enemyUnits.get(0))) {
-						score += 5; // Moving towards the avatar increases score
+					int distanceX = Math.abs(move.tile.getTilex() - enemy.getPosition().getTilex());
+					int distanceY = Math.abs(move.tile.getTiley() - enemy.getPosition().getTiley());
+					int distanceScore = 9 - (distanceX + distanceY);
+
+					if (move.unit.getAttack() == 0) {
+						// If unit has low attack, invert the score to prioritize moving away
+						distanceScore = -(distanceScore);
 					}
-					if (score > maxScore && !move.tile.isOccupied()) {
+
+					if (move.unit.getName().equals("AI Avatar")) {
+						// Prioritize keeping the avatar close to other friendly units
+
+					}
+
+					score += distanceScore;
+					score += (20 - enemy.getHealth()); // More aggressively move towards lower health units
+
+					if (enemy == gameState.getHuman().getAvatar()) {
+						score += 5; // Prioritize attacking the primary human player unit
+					}
+
+					if (score > maxScore) {
 						move.moveQuality = score; // Higher score for more desirable moves
 						maxScore = score;
 					}
@@ -114,24 +128,78 @@ public class AIPlayer extends Player {
 
 		for (PossibleAttack attack : rankedAttacks) {
 			if (!attack.unit.movedThisTurn() && !attack.unit.attackedThisTurn()) {
-				attack.moveQuality = 1;
-
 				// Prioritize eliminating a unit by checking if the attack is lethal
 				if (attack.tile.getUnit().getHealth() <= attack.unit.getAttack()) {
 					attack.moveQuality = 10; // Assign the highest value for lethal attacks
+
 					// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
 				} else if (attack.tile.getUnit() == gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
 					attack.moveQuality = 8;
+
 					// Value for attacking any unit not being the avatar by non-avatar AI units
 				} else if (attack.tile.getUnit() != gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
 					attack.moveQuality = 5;
-				} else if (attack.unit.getAttack() == 0) {
-					attack.moveQuality = -5;
+
+					// Generic attack value
+				} else {
+					attack.moveQuality = 0;
+				}
+				// Penalize units with no attack
+				if (attack.unit.getAttack() == 0) {
+					System.out.println("Unit " + attack.unit + " has no attack");
+					attack.moveQuality = -1;
 				}
 			}
 
+			System.out.println("Attack " + attack.unit + " value = " + attack.moveQuality);
 		}
 		return rankedAttacks;
+	}
+
+	private Set<PossibleSummon> rankSummons(ArrayList<PossibleSummon> summons) {
+		System.out.println("Ranking possible summons...");
+		if (summons == null) {
+			return null;
+		}
+
+		Set<PossibleSummon> rankedSummons = new HashSet<>(summons);
+
+		for (PossibleSummon summon : rankedSummons) {
+			if (summon.card.getManacost() <= this.mana) {
+				if (summon.card.getManacost() < summon.card.getBigCard().getAttack()) {
+					summon.moveQuality = 6;
+				}
+				else {
+					summon.moveQuality = 5;
+				}
+			}
+		}
+		return rankedSummons;
+	}
+
+	private PossibleSummon findBestSummon(Set<PossibleSummon> summons) {
+		System.out.println("AI finding best summon...");
+		if (summons == null || summons.isEmpty()) {
+			System.out.println("No available summons to evaluate.");
+			return null;
+		}
+
+		int minValue = 0;
+		PossibleSummon bestSummon = null;
+
+		for (PossibleSummon summon : summons) {
+			if (summon.moveQuality > minValue) {
+				minValue = summon.moveQuality;
+				bestSummon = summon;
+			}
+		}
+
+		if (bestSummon != null) {
+			System.out.println("Best summon found: Tile " + bestSummon.tile.getTilex() + " " + bestSummon.tile.getTiley() + " and Unit " + bestSummon.card.getCardname() + " with value = " + bestSummon.moveQuality);
+		} else {
+			System.out.println("No summon meets the evaluation criteria.");
+		}
+		return bestSummon;
 	}
 
 	private PossibleMovement findBestMovement(Set<PossibleMovement> moves) {
@@ -161,12 +229,12 @@ public class AIPlayer extends Player {
 			return null;
 		}
 
-		int maxValue = 0;
+		int minValue = 0;
 		PossibleAttack bestAttack = null;
 
 		for (PossibleAttack attack : attacks) {
-			if (attack.moveQuality > maxValue) {
-				maxValue = attack.moveQuality;
+			if (attack.moveQuality > minValue) {
+				minValue = attack.moveQuality;
 				bestAttack = attack;
 			}
 		}
@@ -183,11 +251,57 @@ public class AIPlayer extends Player {
 
 	private void makeBestMove(ActorRef out) {
 		try {
+			performCardActions();
+			System.out.println("Went past card actions");
 			performAttacks();
 			performMovements();
 		} catch (Exception e) {
 			// Handle other exceptions or log them
 		}
+	}
+
+	private void performCardActions() {
+		while (true) {
+			ArrayList<Card> cards = (ArrayList<Card>) this.hand.getCards();
+			if (cards.isEmpty()) {
+				System.out.println("Cards is empty");
+				return;
+			}
+			// Implement creature card summoning
+			ArrayList<PossibleSummon> possibleSummons = returnAllSummons(gameState);
+			if (possibleSummons.isEmpty()) {
+				System.out.println("Summons is empty");
+				return;
+			}
+			Set<PossibleSummon> rankedSummons = new HashSet<>(rankSummons(possibleSummons));
+			PossibleSummon bestMove = findBestSummon(rankedSummons);
+			if (bestMove != null) {
+				gameState.gameService.removeCardFromHandAndSummonUnit(bestMove.card, bestMove.tile);
+			} else {
+				System.out.println("No summon found");
+				return;
+			}
+		}
+	}
+
+	private ArrayList<PossibleSummon> returnAllSummons(GameState gameState) {
+		ArrayList<PossibleSummon> summons = new ArrayList<>();
+		for (Card card : this.hand.getCards()) {
+			System.out.println("Checking card " + card.getCardname() + " for summoning");
+			System.out.println("Card is creature: " + card.isCreature());
+			System.out.println("Card manacost: " + card.getManacost());
+			System.out.println("AIPlayer mana: " + this.mana);
+			if (card.isCreature() && card.getManacost() <= this.mana) {
+				Set<Tile> positions;
+				positions = gameState.gameService.getValidSummonTiles();
+				for (Tile tile : positions) {
+					if (!tile.isOccupied()) {
+						summons.add(new PossibleSummon(card, tile));
+					}
+				}
+			}
+		}
+		return summons;
 	}
 
 
@@ -230,6 +344,37 @@ public class AIPlayer extends Player {
 		}
 	}
 
+	private Set<SpellCard> identifySpellCardsInHand() {
+		Set<SpellCard> availableSpellCards = new HashSet<>();
+		// Loop through each card in the AI player's hand
+		for (Card card : this.hand.getCards()) {
+			// Check if the card is a spell card and if there's enough mana to play it
+			if (card instanceof SpellCard && this.mana >= card.getManacost()) {
+				availableSpellCards.add((SpellCard) card);
+			}
+		}
+		return availableSpellCards;
+	}
+
+	private HashMap<SpellCard, ArrayList<PossibleSpell>> generatePossibleSpells(Set<SpellCard> spellCards) {
+		HashMap<SpellCard, ArrayList<PossibleSpell>> spellActions = new HashMap<>();
+		// Loop through each identified spell card
+		for (SpellCard card : spellCards) {
+			ArrayList<PossibleSpell> possibleSpells = new ArrayList<>();
+			// Determine valid targets based on the spell card's characteristics
+			Set<Tile> validTargets = gameState.gameService.calculateSpellTargets(card);
+			// Create a possible spell for each valid target
+			for (Tile target : validTargets) {
+				if (card.isValidTarget(target, gameState)) {
+					possibleSpells.add(new PossibleSpell(card, target));
+				}
+			}
+			if (!possibleSpells.isEmpty()) {
+				spellActions.put(card, possibleSpells);
+			}
+		}
+		return spellActions;
+	}
 	@Override
 	public String toString() {
 		return "AIPlayer";
