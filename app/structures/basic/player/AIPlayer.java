@@ -23,7 +23,7 @@ public class AIPlayer extends Player {
 	// restrained to just end-turn to facilitate testing before implementing AI
 	public void takeTurn(ActorRef out, JsonNode message) {
 		// make best move
-		makeBestMove(out);
+		makeBestMove();
 
 		// ends turn
 		EndTurnClicked endTurn = new EndTurnClicked();
@@ -249,10 +249,9 @@ public class AIPlayer extends Player {
 
 
 
-	private void makeBestMove(ActorRef out) {
+	private void makeBestMove() {
 		try {
 			performCardActions();
-			System.out.println("Went past card actions");
 			performAttacks();
 			performMovements();
 		} catch (Exception e) {
