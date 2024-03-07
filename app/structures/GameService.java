@@ -240,7 +240,7 @@ public class GameService {
 		Set<Tile> validTiles = new HashSet<>();
 		// Skip calculation if unit is provoked or has moved/attacked this turn
 		if (checkProvoked(unit) || unit.movedThisTurn() || unit.attackedThisTurn()) {
-			return validTiles; // Return empty set or null depending on your game logic
+			return validTiles;
 		}
 
 		Player currentPlayer = unit.getOwner();
@@ -322,7 +322,7 @@ public class GameService {
 			if (Math.abs(tilex - unit.getPosition().getTilex()) < 2 && Math.abs(tiley - unit.getPosition().getTiley()) < 2) {
 				if (unit.getName().equals("Rock Pulveriser") || unit.getName().equals("Swamp Entangler") ||
 						unit.getName().equals("Silverguard Knight") || unit.getName().equals("Ironcliffe Guardian")) {
-					System.out.println("Provoker in the house");
+					System.out.println("Provoker " + unit.getName() + " in the house.");
 					provoker.add(unit.getPosition());
 				}
 			}
@@ -345,16 +345,13 @@ public class GameService {
 					other.getName().equals("Silverguard Knight") || other.getName().equals("Ironcliffe Guardian")) {
 				// Check if the opponent unit is adjacent to the current unit
 				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
-					System.out.println("Unit is provoked!");
+					BasicCommands.addPlayer1Notification(out, "Unit is provoked by " + other.getName(), 2);
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-
-	//if (opponentUnit.getName().equals("Rock Pulveriser") || opponentUnit.getName().equals("Swamp Entangler") ||
-	//					opponentUnit.getName().equals("Silverguard Knight") || opponentUnit.getName().equals("Ironcliffe Guardian")) {
 
 	// Highlight tiles for attacking only
 	public void highlightAttackRange(Unit unit) {
@@ -368,11 +365,6 @@ public class GameService {
 	public Set<Tile> calculateAttackTargets(Unit unit) {
 		Set<Tile> validAttacks = new HashSet<>();
 		Player opponent = gs.getInactivePlayer();
-
-		// Provocation check
-		if (!unit.movedThisTurn() && checkProvoked(unit)) {
-			return findProvokedTargets(unit);
-		}
 
 		// Default target determination
 		if (!unit.attackedThisTurn()) {
@@ -389,12 +381,13 @@ public class GameService {
 		Tile unitTile = unit.getCurrentTile(gs.getBoard());
 
 		// Attack adjacent units if there are any
-		for (Position position : provokers) {
-			Tile provokerTile = gs.getBoard().getTile(position.getTilex(), position.getTiley());
-			Unit provoker = provokerTile.getUnit();
-			if (isWithinAttackRange(unitTile, provokerTile)) {
-				adjacentAttack(unit, provoker);
+		if (!provokers.isEmpty()) {
+			for (Position position : provokers) {
+				System.out.println(position + "provoker position");
+				Tile provokerTile = gs.getBoard().getTile(position.getTilex(), position.getTiley());
+				validAttacks.add(provokerTile);
 			}
+			return validAttacks;
 		}
 
 		opponent.getUnits().stream()
@@ -409,42 +402,6 @@ public class GameService {
 		int dx = Math.abs(unitTile.getTilex() - targetTile.getTilex());
 		int dy = Math.abs(unitTile.getTiley() - targetTile.getTiley());
 		return dx < 2 && dy < 2;
-	}
-
-	private Set<Tile> findProvokedTargets(Unit unit) {
-		Set<Tile> provokedTargets = new HashSet<>();
-		Board board = gs.getBoard();
-		Position unitPosition = unit.getPosition();
-
-		// Check if the unit's current tile has provoke
-		Tile currentTile = board.getTile(unitPosition.getTilex(), unitPosition.getTiley());
-		if (currentTile.isOccupied() && currentTile.getUnit().getOwner() != unit.getOwner()) {
-			if (currentTile.getUnit().hasProvoke()) {
-				provokedTargets.add(currentTile);
-			}
-		}
-
-		// Iterate through adjacent tiles
-		for (int dx = -1; dx <= 1; dx++) {
-			for (int dy = -1; dy <= 1; dy++) {
-				if (dx == 0 && dy == 0) continue; // Skip the current tile
-
-				int x = unitPosition.getTilex() + dx;
-				int y = unitPosition.getTiley() + dy;
-
-				// Check if the adjacent tile is within the board bounds
-				if (isValidTile(x, y)) {
-					Tile adjacentTile = board.getTile(x, y);
-					if (adjacentTile.isOccupied() && adjacentTile.getUnit().getOwner() != unit.getOwner()) {
-						// Check if the adjacent unit can be targeted due to the provoke ability
-						if (adjacentTile.getUnit().hasProvoke()) {
-							provokedTargets.add(adjacentTile);
-						}
-					}
-				}
-			}
-		}
-		return provokedTargets;
 	}
 
 	// Attack an enemy unit and play the attack animation
