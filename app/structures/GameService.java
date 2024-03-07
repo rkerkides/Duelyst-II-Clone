@@ -381,15 +381,15 @@ public class GameService {
 		Set<Position> provokers = checkProvoker(unit.getCurrentTile(gs.getBoard()));
 		Tile unitTile = unit.getCurrentTile(gs.getBoard());
 
-        /*
-		if (!provokers.isEmpty()){
-			for (Unit provoker : provokers) {
-				if (provoker instanceof Provoke) { // Ensure the unit has provoke ability
-					validAttacks.addAll(((Provoke) provoker).attractAttack(unitTile, gs));
-				}
+		// Attack adjacent units if there are any
+		for (Position position : provokers) {
+			Tile provokerTile = gs.getBoard().getTile(position.getTilex(), position.getTiley());
+			Unit provoker = provokerTile.getUnit();
+			if (isWithinAttackRange(unitTile, provokerTile)) {
+				adjacentAttack(unit, provoker);
 			}
 		}
-         */
+
 		opponent.getUnits().stream()
 				.map(opponentUnit -> opponentUnit.getCurrentTile(gs.getBoard()))
 				.filter(opponentTile -> isWithinAttackRange(unitTile, opponentTile))
