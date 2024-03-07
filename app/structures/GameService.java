@@ -276,9 +276,15 @@ public class GameService {
 		if (extendedMove && Math.abs(dx) <= 2 && Math.abs(dy) <= 2) {
 			int halfwayX = unit.getPosition().getTilex() + (dx / 2);
 			int halfwayY = unit.getPosition().getTiley() + (dy / 2);
-			Tile halfwayTile = board[halfwayX][halfwayY];
-			if (halfwayTile.isOccupied() && halfwayTile.getUnit().getOwner() != currentPlayer) {
-				// If the halfway tile is occupied by an enemy, this path is invalid
+			// Ensure halfway indices are within bounds before accessing the board
+			if (isValidTile(halfwayX, halfwayY)) {
+				Tile halfwayTile = board[halfwayX][halfwayY];
+				if (halfwayTile.isOccupied() && halfwayTile.getUnit().getOwner() != currentPlayer) {
+					// If the halfway tile is occupied by an enemy, this path is invalid
+					return;
+				}
+			} else {
+				// Halfway point is out of bounds; this direction is invalid
 				return;
 			}
 		}
@@ -291,6 +297,7 @@ public class GameService {
 			}
 		}
 	}
+
 
 
 
