@@ -97,9 +97,7 @@ public class GameState {
 	}
 
 	public void endTurn(){
-		if (this.currentPlayer == this.human){
-			handleCardManagement();
-		}
+		handleCardManagement();
 		currentPlayer.incrementTurn();
 		this.gameService.updatePlayerMana(currentPlayer, 0);
 		switchCurrentPlayer();

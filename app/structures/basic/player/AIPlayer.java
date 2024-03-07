@@ -266,21 +266,62 @@ public class AIPlayer extends Player {
 				System.out.println("Cards is empty");
 				return;
 			}
-			// Implement creature card summoning
-			ArrayList<PossibleSummon> possibleSummons = returnAllSummons(gameState);
-			if (possibleSummons.isEmpty()) {
-				System.out.println("Summons is empty");
-				return;
-			}
-			Set<PossibleSummon> rankedSummons = new HashSet<>(rankSummons(possibleSummons));
-			PossibleSummon bestMove = findBestSummon(rankedSummons);
-			if (bestMove != null) {
-				gameState.gameService.removeCardFromHandAndSummonUnit(bestMove.card, bestMove.tile);
+			PossibleSpell bestSpell = returnBestSpell();
+			PossibleSummon bestSummon = returnBestSummon();
+			if (bestSpell != null && bestSummon != null) {
+				if (bestSpell.moveQuality > bestSummon.moveQuality) {/*
+					gameState.gameService.removeCardFromHandAndCastSpell(bestSpell.card, bestSpell.tile);*/
+				} else {
+					gameState.gameService.removeCardFromHandAndSummonUnit(bestSummon.card, bestSummon.tile);
+				}
+			} else if (bestSpell != null) {/*
+				gameState.gameService.removeCardFromHandAndCastSpell(bestSpell.card, bestSpell.tile);*/
+			} else if (bestSummon != null) {
+				gameState.gameService.removeCardFromHandAndSummonUnit(bestSummon.card, bestSummon.tile);
 			} else {
-				System.out.println("No summon found");
 				return;
 			}
 		}
+	}
+
+	// Returns the best summon to perform
+	private PossibleSummon returnBestSummon() {
+		ArrayList<PossibleSummon> possibleSummons = returnAllSummons(gameState);
+		if (possibleSummons.isEmpty()) {
+			System.out.println("Summons is empty");
+			return null;
+		}
+		Set<PossibleSummon> rankedSummons = new HashSet<>(rankSummons(possibleSummons));
+		PossibleSummon bestSummon = findBestSummon(rankedSummons);
+		return bestSummon;
+	}
+
+	// Returns the best spell card to cast
+	private PossibleSpell returnBestSpell() {
+		// Implement spell card casting
+		/*ArrayList<PossibleSpell> possibleSpells = returnAllSpells(gameState);
+		if (possibleSpells.isEmpty()) {
+			System.out.println("Spells is empty");
+			return null;
+		}
+		Set<PossibleSpell> rankedSpells = new HashSet<>(rankSpells(possibleSpells));
+		PossibleSpell bestSpell = findBestSpell(rankedSpells);
+		return bestSpell;*/
+		return null;
+	}
+
+	private ArrayList<PossibleSpell> returnAllSpells(GameState gameState) {
+		ArrayList<PossibleSpell> spells = new ArrayList<>();
+		/*for (Card card : this.hand.getCards()) {
+			if (card instanceof SpellCard) {
+				Set<Tile> positions;
+				positions = gameState.gameService.getValidSpellTiles();
+				for (Tile tile : positions) {
+					spells.add(new PossibleSpell(card, tile));
+				}
+			}
+		}*/
+		return spells;
 	}
 
 	private ArrayList<PossibleSummon> returnAllSummons(GameState gameState) {
@@ -343,37 +384,7 @@ public class AIPlayer extends Player {
 		}
 	}
 
-	private Set<SpellCard> identifySpellCardsInHand() {
-		Set<SpellCard> availableSpellCards = new HashSet<>();
-		// Loop through each card in the AI player's hand
-		for (Card card : this.hand.getCards()) {
-			// Check if the card is a spell card and if there's enough mana to play it
-			if (card instanceof SpellCard && this.mana >= card.getManacost()) {
-				availableSpellCards.add((SpellCard) card);
-			}
-		}
-		return availableSpellCards;
-	}
 
-	private HashMap<SpellCard, ArrayList<PossibleSpell>> generatePossibleSpells(Set<SpellCard> spellCards) {
-		HashMap<SpellCard, ArrayList<PossibleSpell>> spellActions = new HashMap<>();
-		// Loop through each identified spell card
-		for (SpellCard card : spellCards) {
-			ArrayList<PossibleSpell> possibleSpells = new ArrayList<>();
-			// Determine valid targets based on the spell card's characteristics
-			Set<Tile> validTargets = gameState.gameService.calculateSpellTargets(card);
-			// Create a possible spell for each valid target
-			for (Tile target : validTargets) {
-				if (card.isValidTarget(target, gameState)) {
-					possibleSpells.add(new PossibleSpell(card, target));
-				}
-			}
-			if (!possibleSpells.isEmpty()) {
-				spellActions.put(card, possibleSpells);
-			}
-		}
-		return spellActions;
-	}
 	@Override
 	public String toString() {
 		return "AIPlayer";
