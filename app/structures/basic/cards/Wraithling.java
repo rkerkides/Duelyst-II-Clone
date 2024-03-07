@@ -1,16 +1,18 @@
 package structures.basic.cards;
 
 import static utils.BasicObjectBuilders.loadUnit;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.GameService;
 import structures.GameState;
+
 import structures.basic.Board;
+
 import structures.basic.EffectAnimation;
 import structures.basic.Tile;
 import structures.basic.Unit;
@@ -18,7 +20,6 @@ import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
 public class Wraithling extends Unit{
-	
 	private static int id=90;
 	
 	private static int GloomChaserWraitlingsCount = 0;
@@ -137,6 +138,4 @@ public class Wraithling extends Unit{
 
 			
 }
-
-
 
