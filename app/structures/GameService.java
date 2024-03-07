@@ -662,4 +662,12 @@ public class GameService {
 			BasicCommands.drawCard(out, hand.getCardAtIndex(i), i + 1, 0);
 		}
 	}
+
+	public void Zeal (Unit unit){
+		if (unit.getName().equals("Silverguard Knight"){
+			System.out.println("BUFFED");
+			unit.setAttack(unit.getAttack() + 2);
+			.setUnitStats(unit, unit.getHealth(), unit.getAttack());
+		}
+	}
 }
