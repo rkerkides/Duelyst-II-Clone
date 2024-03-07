@@ -10,6 +10,7 @@ import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
+import structures.basic.cards.BadOmen;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -181,12 +182,16 @@ public class GameService {
 	}
 
 	public void performUnitDeath(Unit unit) {
+
+		// Check for Bad Omen units after a unit dies
+		BadOmen.BadOmenDeathwatch(out, gs, this);
 		// remove unit from board
 		unit.getCurrentTile(gs.getBoard()).removeUnit();
 		unit.setHealth(0);
 		unit.getOwner().removeUnit(unit);
 		unit.setOwner(null);
 		gs.removeFromTotalUnits(1);
+		System.out.println("unit removed from totalunits");
 		BasicCommands.playUnitAnimation(out, unit, UnitAnimationType.death);
 		try {
 			Thread.sleep(2000);
@@ -194,9 +199,12 @@ public class GameService {
 			e.printStackTrace();
 		}
 		BasicCommands.deleteUnit(out, unit);
+
+
 		if (unit.getId() == 0 || unit.getId() == 1) {
 			updatePlayerHealth(unit.getOwner(), 0);
 		}
+
 	}
 
 	// remove highlight from all tiles
@@ -732,6 +740,7 @@ public class GameService {
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
 		Wraithling.check(out, gs, this);
+
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
 

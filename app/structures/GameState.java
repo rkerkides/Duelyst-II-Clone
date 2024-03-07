@@ -7,10 +7,8 @@ import structures.basic.cards.Card;
 import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+
+import java.util.*;
 
 /**
  * This class can be used to hold information about the on-going game. Its
@@ -47,9 +45,10 @@ public class GameState {
 
 	private Player ai;
 	private Board board;
+	public static Set<Tile> validMoves = new HashSet<>();
+	public static Set<Tile> validAttacks = new HashSet<>();
+
 	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
-
-
 
 
 	/**
@@ -144,6 +143,7 @@ public class GameState {
 	public void setTotalUnits(int totalUnits) {
 		this.totalUnits = totalUnits;
 	}
+
 
 	public Player getHuman() {
 		return this.human;
