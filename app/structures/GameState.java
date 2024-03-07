@@ -7,7 +7,6 @@ import structures.basic.cards.Card;
 import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
-import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +20,7 @@ import java.util.Stack;
  *
  */
 public class GameState {
+	
 
 	public boolean gameInitalised = false;
 
@@ -47,9 +47,8 @@ public class GameState {
 
 	private Player ai;
 	private Board board;
+	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
 
-	public static Set<Tile> validMoves = new HashSet<>();
-	public static Set<Tile> validAttacks = new HashSet<>();
 
 
 
@@ -61,6 +60,9 @@ public class GameState {
 	 */
 
 	public void init(ActorRef out) {
+		
+		
+		
 		this.gameService = new GameService(out, this);
 		this.board = gameService.loadBoard();
 
@@ -129,6 +131,18 @@ public class GameState {
 
 	public void setBoard(Board board) {
 		this.board = board;
+	}
+	public ArrayList<Unit> getUnitsOnBoard() {
+		return unitsOnBoard;
+	}
+
+	public void addUnitstoBoard(Unit unit) {
+		this.unitsOnBoard.add(unit);
+		}
+	 
+
+	public void setTotalUnits(int totalUnits) {
+		this.totalUnits = totalUnits;
 	}
 
 	public Player getHuman() {
@@ -201,6 +215,7 @@ public class GameState {
 	public void removeFromTotalUnits(int numberToRemove) {
 		this.totalUnits -= numberToRemove;
 	}
+	
 
 	// Get all the units on the board
 	public ArrayList<Unit> getUnits() {
