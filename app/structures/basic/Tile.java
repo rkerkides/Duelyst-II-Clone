@@ -3,6 +3,7 @@ package structures.basic;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +22,7 @@ public class Tile {
 
 	@JsonIgnore
 	private static ObjectMapper mapper = new ObjectMapper(); // Jackson Java Object Serializer, is used to read java
-																// objects from a file
+	// objects from a file
 
 	List<String> tileTextures;
 	int xpos;
@@ -155,7 +156,7 @@ public class Tile {
 	/**
 	 * Loads a tile from a configuration file
 	 * parameters.
-	 * 
+	 *
 	 * @param configFile
 	 * @return
 	 */
@@ -184,4 +185,27 @@ public class Tile {
 		this.occupied = true;
 	}
 
+
+	//random tile on the board for summoning during testing
+	public static Tile getRandomEmptyTile(Tile[][] board) {
+		List<Tile> emptyTiles = new ArrayList<>();
+
+		for (Tile[] row : board) {
+			for (Tile tile : row) {
+				if (!tile.isOccupied()) {
+					emptyTiles.add(tile);
+				}
+			}
+		}
+
+		if (!emptyTiles.isEmpty()) {
+			// Choose a random empty tile
+			Random random = new Random();
+			int randomIndex = random.nextInt(emptyTiles.size());
+			return emptyTiles.get(randomIndex);
+		} else {
+			return null; // No empty tiles available
+		}
+
+	}
 }
