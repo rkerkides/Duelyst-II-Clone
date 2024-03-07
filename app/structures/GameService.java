@@ -356,13 +356,16 @@ public class GameService {
 	// Returns the set of valid attack targets for a given unit
 	public Set<Tile> getValidTargets(Unit unit, Player opponent) {
 		Set<Tile> validAttacks = new HashSet<>();
-		Set<Position> provoker = checkProvoker(unit.getCurrentTile(gs.getBoard()));
+		Set<Position> provokers = checkProvoker(unit.getCurrentTile(gs.getBoard()));
 		Tile unitTile = unit.getCurrentTile(gs.getBoard());
 
-		if (!provoker.isEmpty()){
-			Provoke.attractAttack();
-			return validAttacks;
-		}
+		if (!provokers.isEmpty()){
+			for (Unit provoker : provokers) {
+				if (provoker instanceof Provoke) { // Ensure the unit has provoke ability
+					validAttacks.addAll(((Provoke) provoker).attractAttack(unitTile, gs));
+				}
+			}
+		} else
 
 		opponent.getUnits().stream()
 				.map(opponentUnit -> opponentUnit.getCurrentTile(gs.getBoard()))
@@ -438,6 +441,27 @@ public class GameService {
 				// Check if tile is adjacent to a friendly unit
 				if (isAdjacentToFriendlyUnit(i, j, player) && !currentTile.isOccupied()) {
 					updateTileHighlight(currentTile, 1); // 1 for summonable highlight mode
+				}
+			}
+		}
+	}
+
+	public void highlightMoveRange(Unit unit) {
+		Tile[][] tiles = gs.getBoard().getTiles();
+		boolean isProvoked = checkProvoked(unit);
+
+		for (Tile[] row : tiles) {
+			for (Tile tile : row) {
+				if (!isProvoked) {
+					// Existing logic for highlighting move range
+					if (!tile.isOccupied() && isWithinMoveRange(unit, tile)) {
+						updateTileHighlight(tile, 1); // Highlight for movement
+					}
+				} else {
+					// If provoked, highlight only tiles with provoking units for attack
+					if (tile.isOccupied() && tile.getUnit().isProvoking() && tile.getUnit().getOwner() != unit.getOwner()) {
+						updateTileHighlight(tile, 2); // Highlight for attack due to provoke
+					}
 				}
 			}
 		}
