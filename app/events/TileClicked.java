@@ -92,7 +92,6 @@ public class TileClicked implements EventProcessor {
 		        } else {
 		            // Insufficient mana for casting the spell
 		        	BasicCommands.addPlayer1Notification(out, "Not enough mana", 2);
-		        	System.out.println("Not enough mana");
 		    	    gameState.gameService.removeHighlightFromAll();
 		    	    gameState.gameService.notClickingCard();
 

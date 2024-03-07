@@ -52,6 +52,19 @@ public class CardAction {
 
 
     public void spellPreAction() {
+    	
+    	 Card currentCard = gameState.getCurrentCardClicked();
+
+         // Highlight the summon range of the current card clicked
+ 		// Highlight the summon range of the current card clicked
+ 		gameState.gameService.highlightSpellRange(currentCard, gameState.getCurrentPlayer());
+
+         // Push the current card clicked to the action history
+         gameState.getActionHistory().push(currentCard);
+
+         // For debug
+         System.out.println("Pushed to action history: " + currentCard.getCardname() + " " + currentCard.getId());
+    	
 
     }
 
