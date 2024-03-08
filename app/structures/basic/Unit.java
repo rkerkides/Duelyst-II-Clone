@@ -40,6 +40,8 @@ public class Unit implements Actionable {
 	boolean movedThisTurn = false;
 	// Keep track of whether the unit has attacked in the current turn
 	boolean attackedThisTurn = false;
+
+	boolean hasProvoke = false;
 	public Unit() {
 	}
 
@@ -178,4 +180,5 @@ public class Unit implements Actionable {
 		return board.getTile(position.getTilex(), position.getTiley());
 
 	}
+
 }

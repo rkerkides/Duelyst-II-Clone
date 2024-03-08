@@ -8,9 +8,7 @@ import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * This class can be used to hold information about the on-going game. Its
@@ -20,6 +18,7 @@ import java.util.Stack;
  *
  */
 public class GameState {
+	
 
 	public boolean gameInitalised = false;
 
@@ -46,8 +45,11 @@ public class GameState {
 
 	private Player ai;
 	private Board board;
+	public static Set<Tile> validMoves = new HashSet<>();
+	public static Set<Tile> validAttacks = new HashSet<>();
 
 	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
+
 	ArrayList<Unit> units = new ArrayList<Unit>();
 
 	/**
@@ -58,6 +60,9 @@ public class GameState {
 	 */
 
 	public void init(ActorRef out) {
+		
+		
+		
 		this.gameService = new GameService(out, this);
 		this.board = gameService.loadBoard();
 
@@ -78,7 +83,7 @@ public class GameState {
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
 		gameService.loadAvatar(board, ai);
-		gameService.loadUnitsForTesting(ai);
+		// gameService.loadUnitsForTesting(ai);
 
 		// Set the current player to the human player
 		this.currentPlayer = human;
@@ -100,9 +105,7 @@ public class GameState {
 	}
 
 	public void endTurn(){
-		if (this.currentPlayer == this.human){
-			handleCardManagement();
-		}
+		handleCardManagement();
 		currentPlayer.incrementTurn();
 		this.gameService.updatePlayerMana(currentPlayer, 0);
 		switchCurrentPlayer();
@@ -129,6 +132,16 @@ public class GameState {
 	public void setBoard(Board board) {
 		this.board = board;
 	}
+
+	public void addUnitstoBoard(Unit unit) {
+		this.unitsOnBoard.add(unit);
+		}
+	 
+
+	public void setTotalUnits(int totalUnits) {
+		this.totalUnits = totalUnits;
+	}
+
 
 	public ArrayList<Unit> getUnitsOnBoard() {
 		return unitsOnBoard;
@@ -159,10 +172,6 @@ public class GameState {
 		} else {
 			return human;
 		}
-	}
-
-	public void addUnitstoBoard(Unit unit) {
-		this.unitsOnBoard.add(unit);
 	}
 
 
@@ -209,6 +218,7 @@ public class GameState {
 	public void removeFromTotalUnits(int numberToRemove) {
 		this.totalUnits -= numberToRemove;
 	}
+	
 
 	// Get all the units on the board
 	public ArrayList<Unit> getUnits() {
