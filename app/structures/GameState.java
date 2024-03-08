@@ -78,7 +78,7 @@ public class GameState {
 		gameService.updatePlayerHealth(ai,20);
 
 		// Player mana initialised to 2
-		gameService.updatePlayerMana(human, 2);
+		gameService.updatePlayerMana(human, 5);
 
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);

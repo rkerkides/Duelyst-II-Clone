@@ -758,17 +758,13 @@ public class GameService {
 		} else {
 			hand.removeCardAtPosition(handPosition);
 		}
-
 		if (card.isCreature()) {
 			// get unit config and id
 			String unit_conf = card.getUnitConfig();
 			int unit_id = card.getId();
 			summonUnit(unit_conf, unit_id, card, tile, player);
 		}
-		// summon unit
-
-		
-    }	
+    }
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
 		
@@ -840,6 +836,10 @@ public class GameService {
 	}
 
 	public void updateHandPositions(Hand hand) {
+		if (hand.getNumberOfCardsInHand() == 0) {
+			BasicCommands.deleteCard(out, 1);
+		}
+
 		// Iterate over the remaining cards in the hand
 		for (int i = 0; i < hand.getNumberOfCardsInHand(); i++) {
 			// Draw each card in its new position, positions are usually 1-indexed on the UI
