@@ -31,8 +31,6 @@ import structures.basic.player.Player;
  */
 public class TileClicked implements EventProcessor {
 
-	private ActorRef out;
-
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 
@@ -51,7 +49,7 @@ public class TileClicked implements EventProcessor {
 
 			// Handle spell casting or unit interaction based on last action type
 			if (lastAction instanceof Card && !((Card) lastAction).isCreature()) {
-				handleSpellCasting(gameState, (Card) lastAction, tile);
+				handleSpellCasting(out, gameState, (Card) lastAction, tile);
 			} else if (lastAction instanceof Unit) {
 				handleUnitAction(gameState, (Unit) lastAction, tile);
 			// Change this to instanceof CreatureCard in the future
@@ -72,54 +70,51 @@ public class TileClicked implements EventProcessor {
 	}
 
 
-	// Process spell casting based on target tile
-	private void handleSpellCasting(GameState gameState, Card card, Tile tile) {
-	    // Spell casting logic
-		if (gameState.getCurrentPlayer() instanceof HumanPlayer) {
-			Player player = gameState.getCurrentPlayer();
-			Hand hand = player.getHand();
-			int handPosition = gameState.getCurrentCardPosition();
+	private void handleSpellCasting(ActorRef out, GameState gameState, Card card, Tile tile) {
 
-		    if (card.getCardname().equals("Horn of the Forsaken")) {
-		        if (gameState.getHuman().getMana() >= card.getManacost()) {
-		            // Sufficient mana for casting the spell
-		            gameState.gameService.HornOfTheForesaken(card);//to change to fit other spell	
-		            gameState.getCurrentPlayer().setRobustness(player.getRobustness() + 3);	            
-		            System.out.println("Player's robustness: " + player.getRobustness());
-		            hand.removeCardAtPosition(handPosition);
-		    		gameState.gameService.updateHandPositions(player.getHand());
-		    		
-		        } else {
-		            // Insufficient mana for casting the spell
-		        	BasicCommands.addPlayer1Notification(out, "Not enough mana", 2);
-		    	    gameState.gameService.removeHighlightFromAll();
-		    	    gameState.gameService.notClickingCard();
+	    Player player = gameState.getCurrentPlayer();
+	    Hand hand = player.getHand();
+	    int handPosition = gameState.getCurrentCardPosition();
 
-		        }
-		    }
-			if (card.getCardname().equals("Dark Terminus") &&
-					tile.getUnit().getOwner() != gameState.getHuman() && !tile.getUnit().getName().equals("AI Avatar")) {
-				    gameState.gameService.performUnitDeath(tile.getUnit());
-				   // Wraithling.summonWraithlingToTile(tile, out, gameState);
-				    //commented to check for futher bugs
-                    hand.removeCardAtPosition(handPosition);
-		    		gameState.gameService.updateHandPositions(player.getHand());
-				    
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					System.out.println("Dark Terminus is casted");
-		    	
-		    }
-		    
-		    // Remove highlight from all tiles
-		    gameState.gameService.removeHighlightFromAll();
-			
-		}
+	    // Check if player has sufficient mana for casting the spell
+	    if (gameState.getHuman().getMana() < card.getManacost()) {
+	        // Notify the player of insufficient mana
+	        BasicCommands.addPlayer1Notification(out, "Not enough mana", 2);
+	        gameState.gameService.removeHighlightFromAll();
+	        gameState.gameService.notClickingCard();
+	        return; // Exit the method early if mana is insufficient
+	    }
 
+	    if (card.getCardname().equals("Horn of the Forsaken")) {
+	        gameState.gameService.HornOfTheForesaken(card);
+	        // Increase player's robustness after casting the spell
+	        gameState.getCurrentPlayer().setRobustness(player.getRobustness() + 3);
+	        System.out.println("Player's robustness: " + player.getRobustness());
+	        
+	        // Remove the card from the player's hand
+	        hand.removeCardAtPosition(handPosition);
+	        gameState.gameService.updateHandPositions(player.getHand());
+	    }
+
+	    if (card.getCardname().equals("Dark Terminus")) {
+	        // Check if the targeted tile contains an enemy unit
+	        if (tile.getUnit().getOwner() != gameState.getHuman() &&
+	                !tile.getUnit().getName().equals("AI Avatar")) {
+	            gameState.gameService.performUnitDeath(tile.getUnit());
+	            try {Thread.sleep(100);} catch (InterruptedException e) {e.printStackTrace();}
+	            Wraithling.summonWraithlingToTile(tile, out, gameState);
+	            hand.removeCardAtPosition(handPosition);
+	            gameState.gameService.updateHandPositions(player.getHand());
+	            System.out.println("Dark Terminus is casted");
+	        }
+	    }
+
+	    // Remove highlight from all tiles
+	    gameState.gameService.removeHighlightFromAll();
 	}
+
+	
+
 	
 	// Process unit move or attack based on targetTile's state
 	private void handleUnitAction(GameState gameState, Unit unit, Tile targetTile) {
@@ -192,3 +187,17 @@ public class TileClicked implements EventProcessor {
 		}
 	}
 }
+
+//if (card.getCardname().equals("Wraithling Swarm")) {
+//// Check if player has sufficient mana for casting the spell
+//if (gameState.getHuman().getMana() >= card.getManacost()) {
+//    Wraithling.check(out, gameState, tile, card);
+//    hand.removeCardAtPosition(handPosition);
+//    gameState.gameService.updateHandPositions(player.getHand());
+//} else {
+//    // Notify the player of insufficient mana
+//    BasicCommands.addPlayer1Notification(out, "Not enough mana", 2);
+//    gameState.gameService.removeHighlightFromAll();
+//    gameState.gameService.notClickingCard();
+//}
+//}

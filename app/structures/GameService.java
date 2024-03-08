@@ -94,7 +94,7 @@ public class GameService {
 		player.setAvatar(avatar);
 		player.addUnit(avatar);
 		gs.addToTotalUnits(1);
-		setUnitHealth(avatar, 20);
+		updateUnitHealth(avatar, 20);
 		updateUnitAttack(avatar, 2);
 		avatar.setHealth(20);
 		avatar.setAttack(2);
@@ -124,19 +124,7 @@ public class GameService {
 		summonUnit(card2.getUnitConfig(), card2.getId(), card2, tile2, player);
 	}
 
-	// Update a unit's health on the board
-	public void setUnitHealth(Unit unit, int newHealth) {
-		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
-		if (newHealth <= 0) {
-			performUnitDeath(unit);
-			return;
-		}
-		unit.setHealth(newHealth);
-		BasicCommands.setUnitHealth(out, unit, newHealth);
-		if (unit.getId() == 0 || unit.getId() == 1) {
-			updatePlayerHealth(unit.getOwner(), newHealth);
-		}
-	}
+
 	
 	public void updateUnitHealth(Unit unit, int newHealth) {
 
@@ -144,7 +132,8 @@ public class GameService {
 			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
 		}
 		if (!(unit.getOwner() instanceof HumanPlayer) && gs.getHuman().getRobustness() > 0){
-			Wraithling.summonWraithling(gs.getHuman().getAvatar(), out, gs, this);
+			Wraithling.summonAvatarWraithling(out, gs);
+			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
 		}
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		try {
@@ -513,14 +502,18 @@ public class GameService {
 			return;
 		}
 		if (!card.isCreature()) {
+			Set<Tile> validCastTiles = getSpellRange(card);
 			if (card.getCardname().equals("Horn of the Forsaken")) {
 				updateTileHighlight(gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()), 1);
 				BasicCommands.addPlayer1Notification(out, "Click on the Avatar to apply the spell", 2);
 				return;
 			}
 			if (card.getCardname().equals("Dark Terminus")) {
-				Set<Tile> validSummonTiles = getSpellRange();
-				validSummonTiles.forEach(tile -> updateTileHighlight(tile, 2));
+				validCastTiles.forEach(tile -> updateTileHighlight(tile, 2));
+				return;
+			}
+			if (card.getCardname().equals("Wraithling Swarm")) {
+				validCastTiles.forEach(tile -> updateTileHighlight(tile, 1));
 				return;
 			}
 		}
@@ -550,23 +543,55 @@ public class GameService {
 	}
 	
 	//Check for spell range 
-	public Set<Tile> getSpellRange() {
+	// Check for spell range 
+	public Set<Tile> getSpellRange(Card card) {
 	    Set<Tile> validTiles = new HashSet<>();
 	    Tile[][] tiles = gs.getBoard().getTiles();
-	    
-	    for (int i = 0; i < tiles.length; i++) {
-	        for (int j = 0; j < tiles[i].length; j++) {
-	            Tile currentTile = tiles[i][j];
-	            Unit unit = currentTile.getUnit();
-	            
-	            // Check if the tile is adjacent to a friendly unit and not occupied
-	            if ( unit != null && !(unit.getOwner() instanceof HumanPlayer) && !unit.getName().equals("AI Avatar")) {
-	                validTiles.add(currentTile);
+
+	    if (card.getCardname().equals("Dark Terminus")) {
+	        for (int i = 0; i < tiles.length; i++) {
+	            for (int j = 0; j < tiles[i].length; j++) {
+	                Tile currentTile = tiles[i][j];
+	                Unit unit = currentTile.getUnit();
+	                
+	                // Check if the tile is adjacent to a friendly unit and not occupied
+	                if (unit != null && !(unit.getOwner() instanceof HumanPlayer) && !unit.getName().equals("AI Avatar")) {
+	                    validTiles.add(currentTile);
+	                }
+	            }
+	        }
+	    } else if (card.getCardname().equals("Wraithling Swarm")) {
+	        for (int i = 0; i < 9; i++) {
+	            for (int j = 0; j < 5; j++) {
+	                Tile currentTile = tiles[i][j];
+	                // Check if the tile is not occupied and three consecutive tiles in the row are free for placement
+	                if (!currentTile.isOccupied() && checkConsecutiveFreeTilesInRow(i, j)) {
+	                    validTiles.add(currentTile);
+	                }
 	            }
 	        }
 	    }
 	    return validTiles;
 	}
+
+	// Check available three consecutive tiles
+	private boolean checkConsecutiveFreeTilesInRow(int row, int col) {
+	    int count = 0;
+	    Tile[][] tiles = gs.getBoard().getTiles();
+	    for (int i = col; i < col + 3 && i < tiles[row].length; i++) {
+	        Tile currentTile = tiles[row][i];
+	        if (!currentTile.isOccupied()) {
+	            count++;
+	            if (count == 3) {
+	                return true;
+	            }
+	        } else {
+	            return false;
+	        }
+	    }
+	    return false;
+	}
+
 
 
 	// Check if a tile is adjacent to a friendly unit of the specified player
@@ -731,7 +756,10 @@ public class GameService {
     }	
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
-		Wraithling.check(out, gs, this);
+		
+		if (((Card) card).getCardname().equals("Gloom Chaser")) {
+		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
+		
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
 
@@ -755,7 +783,7 @@ public class GameService {
 
 		// use BigCard data to update unit health and attack
 		BigCard bigCard = card.getBigCard();
-		setUnitHealth(unit, bigCard.getHealth());
+		updateUnitHealth(unit, bigCard.getHealth());
 		updateUnitAttack(unit, bigCard.getAttack());
 
 		unit.setMovedThisTurn(true);
@@ -808,7 +836,7 @@ public class GameService {
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.something);
         BasicCommands.playEffectAnimation(out, effect, gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()));
         notClickingCard();
-        BasicCommands.addPlayer1Notification(out, "Horn of the Forsaken is used, you have 3 more robustness", 2);
+        BasicCommands.addPlayer1Notification(out, "Horn of the Forsaken gave you 3 more robustness", 2);
 
         try {
             Thread.sleep(1000);
