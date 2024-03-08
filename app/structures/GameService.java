@@ -155,9 +155,6 @@ public class GameService {
 		}
 		if (newHealth <= 0) {
 			performUnitDeath(unit);
-			if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
-				updatePlayerHealth(unit.getOwner(), newHealth);
-			}
 			return;
 		}
 		if (unit.getHealth() > newHealth && unit.getName().equals("AI Avatar")) {
@@ -188,7 +185,8 @@ public class GameService {
 		// remove unit from board
 		unit.getCurrentTile(gs.getBoard()).removeUnit();
 		unit.setHealth(0);
-		unit.getOwner().removeUnit(unit);
+		Player owner = unit.getOwner();
+		owner.removeUnit(unit);
 		unit.setOwner(null);
 		gs.removeFromTotalUnits(1);
 		System.out.println("unit removed from totalunits");
@@ -201,8 +199,8 @@ public class GameService {
 		BasicCommands.deleteUnit(out, unit);
 
 
-		if (unit.getId() == 0 || unit.getId() == 1) {
-			updatePlayerHealth(unit.getOwner(), 0);
+		if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
+			updatePlayerHealth(owner, 0);
 		}
 
 	}
@@ -723,14 +721,16 @@ public class GameService {
 		// update player mana
 		updatePlayerMana(player, player.getMana() - card.getManacost());
 
-		// remove card from hand and delete from UI
-		BasicCommands.deleteCard(out, handPosition + 1);
-		hand.removeCardAtPosition(handPosition);
-
 		// update the positions of the remaining cards if the player is human
 		if (player instanceof HumanPlayer) {
+			// remove card from hand and delete from UI
+			BasicCommands.deleteCard(out, handPosition + 1);
+			hand.removeCardAtPosition(handPosition);
 			updateHandPositions(hand);
+		} else {
+			hand.removeCardAtPosition(handPosition);
 		}
+
 		if (card.isCreature()) {
 			// get unit config and id
 			String unit_conf = card.getUnitConfig();
