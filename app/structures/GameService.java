@@ -510,6 +510,8 @@ public class GameService {
 		if (counterAttacker.getHealth() > 0) {
 			System.out.println("Counter attacking");
 			adjacentAttack(counterAttacker, originalAttacker);
+			counterAttacker.setAttackedThisTurn(false);
+			counterAttacker.setMovedThisTurn(false);
 		}
 	}
 
@@ -659,14 +661,16 @@ public class GameService {
 		// Check if the move is diagonal (both dx and dy are non-zero)
 		if (Math.abs(dx) == 1 && Math.abs(dy) == 1) {
 			// Determine if there's an enemy unit directly in front or behind
-			Tile frontTile = board.getTile(currentTile.getTilex() + dx, currentTile.getTiley());
-			Tile behindTile = board.getTile(currentTile.getTilex(), currentTile.getTiley() - dy);
+			int frontX = currentTile.getTilex() + dx;
+			int frontY = currentTile.getTiley();
+			int behindX = currentTile.getTilex();
+			int behindY = currentTile.getTiley() - dy;
 
-			boolean isEnemyInFront = frontTile.isOccupied() && frontTile.getUnit().getOwner() != unit.getOwner();
-			boolean isEnemyBehind = behindTile.isOccupied() && behindTile.getUnit().getOwner() != unit.getOwner();
+			boolean isEnemyInFront = isValidTile(frontX, frontY) && board.getTile(frontX, frontY).isOccupied() && board.getTile(frontX, frontY).getUnit().getOwner() != unit.getOwner();
+			boolean isEnemyBehind = isValidTile(behindX, behindY) && board.getTile(behindX, behindY).isOccupied() && board.getTile(behindX, behindY).getUnit().getOwner() != unit.getOwner();
 
 			// Set yFirst to true if there's an enemy directly in front or behind
-            return isEnemyInFront || isEnemyBehind;
+			return isEnemyInFront || isEnemyBehind;
 		}
 		return false;
 	}
