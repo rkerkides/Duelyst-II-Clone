@@ -4,12 +4,14 @@ import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
 import structures.basic.cards.Card;
+import structures.basic.cards.ShadowWatcher;
 import structures.basic.cards.Wraithling;
 import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
+import structures.basic.cards.BadOmen;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -113,28 +115,17 @@ public class GameService {
 	}
 
 
-	// load aiUnits for testing
-	public void loadUnitsForTesting(Player player) {
-		Deck aiDeck = player.getDeck();
-		Card card = aiDeck.drawCard();
-		Card card2 = aiDeck.drawCard();
-		Tile tile = gs.getBoard().getTile(5, 2);
-		Tile tile2 = gs.getBoard().getTile(6, 2);
-		summonUnit(card.getUnitConfig(), card.getId(), card, tile, player);
-		summonUnit(card2.getUnitConfig(), card2.getId(), card2, tile2, player);
-	}
-
-
 	
 	public void updateUnitHealth(Unit unit, int newHealth) {
 
-		if (unit.getName().equals("Player Avatar")){
+		if (newHealth > 20) {
+			return;
+		}
+
+		if (unit.getName().equals("Player Avatar") && unit.getHealth() > newHealth){
 			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
 		}
-		if (!(unit.getOwner() instanceof HumanPlayer) && gs.getHuman().getRobustness() > 0){
-			Wraithling.summonAvatarWraithling(out, gs);
-			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
-		}
+		
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			Thread.sleep(30);
@@ -143,9 +134,6 @@ public class GameService {
 		}
 		if (newHealth <= 0) {
 			performUnitDeath(unit);
-			if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
-				updatePlayerHealth(unit.getOwner(), newHealth);
-			}
 			return;
 		}
 		if (unit.getHealth() > newHealth && unit.getName().equals("AI Avatar")) {
@@ -169,13 +157,20 @@ public class GameService {
 		BasicCommands.setUnitAttack(out, unit, newAttack);
 	}
 
+
 	public void performUnitDeath(Unit unit) {
+		//invoke Shadow Watcher Deathwatch ability
+		ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
+		// Check for Bad Omen units after a unit dies
+		BadOmen.BadOmenDeathwatch(out, gs, this);
 		// remove unit from board
 		unit.getCurrentTile(gs.getBoard()).removeUnit();
 		unit.setHealth(0);
-		unit.getOwner().removeUnit(unit);
+		Player owner = unit.getOwner();
+		owner.removeUnit(unit);
 		unit.setOwner(null);
 		gs.removeFromTotalUnits(1);
+		System.out.println("unit removed from totalunits");
 		BasicCommands.playUnitAnimation(out, unit, UnitAnimationType.death);
 		try {
 			Thread.sleep(2000);
@@ -183,9 +178,12 @@ public class GameService {
 			e.printStackTrace();
 		}
 		BasicCommands.deleteUnit(out, unit);
-		if (unit.getId() == 0 || unit.getId() == 1) {
-			updatePlayerHealth(unit.getOwner(), 0);
+
+
+		if (unit.getName().equals("Player Avatar") || unit.getName().equals("AI Avatar")) {
+			updatePlayerHealth(owner, 0);
 		}
+
 	}
 
 	// remove highlight from all tiles
@@ -340,9 +338,7 @@ public class GameService {
 		// Ensure the tile is within the board's bounds and not occupied by an enemy
 		if (isValidTile(x, y)) {
 			Tile tile = board[x][y];
-			if (!tile.isOccupied() || (tile.isOccupied() && tile.getUnit().getOwner() == currentPlayer)) {
-				validTiles.add(tile);
-			}
+			validTiles.add(tile);
 		}
 	}
 
@@ -474,6 +470,13 @@ public class GameService {
 
 			// update health
 			updateUnitHealth(attacked, attacked.getHealth() - attacker.getAttack());
+			if (attacker.getAttack() >= 0 && attacker.equals(gs.getHuman().getAvatar()) 
+					&& gs.getHuman().getRobustness() > 0) {
+ 
+					Wraithling.summonAvatarWraithling(out, gs);
+				}
+				
+			}
 
 			// Only counter attack if the attacker is the current player
 			// To avoid infinitely recursive counter attacking
@@ -484,13 +487,15 @@ public class GameService {
 			attacker.setAttackedThisTurn(true);
 			attacker.setMovedThisTurn(true);
 		}
-	}
+	
 
 	// Counter attack an enemy unit and play the attack animation
 	public void counterAttack(Unit originalAttacker, Unit counterAttacker) {
 		if (counterAttacker.getHealth() > 0) {
 			System.out.println("Counter attacking");
 			adjacentAttack(counterAttacker, originalAttacker);
+			counterAttacker.setAttackedThisTurn(false);
+			counterAttacker.setMovedThisTurn(false);
 		}
 	}
 
@@ -676,14 +681,16 @@ public class GameService {
 		// Check if the move is diagonal (both dx and dy are non-zero)
 		if (Math.abs(dx) == 1 && Math.abs(dy) == 1) {
 			// Determine if there's an enemy unit directly in front or behind
-			Tile frontTile = board.getTile(currentTile.getTilex() + dx, currentTile.getTiley());
-			Tile behindTile = board.getTile(currentTile.getTilex(), currentTile.getTiley() - dy);
+			int frontX = currentTile.getTilex() + dx;
+			int frontY = currentTile.getTiley();
+			int behindX = currentTile.getTilex();
+			int behindY = currentTile.getTiley() - dy;
 
-			boolean isEnemyInFront = frontTile.isOccupied() && frontTile.getUnit().getOwner() != unit.getOwner();
-			boolean isEnemyBehind = behindTile.isOccupied() && behindTile.getUnit().getOwner() != unit.getOwner();
+			boolean isEnemyInFront = isValidTile(frontX, frontY) && board.getTile(frontX, frontY).isOccupied() && board.getTile(frontX, frontY).getUnit().getOwner() != unit.getOwner();
+			boolean isEnemyBehind = isValidTile(behindX, behindY) && board.getTile(behindX, behindY).isOccupied() && board.getTile(behindX, behindY).getUnit().getOwner() != unit.getOwner();
 
 			// Set yFirst to true if there's an enemy directly in front or behind
-            return isEnemyInFront || isEnemyBehind;
+			return isEnemyInFront || isEnemyBehind;
 		}
 		return false;
 	}
@@ -736,14 +743,16 @@ public class GameService {
 		// update player mana
 		updatePlayerMana(player, player.getMana() - card.getManacost());
 
-		// remove card from hand and delete from UI
-		BasicCommands.deleteCard(out, handPosition + 1);
-		hand.removeCardAtPosition(handPosition);
-
 		// update the positions of the remaining cards if the player is human
 		if (player instanceof HumanPlayer) {
+			// remove card from hand and delete from UI
+			BasicCommands.deleteCard(out, handPosition + 1);
+			hand.removeCardAtPosition(handPosition);
 			updateHandPositions(hand);
+		} else {
+			hand.removeCardAtPosition(handPosition);
 		}
+
 		if (card.isCreature()) {
 			// get unit config and id
 			String unit_conf = card.getUnitConfig();
@@ -760,6 +769,7 @@ public class GameService {
 		if (((Card) card).getCardname().equals("Gloom Chaser")) {
 		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
 		
+
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
 

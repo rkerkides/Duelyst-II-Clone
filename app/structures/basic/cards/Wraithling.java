@@ -1,15 +1,17 @@
 package structures.basic.cards;
 
 import static utils.BasicObjectBuilders.loadUnit;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.GameState;
+
 import structures.basic.Board;
+
 import structures.basic.EffectAnimation;
 import structures.basic.Tile;
 import structures.basic.Unit;
@@ -17,7 +19,6 @@ import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
 public class Wraithling extends Unit{
-	
 	private static int id=90;
 	
 
@@ -37,13 +38,13 @@ public class Wraithling extends Unit{
 
 	private static Tile findTileToLeft(Tile base, GameState gameState) {
 		
-	    Tile currentTile = base;
+			Tile currentTile = base;
 	    
-	    int newTileX = currentTile.getTilex() - 1; // Two tiles to the left
-	    int newTileY = currentTile.getTiley(); // Same Y coordinate
+			int newTileX = currentTile.getTilex() - 1; // Two tiles to the left
+			int newTileY = currentTile.getTiley(); // Same Y coordinate
 	    
 	    // Check for array bounds
-	    if (newTileX < 0 || newTileX >= 8) {
+			if (newTileX < 0 || newTileX >= 8) {
 	        return null; // Out of bounds, return null
 	    }
 	    
@@ -153,6 +154,5 @@ public class Wraithling extends Unit{
 //	}
 	
 //}
-
 
 
