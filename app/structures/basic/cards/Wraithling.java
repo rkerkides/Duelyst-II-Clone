@@ -8,6 +8,7 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 import commands.BasicCommands;
+import structures.GameService;
 import structures.GameState;
 
 import structures.basic.Board;
@@ -20,9 +21,7 @@ import utils.StaticConfFiles;
 
 public class Wraithling extends Unit{
 	private static int id=90;
-	
 
-	
 	public static void summonGloomChaserWraithling(Tile tile, ActorRef out, GameState gameState) {
 		
 	    	
@@ -99,31 +98,45 @@ public class Wraithling extends Unit{
 	    return wraithling;
 	}
 
+	// Helper method to check if a tile with given coordinates is valid
+	public static boolean isValidTile(Board board, int x, int y) {
+		// Check if the tile coordinates are within the bounds of the board
+		return x >= 0 && y >= 0 && x < board.getTiles().length && y < board.getTiles()[0].length;
+	}
+
 	private static Tile getRandomAdjacentUnoccupiedTile(Tile currentTile, Board board) {
-	    int currentX = currentTile.getTilex();
-	    int currentY = currentTile.getTiley();
-	    
-	    // List to store adjacent tiles
-	    List<Tile> adjacentTiles = new ArrayList<>();
-	    
-	    // Add adjacent tiles to the list
-	    adjacentTiles.add(board.getTile(currentX + 1, currentY)); // Right
-	    adjacentTiles.add(board.getTile(currentX - 1, currentY)); // Left
-	    adjacentTiles.add(board.getTile(currentX, currentY + 1)); // Down
-	    adjacentTiles.add(board.getTile(currentX, currentY - 1)); // Up
-	    
-	    // Shuffle the list to randomize the selection
-	    Collections.shuffle(adjacentTiles);
-	    
-	    // Iterate over the shuffled list
-	    for (Tile tile : adjacentTiles) {
-	        // Check if the tile is within bounds and unoccupied
-	        if (tile != null && !tile.isOccupied()) {
-	            return tile; // Return the first unoccupied tile found
-	        }
-	    }
-	    
-	    return null; // Return null if no unoccupied tile is found
+		int currentX = currentTile.getTilex();
+		int currentY = currentTile.getTiley();
+
+		// List to store adjacent tiles
+		List<Tile> adjacentTiles = new ArrayList<>();
+
+		// Iterate over adjacent tiles
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dy = -1; dy <= 1; dy++) {
+				// Skip the current tile
+				if (dx == 0 && dy == 0) continue;
+
+				int adjX = currentX + dx;
+				int adjY = currentY + dy;
+
+				// Check if the tile is within bounds
+				if (isValidTile(board, adjX, adjY)) {
+					// Get the adjacent tile
+					Tile adjTile = board.getTile(adjX, adjY);
+					// Check if the tile is unoccupied
+					if (!adjTile.isOccupied()) {
+						adjacentTiles.add(adjTile); // Add unoccupied adjacent tile to the list
+					}
+				}
+			}
+		}
+
+		// Shuffle the list to randomize the selection
+		Collections.shuffle(adjacentTiles);
+
+		// Return the first unoccupied tile found (or null if none found)
+		return adjacentTiles.isEmpty() ? null : adjacentTiles.get(0);
 	}
 
 
@@ -136,8 +149,25 @@ public class Wraithling extends Unit{
 		summonWraithlingToTile(tile, out, gs);
 	}
 
+	public static Unit summonWraithlingForBloodmoonPriestess(Unit parent, ActorRef out, GameState gameState, GameService gs) {
+		Tile currentTile = parent.getCurrentTile(gameState.getBoard());
+		Tile randomTile = getRandomAdjacentUnoccupiedTile(currentTile, gameState.getBoard());
 
-			
+		if (randomTile != null ) {
+			Unit unit = summonWraithlingToTile(randomTile, out, gameState);;
+			return unit;
+		}
+
+		try {
+			Thread.sleep(30);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+
 }
 
 
