@@ -19,6 +19,8 @@ import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
 public class Wraithling extends Unit{
+	
+	public static int WraithlingSwarm=3;
 	private static int id=90;
 	
 
@@ -139,13 +141,7 @@ public class Wraithling extends Unit{
 	}
 
 
-	public static void WraithlingSwarm(Tile tile, ActorRef out, GameState gameState, int i) {
-		if (i > 0) {
-			summonWraithlingToTile(tile, out, gameState);
-			i--;
-		}
 
-	}
 
 
 			

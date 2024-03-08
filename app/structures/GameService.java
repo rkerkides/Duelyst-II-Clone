@@ -847,19 +847,22 @@ public class GameService {
 
 	public void WraithlingSwarm(Card card, Tile tile) {
 
-	   	        int wraithlingsToSummon = 3; // Number of Wraithlings to summon
-	        
+	   	         // Number of Wraithlings to summon
 	            Wraithling.summonWraithlingToTile(tile, out, gs);
-	            wraithlingsToSummon--;
-	            BasicCommands.addPlayer1Notification(out, "You should summon 3 wraithlings", 2000);
+	            Wraithling.WraithlingSwarm--;
 
-	            
 	            // If there are more Wraithlings to summon, push the card to action history
-	            if (wraithlingsToSummon > 0) {
+	            if (Wraithling.WraithlingSwarm > 0) {
+					// Highlight tiles for summoning
+					Set<Tile> validTiles = getValidSummonTiles();
+					validTiles.forEach(t -> updateTileHighlight(t, 1));
+		            BasicCommands.addPlayer1Notification(out, "You can summon "
+	            + Wraithling.WraithlingSwarm +" more wraithlings", 5);
 	                gs.getActionHistory().push(card);
 	                gs.getCurrentPlayer().setMana(gs.getCurrentPlayer().getMana() + card.getManacost());
 	            } else {
 	                // Remove highlight from all tiles and update hand positions
+	            	BasicCommands.addPlayer1Notification(out, "No more wraithlings for you!", 5);
 	                removeHighlightFromAll();
 
 	            }
@@ -905,6 +908,7 @@ public class GameService {
 	        // Check if the targeted tile contains an enemy unit
 	        if (tile.getUnit().getOwner() != gameState.getHuman() &&
 	                !tile.getUnit().getName().equals("AI Avatar")) {
+	        	
 	            performUnitDeath(tile.getUnit());
 	    try {Thread.sleep(100); } catch (InterruptedException e) {e.printStackTrace();}
 	            Wraithling.summonWraithlingToTile(tile, out, gameState);
