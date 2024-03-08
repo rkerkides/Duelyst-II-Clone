@@ -34,12 +34,18 @@ public class CardClicked implements EventProcessor{
 		// CLear all highlighted tiles
 		gameState.gameService.removeHighlightFromAll();
 
-
+		// Set the current card clicked to the card at the specified position in the player's hand
+		gameState.gameService.setCurrentCardClickedAndHighlight(handPosition);
 
 		CardAction cardAction = new CardAction(gameState, handPosition);
-		
-		cardAction.creaturePreAction();	
-		cardAction.spellPreAction();
+
+
+		if (gameState.getCurrentCardClicked().isCreature()) {
+			cardAction.creaturePreAction();
+		} else {
+			cardAction.spellPreAction();
+		}
+
 	}
 
 }

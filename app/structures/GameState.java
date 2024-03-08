@@ -7,10 +7,8 @@ import structures.basic.cards.Card;
 import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+
+import java.util.*;
 
 /**
  * This class can be used to hold information about the on-going game. Its
@@ -47,10 +45,12 @@ public class GameState {
 
 	private Player ai;
 	private Board board;
+	public static Set<Tile> validMoves = new HashSet<>();
+	public static Set<Tile> validAttacks = new HashSet<>();
+
 	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
 
-
-
+	ArrayList<Unit> units = new ArrayList<Unit>();
 
 	/**
 	 * This function initialises all the assets Board, Player etc As well as
@@ -132,9 +132,6 @@ public class GameState {
 	public void setBoard(Board board) {
 		this.board = board;
 	}
-	public ArrayList<Unit> getUnitsOnBoard() {
-		return unitsOnBoard;
-	}
 
 	public void addUnitstoBoard(Unit unit) {
 		this.unitsOnBoard.add(unit);
@@ -143,6 +140,11 @@ public class GameState {
 
 	public void setTotalUnits(int totalUnits) {
 		this.totalUnits = totalUnits;
+	}
+
+
+	public ArrayList<Unit> getUnitsOnBoard() {
+		return unitsOnBoard;
 	}
 
 	public Player getHuman() {
@@ -171,6 +173,7 @@ public class GameState {
 			return human;
 		}
 	}
+
 
 	public void setCurrentUnitClicked(Unit unit) {
 		currentUnitClicked = unit;

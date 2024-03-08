@@ -1,16 +1,17 @@
 package structures.basic.cards;
 
 import static utils.BasicObjectBuilders.loadUnit;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 import akka.actor.ActorRef;
 import commands.BasicCommands;
-import structures.GameService;
 import structures.GameState;
+
 import structures.basic.Board;
+
 import structures.basic.EffectAnimation;
 import structures.basic.Tile;
 import structures.basic.Unit;
@@ -18,86 +19,77 @@ import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
 public class Wraithling extends Unit{
-	
 	private static int id=90;
 	
-	private static int GloomChaserWraitlingsCount = 0;
 
 	
-	public static void check( ActorRef out, GameState gameState, GameService gs) {
+	public static void summonGloomChaserWraithling(Tile tile, ActorRef out, GameState gameState) {
 		
-		for(Unit unit:gameState.getUnitsOnBoard()){
-			System.out.println(unit.getName()+ " is on the board");
-			if (unit.getName().equals("Gloom Chaser")&& GloomChaserWraitlingsCount<1) {
-				System.out.println("Gloom Chaser is on the board");
-					summonWraithling(unit, out, gameState, gs);
-					GloomChaserWraitlingsCount++;
-				break;
-				}        
-			}
-		System.out.println("Units on the board: "+gameState.getUnitsOnBoard().size());
-		
-		try {Thread.sleep(100);} catch (InterruptedException e) {e.printStackTrace();
-		}
-	}
-	
-	public static void summonWraithling(Unit parent, ActorRef out, GameState gameState, GameService gs) {
-	    if ( parent!= null && parent.getName().equals("Player Avatar") && gameState.getCurrentPlayer().getRobustness() > 0) {
-	        Tile currentTile = parent.getCurrentTile(gameState.getBoard());
-	        Tile randomAdjacentTile = getRandomAdjacentUnoccupiedTile(currentTile, gameState.getBoard());
-	        
-	        if (randomAdjacentTile != null) {
-	            summonWraithlingToTile(randomAdjacentTile, out, gameState);
-	        }
-	    } 
-	    if (parent.getName().equals("Gloom Chaser")) {
-	        Tile toTheLeft = findTileToLeft(parent, gameState);
+	    	
+	        Tile toTheLeft = findTileToLeft(tile, gameState);
 	        
 	        if (toTheLeft != null && !toTheLeft.isOccupied()) {
-	          summonWraithlingToTile(toTheLeft, out, gameState);
+	          summonWraithlingToTile(toTheLeft, out, gameState);}
+			try {Thread.sleep(100);} catch (InterruptedException e) {e.printStackTrace();}
 
-	        }
-	       
+	    
+	    }
+
+
+	private static Tile findTileToLeft(Tile base, GameState gameState) {
+		
+			Tile currentTile = base;
+	    
+			int newTileX = currentTile.getTilex() - 1; // Two tiles to the left
+			int newTileY = currentTile.getTiley(); // Same Y coordinate
+	    
+	    // Check for array bounds
+			if (newTileX < 0 || newTileX >= 8) {
+	        return null; // Out of bounds, return null
 	    }
 	    
-	    try {
-	        Thread.sleep(30);
-	    } catch (InterruptedException e) {
-	        e.printStackTrace();
-	    }
-	    
-	}
-
-	private static Tile findTileToLeft(Unit parent, GameState gameState) {
-	    Tile currentTile = parent.getCurrentTile(gameState.getBoard());
-	    int newTileX = currentTile.getTilex() - 1; // Two tiles to the left
-	    int newTileY = currentTile.getTiley(); // Same Y coordinate
 	    return gameState.getBoard().getTile(newTileX, newTileY);
 	}
 
-	public static Unit summonWraithlingToTile(Tile tile, ActorRef out, GameState gameState) {
+
+	public static Unit summonWraithlingToTile(Tile tile, ActorRef out, GameState gameState) {	
 		
-		System.out.println("Summoning Wraithling to " + tile.getTilex() + ", " + tile.getTiley());
-		
+				
 	    Unit wraithling = loadUnit(StaticConfFiles.wraithling, id, Unit.class);
-	    tile.setUnit(wraithling);
-	    wraithling.setPositionByTile(tile);
+		// set unit position
+		tile.setUnit(wraithling);
+		wraithling.setPositionByTile(tile);
 	    wraithling.setOwner(gameState.getHuman());
-	    wraithling.setName("Wraithling_" + id);
+		gameState.getHuman().addUnit(wraithling);
+		gameState.addToTotalUnits(1);
+		gameState.addUnitstoBoard(wraithling);
+		wraithling.setName("Wraithling_" + id);
 	    id++;
-	    gameState.getHuman().addUnit(wraithling);
+		
+		System.out.println("Unit added to board: " + ( gameState.getUnitsOnBoard()).size());
+		// remove highlight from all tiles
+		gameState.gameService.removeHighlightFromAll();
+
+		// draw unit on new tile and play summon animation
 	    EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.wsummon);
-	    BasicCommands.playEffectAnimation(out, effect, tile);
-	    BasicCommands.drawUnit(out, wraithling, tile);
-	    
-	    try {
-	        Thread.sleep(30);
-	    } catch (InterruptedException e) {
-	        e.printStackTrace();
-	    }
-	    
-	    wraithling.setAttack(1);
-	    wraithling.setHealth(1);
+		BasicCommands.playEffectAnimation(out, effect, tile);
+		BasicCommands.drawUnit(out, wraithling, tile);
+
+
+		wraithling.setAttack(1);
+		wraithling.setHealth(1);
+
+		wraithling.setMovedThisTurn(true);
+		wraithling.setAttackedThisTurn(true);
+		gameState.addUnitstoBoard(wraithling);
+
+		// wait for animation to play out
+		try {
+			Thread.sleep(250);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	   
 	    System.out.println("Wraithling summoned to " + tile.getTilex() + ", " + tile.getTiley()+
 				" with id: " + wraithling.getId() + " and name: " + wraithling.getName()
 				+ " and attack: " + wraithling.getAttack() + " and health: "
@@ -135,8 +127,32 @@ public class Wraithling extends Unit{
 	}
 
 
+	public static void summonAvatarWraithling(ActorRef out, GameState gs) {
+		
+		
+		Tile tile = getRandomAdjacentUnoccupiedTile(gs.getHuman().getAvatar()
+				.getCurrentTile(gs.getBoard()), gs.getBoard());
+			
+		summonWraithlingToTile(tile, out, gs);
+	}
+
+
 			
 }
 
+
+
+//if (card.getCardname().equals("Wraithling Swarm")) {
+//	
+//	int x=tile.getTilex();
+//	int y=tile.getTiley();
+//	for (int i = x; i < x+3; i++) {
+//		Tile tempTile = gameState.getBoard().getTile(i, y);
+//		if(tempTile!=null && !tempTile.isOccupied()) {
+//			summonWraithlingToTile(tempTile, out, gameState);
+//		}
+//	}
+	
+//}
 
 
