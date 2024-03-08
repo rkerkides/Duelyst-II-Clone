@@ -114,18 +114,6 @@ public class GameService {
 		BasicCommands.setUnitAttack(out, avatar, 2);
 	}
 
-
-	// load aiUnits for testing
-	public void loadUnitsForTesting(Player player) {
-		Deck aiDeck = player.getDeck();
-		Card card = aiDeck.drawCard();
-		Card card2 = aiDeck.drawCard();
-		Tile tile = gs.getBoard().getTile(5, 2);
-		Tile tile2 = gs.getBoard().getTile(6, 2);
-		summonUnit(card.getUnitConfig(), card.getId(), card, tile, player);
-		summonUnit(card2.getUnitConfig(), card2.getId(), card2, tile2, player);
-	}
-
 	// Update a unit's health on the board
 	public void setUnitHealth(Unit unit, int newHealth) {
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
@@ -141,6 +129,10 @@ public class GameService {
 	}
 	
 	public void updateUnitHealth(Unit unit, int newHealth) {
+
+		if (newHealth > 20) {
+			return;
+		}
 
 		if (unit.getName().equals("Player Avatar")){
 			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
@@ -282,7 +274,6 @@ public class GameService {
 		// Highlight valid movement and attack tiles
 		if (validMovementTiles != null) {
 			for (Tile tile : validMovementTiles) {
-				System.out.println("Tile: x " + tile.getTilex() + " y " + tile.getTiley() + " is valid target for movement");
 				if (!tile.isOccupied()) {
 					// Highlight tile for movement
 					updateTileHighlight(tile, 1);
