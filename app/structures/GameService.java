@@ -162,6 +162,10 @@ public class GameService {
 
 	// Update a unit's attack on the board
 	public void updateUnitAttack(Unit unit, int newAttack) {
+		if (newAttack <= 0 || newAttack > 20) {
+			return;
+		}
+
 		try {
 			Thread.sleep(30);
 		} catch (InterruptedException e) {
