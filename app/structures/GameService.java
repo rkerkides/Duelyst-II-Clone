@@ -868,8 +868,6 @@ public class GameService {
 	// Method in GameService class
 	public void removeFromHandAndCast( GameState gameState, Card card, Tile tile) {
 		// Remove the card from the player's hand
-    	System.out.println("Summoning" + card.getCardname());
-
 		Player player = gs.getCurrentPlayer();
 		Hand hand = player.getHand();
 		int handPosition = gs.getCurrentCardPosition();
@@ -882,7 +880,6 @@ public class GameService {
 				}
 			}
 		}
-		System.out.println("Current card: " + card.getCardname() + " position " + handPosition);
 
 	    // Remove the card from the player's hand
 		// update the positions of the remaining cards if the player is human
@@ -912,9 +909,12 @@ public class GameService {
 	    try {Thread.sleep(100); } catch (InterruptedException e) {e.printStackTrace();}
 	            Wraithling.summonWraithlingToTile(tile, out, gameState);
 	        }
-	    } else if (card.getCardname().equals("Wraithling Swarm")) {
+	    }
+	    if (card.getCardname().equals("Wraithling Swarm")) {
 	        WraithlingSwarm(card, tile);
 	    }
+	    System.out.println("Unhighlighted in the parent method");
+	    removeHighlightFromAll();
 
 	}
 

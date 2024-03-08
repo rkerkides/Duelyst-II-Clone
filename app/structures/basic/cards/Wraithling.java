@@ -71,8 +71,7 @@ public class Wraithling extends Unit{
 	    id++;
 		
 		System.out.println("Unit added to board: " + ( gameState.getUnitsOnBoard()).size());
-		// remove highlight from all tiles
-		gameState.gameService.removeHighlightFromAll();
+
 
 		// draw unit on new tile and play summon animation
 	    EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.wsummon);

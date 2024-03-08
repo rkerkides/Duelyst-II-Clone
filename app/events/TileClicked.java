@@ -87,7 +87,7 @@ public class TileClicked implements EventProcessor {
 	    gameState.getHuman().setMana(player.getMana() - card.getManacost());
 	    gameState.gameService.updatePlayerMana(player, player.getMana());
 	    // Remove highlight from all tiles
-	    gameState.gameService.removeHighlightFromAll();
+
 	}
 
 
