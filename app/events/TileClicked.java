@@ -68,12 +68,8 @@ public class TileClicked implements EventProcessor {
 		}
 	}
 
-
 	private void handleSpellCasting(ActorRef out, GameState gameState, Card card, Tile tile) {
-
 	    Player player = gameState.getCurrentPlayer();
-	    Hand hand = player.getHand();
-	    int handPosition = gameState.getCurrentCardPosition();
 
 	    // Check if player has sufficient mana for casting the spell
 	    if (gameState.getHuman().getMana() < card.getManacost()) {
@@ -84,33 +80,16 @@ public class TileClicked implements EventProcessor {
 	        return; // Exit the method early if mana is insufficient
 	    }
 
-	    if (card.getCardname().equals("Horn of the Forsaken")) {
-	        gameState.gameService.HornOfTheForesaken(card);
-	        // Increase player's robustness after casting the spell
-	        gameState.getCurrentPlayer().setRobustness(player.getRobustness() + 3);
-	        System.out.println("Player's robustness: " + player.getRobustness());
-	        
-	        // Remove the card from the player's hand
-	        hand.removeCardAtPosition(handPosition);
-	        gameState.gameService.updateHandPositions(player.getHand());
-	    }
+	    // Call the method to remove the card from hand and cast the spell
+	    gameState.gameService.removeFromHandAndCast( gameState, card, tile);
 
-	    if (card.getCardname().equals("Dark Terminus")) {
-	        // Check if the targeted tile contains an enemy unit
-	        if (tile.getUnit().getOwner() != gameState.getHuman() &&
-	                !tile.getUnit().getName().equals("AI Avatar")) {
-	            gameState.gameService.performUnitDeath(tile.getUnit());
-	            try {Thread.sleep(100);} catch (InterruptedException e) {e.printStackTrace();}
-	            Wraithling.summonWraithlingToTile(tile, out, gameState);
-	            hand.removeCardAtPosition(handPosition);
-	            gameState.gameService.updateHandPositions(player.getHand());
-	            System.out.println("Dark Terminus is casted");
-	        }
-	    }
-
+	    // Decrease player's mana after casting the spell
+	    gameState.getHuman().setMana(player.getMana() - card.getManacost());
+	    gameState.gameService.updatePlayerMana(player, player.getMana());
 	    // Remove highlight from all tiles
 	    gameState.gameService.removeHighlightFromAll();
 	}
+
 
 	
 
@@ -186,17 +165,3 @@ public class TileClicked implements EventProcessor {
 		}
 	}
 }
-
-//if (card.getCardname().equals("Wraithling Swarm")) {
-//// Check if player has sufficient mana for casting the spell
-//if (gameState.getHuman().getMana() >= card.getManacost()) {
-//    Wraithling.check(out, gameState, tile, card);
-//    hand.removeCardAtPosition(handPosition);
-//    gameState.gameService.updateHandPositions(player.getHand());
-//} else {
-//    // Notify the player of insufficient mana
-//    BasicCommands.addPlayer1Notification(out, "Not enough mana", 2);
-//    gameState.gameService.removeHighlightFromAll();
-//    gameState.gameService.notClickingCard();
-//}
-//}

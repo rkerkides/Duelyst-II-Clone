@@ -52,8 +52,12 @@ public class Wraithling extends Unit{
 	}
 
 
-	public static Unit summonWraithlingToTile(Tile tile, ActorRef out, GameState gameState) {	
+	public static void summonWraithlingToTile(Tile tile, ActorRef out, GameState gameState) {	
 		
+		if(tile==null || tile.isOccupied()) {
+			System.out.println("Tile is null or occupied");
+			return;
+		}
 				
 	    Unit wraithling = loadUnit(StaticConfFiles.wraithling, id, Unit.class);
 		// set unit position
@@ -96,7 +100,6 @@ public class Wraithling extends Unit{
 				+ wraithling.getHealth());
 	    BasicCommands.setUnitHealth(out, wraithling, 1);
 	    BasicCommands.setUnitAttack(out, wraithling, 1);
-	    return wraithling;
 	}
 
 	private static Tile getRandomAdjacentUnoccupiedTile(Tile currentTile, Board board) {
@@ -134,6 +137,15 @@ public class Wraithling extends Unit{
 				.getCurrentTile(gs.getBoard()), gs.getBoard());
 			
 		summonWraithlingToTile(tile, out, gs);
+	}
+
+
+	public static void WraithlingSwarm(Tile tile, ActorRef out, GameState gameState, int i) {
+		if (i > 0) {
+			summonWraithlingToTile(tile, out, gameState);
+			i--;
+		}
+
 	}
 
 

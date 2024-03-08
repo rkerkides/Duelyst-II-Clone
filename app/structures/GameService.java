@@ -512,6 +512,7 @@ public class GameService {
 		}
 		if (!card.isCreature()) {
 			Set<Tile> validCastTiles = getSpellRange(card);
+			
 			if (card.getCardname().equals("Horn of the Forsaken")) {
 				updateTileHighlight(gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()), 1);
 				BasicCommands.addPlayer1Notification(out, "Click on the Avatar to apply the spell", 2);
@@ -523,6 +524,7 @@ public class GameService {
 			}
 			if (card.getCardname().equals("Wraithling Swarm")) {
 				validCastTiles.forEach(tile -> updateTileHighlight(tile, 1));
+				BasicCommands.addPlayer1Notification(out, "You have 3 wraightlings to place", 2);
 				return;
 			}
 		}
@@ -570,35 +572,9 @@ public class GameService {
 	            }
 	        }
 	    } else if (card.getCardname().equals("Wraithling Swarm")) {
-	        for (int i = 0; i < 9; i++) {
-	            for (int j = 0; j < 5; j++) {
-	                Tile currentTile = tiles[i][j];
-	                // Check if the tile is not occupied and three consecutive tiles in the row are free for placement
-	                if (!currentTile.isOccupied() && checkConsecutiveFreeTilesInRow(i, j)) {
-	                    validTiles.add(currentTile);
-	                }
-	            }
-	        }
+	    		return getValidSummonTiles();
 	    }
 	    return validTiles;
-	}
-
-	// Check available three consecutive tiles
-	private boolean checkConsecutiveFreeTilesInRow(int row, int col) {
-	    int count = 0;
-	    Tile[][] tiles = gs.getBoard().getTiles();
-	    for (int i = col; i < col + 3 && i < tiles[row].length; i++) {
-	        Tile currentTile = tiles[row][i];
-	        if (!currentTile.isOccupied()) {
-	            count++;
-	            if (count == 3) {
-	                return true;
-	            }
-	        } else {
-	            return false;
-	        }
-	    }
-	    return false;
 	}
 
 
@@ -868,4 +844,81 @@ public class GameService {
             }
         }
     }
+
+	public void WraithlingSwarm(Card card, Tile tile) {
+
+	   	        int wraithlingsToSummon = 3; // Number of Wraithlings to summon
+	        
+	            Wraithling.summonWraithlingToTile(tile, out, gs);
+	            wraithlingsToSummon--;
+	            BasicCommands.addPlayer1Notification(out, "You should summon 3 wraithlings", 2000);
+
+	            
+	            // If there are more Wraithlings to summon, push the card to action history
+	            if (wraithlingsToSummon > 0) {
+	                gs.getActionHistory().push(card);
+	                gs.getCurrentPlayer().setMana(gs.getCurrentPlayer().getMana() + card.getManacost());
+	            } else {
+	                // Remove highlight from all tiles and update hand positions
+	                removeHighlightFromAll();
+
+	            }
+	        }
+
+	// Method in GameService class
+	public void removeFromHandAndCast( GameState gameState, Card card, Tile tile) {
+		// Remove the card from the player's hand
+    	System.out.println("Summoning" + card.getCardname());
+
+		Player player = gs.getCurrentPlayer();
+		Hand hand = player.getHand();
+		int handPosition = gs.getCurrentCardPosition();
+
+		if (handPosition == 0) {
+			for (int i = 1; i <= hand.getNumberOfCardsInHand(); i++) {
+				if (hand.getCardAtPosition(i).equals(card)) {
+					handPosition = i;
+					break;
+				}
+			}
+		}
+		System.out.println("Current card: " + card.getCardname() + " position " + handPosition);
+
+	    // Remove the card from the player's hand
+		// update the positions of the remaining cards if the player is human
+		if (player instanceof HumanPlayer) {
+			// remove card from hand and delete from UI
+			BasicCommands.deleteCard(out, handPosition + 1);
+			hand.removeCardAtPosition(handPosition);
+			updateHandPositions(hand);
+	        notClickingCard();
+
+		} else {
+			hand.removeCardAtPosition(handPosition);
+		}
+
+	    // Perform actions based on the card type
+	    if (card.getCardname().equals("Horn of the Forsaken")) {
+	        HornOfTheForesaken(card);
+	        // Increase player's robustness after casting the spell
+	        gameState.getCurrentPlayer().setRobustness(player.getRobustness() + 3);
+	        System.out.println("Player's robustness: " + player.getRobustness());
+	    } 
+	    if (card.getCardname().equals("Dark Terminus")) {
+	        // Check if the targeted tile contains an enemy unit
+	        if (tile.getUnit().getOwner() != gameState.getHuman() &&
+	                !tile.getUnit().getName().equals("AI Avatar")) {
+	            performUnitDeath(tile.getUnit());
+	    try {Thread.sleep(100); } catch (InterruptedException e) {e.printStackTrace();}
+	            Wraithling.summonWraithlingToTile(tile, out, gameState);
+	        }
+	    } else if (card.getCardname().equals("Wraithling Swarm")) {
+	        WraithlingSwarm(card, tile);
+	    }
+
+	}
+
+	    
+	    
+	
 }
