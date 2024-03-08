@@ -279,6 +279,7 @@ public class GameService {
 		// Highlight valid movement and attack tiles
 		if (validMovementTiles != null) {
 			for (Tile tile : validMovementTiles) {
+				System.out.println("Tile: x " + tile.getTilex() + " y " + tile.getTiley() + " is valid target for movement");
 				if (!tile.isOccupied()) {
 					// Highlight tile for movement
 					updateTileHighlight(tile, 1);
@@ -357,9 +358,7 @@ public class GameService {
 		// Ensure the tile is within the board's bounds and not occupied by an enemy
 		if (isValidTile(x, y)) {
 			Tile tile = board[x][y];
-			if (!tile.isOccupied() || (tile.isOccupied() && tile.getUnit().getOwner() == currentPlayer)) {
-				validTiles.add(tile);
-			}
+			validTiles.add(tile);
 		}
 	}
 
