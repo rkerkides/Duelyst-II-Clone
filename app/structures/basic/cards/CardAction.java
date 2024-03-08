@@ -1,14 +1,7 @@
 package structures.basic.cards;
 
 import akka.actor.ActorRef;
-import commands.BasicCommands;
-import structures.GameService;
 import structures.GameState;
-import structures.basic.EffectAnimation;
-import structures.basic.player.Hand;
-import structures.basic.player.Player;
-import utils.BasicObjectBuilders;
-import utils.StaticConfFiles;
 
 public class CardAction {
 
@@ -41,8 +34,20 @@ public class CardAction {
         System.out.println("Pushed to action history: " + currentCard.getCardname() + " " + currentCard.getId());
     }
 
-    public void spellAction(Card card) {
-    	
+    public void spellPreAction() {
+        	preAction();
+        	
+            Card currentCard = gameState.getCurrentCardClicked();
+            if(!currentCard.isCreature) {
+            	gameState.gameService.SpellHighlight(currentCard, gameState.getHuman());
+
+                // Push the current card clicked to the action history
+                gameState.getActionHistory().push(currentCard);
+
+                // For debug
+                System.out.println("Pushed to action history: " + currentCard.getCardname() + " " + currentCard.getId());
+            }
+
         
         }
     }

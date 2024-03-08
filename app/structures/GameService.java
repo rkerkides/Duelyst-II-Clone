@@ -467,13 +467,12 @@ public class GameService {
 	}
 
 	// highlight tiles for summoning units (does not currently take into account special units)
-	public void highlightSummonRange(Card card, Player player) {
+	public void SpellHighlight(Card card, Player player) {
 		// Validate inputs
 		if (card == null  || player == null) {
 			System.out.println("Invalid parameters for highlighting summon range.");
 			return;
 		}
-		if (!card.isCreature()) {
 			if (card.getCardname().equals("Horn of the Forsaken")) {
 				updateTileHighlight(gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()), 1);
 				BasicCommands.addPlayer1Notification(out, "Click on the Avatar to apply the spell", 2);
@@ -484,6 +483,28 @@ public class GameService {
 				validSummonTiles.forEach(tile -> updateTileHighlight(tile, 2));
 				return;
 			}
+			if (card.getCardname().equals("Wraithling Swarm")) {
+				Set<Tile> validSummonTiles = getValidSummonTiles();
+				validSummonTiles.forEach(tile -> updateTileHighlight(tile, 1));
+				return;
+			}
+		
+
+		System.out.println("Highlighting summon range for " + card.getCardname());
+		Tile[][] tiles = gs.getBoard().getTiles();
+
+		Set<Tile> validTiles = getValidSummonTiles();
+		validTiles.forEach(tile -> updateTileHighlight(tile, 1));
+	}
+	
+	public void highlightSummonRange(Card card, Player player) {
+		// Validate inputs
+		if (card == null  || player == null) {
+			System.out.println("Invalid parameters for highlighting summon range.");
+			return;
+		}
+		if(!card.isCreature()) {
+			return;
 		}
 
 		System.out.println("Highlighting summon range for " + card.getCardname());

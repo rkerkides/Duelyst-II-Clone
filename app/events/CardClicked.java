@@ -39,6 +39,7 @@ public class CardClicked implements EventProcessor{
 		CardAction cardAction = new CardAction(gameState, handPosition);
 		
 		cardAction.creaturePreAction();	
+		cardAction.spellPreAction();
 	}
 
 }
