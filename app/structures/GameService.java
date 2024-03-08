@@ -148,8 +148,10 @@ public class GameService {
 
 	// Update a unit's attack on the board
 	public void updateUnitAttack(Unit unit, int newAttack) {
-		if (newAttack <= 0 || newAttack > 20) {
+		if (newAttack <= 0) {
 			return;
+		} else if (newAttack > 20) {
+			newAttack = 20;
 		}
 
 		try {
