@@ -1,6 +1,6 @@
 .vscode
 # Play Framework specific
-/target/
+**/target/
 /project/project
 /project/target/
 /logs/
