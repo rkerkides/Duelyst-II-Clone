@@ -3,15 +3,12 @@ package structures;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
-import structures.basic.cards.Card;
-import structures.basic.cards.ShadowWatcher;
-import structures.basic.cards.Wraithling;
+import structures.basic.cards.*;
 import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
-import structures.basic.cards.BadOmen;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -165,6 +162,9 @@ public class GameService {
 
 
 	public void performUnitDeath(Unit unit) {
+		//BloodmoonPriestess summons a wraithling after each units removal
+		BloodmoonPriestess.BloodmoonPriestessDeathwatch(out, gs, this);
+
 		//invoke Shadow Watcher Deathwatch ability
 		ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
 		// Check for Bad Omen units after a unit dies
