@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
 import structures.basic.cards.Card;
+import structures.basic.cards.ShadowWatcher;
 import structures.basic.cards.Wraithling;
 import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
@@ -178,8 +179,10 @@ public class GameService {
 		BasicCommands.setUnitAttack(out, unit, newAttack);
 	}
 
-	public void performUnitDeath(Unit unit) {
 
+	public void performUnitDeath(Unit unit) {
+		//invoke Shadow Watcher Deathwatch ability
+		ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
 		// Check for Bad Omen units after a unit dies
 		BadOmen.BadOmenDeathwatch(out, gs, this);
 		// remove unit from board

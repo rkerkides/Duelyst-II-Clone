@@ -50,6 +50,7 @@ public class GameState {
 
 	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
 
+	ArrayList<Unit> units = new ArrayList<Unit>();
 
 	/**
 	 * This function initialises all the assets Board, Player etc As well as
@@ -131,9 +132,6 @@ public class GameState {
 	public void setBoard(Board board) {
 		this.board = board;
 	}
-	public ArrayList<Unit> getUnitsOnBoard() {
-		return unitsOnBoard;
-	}
 
 	public void addUnitstoBoard(Unit unit) {
 		this.unitsOnBoard.add(unit);
@@ -144,6 +142,10 @@ public class GameState {
 		this.totalUnits = totalUnits;
 	}
 
+
+	public ArrayList<Unit> getUnitsOnBoard() {
+		return unitsOnBoard;
+	}
 
 	public Player getHuman() {
 		return this.human;
@@ -171,6 +173,7 @@ public class GameState {
 			return human;
 		}
 	}
+
 
 	public void setCurrentUnitClicked(Unit unit) {
 		currentUnitClicked = unit;
