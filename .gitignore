@@ -1,8 +1,7 @@
 .vscode
 # Play Framework specific
-/target/
-/project/project
-/project/target/
+**/target/
+**/project/
 /logs/
 /public/stylesheets/main.css
 /public/stylesheets/main.min.css
