@@ -864,9 +864,11 @@ public class GameService {
     public void zeal() {
         for (Unit unit : gs.getAi().getUnits()) {
             if (unit.getName().equals("Silverguard Knight")) {
-                System.out.println("BUFFED");
                 int newAttack = unit.getAttack() + 2;
                 updateUnitAttack(unit, newAttack);
+				EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
+				BasicCommands.playEffectAnimation(out, effect, unit.getCurrentTile(gs.getBoard()));
+				System.out.println("BUFFED!");
             }
         }
     }
