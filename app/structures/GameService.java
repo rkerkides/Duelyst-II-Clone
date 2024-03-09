@@ -120,8 +120,11 @@ public class GameService {
 			return;
 		}
 
-		if (unit.getName().equals("Player Avatar") && unit.getHealth() > newHealth){
+		if (unit.getName().equals("Player Avatar") &&
+				unit.getHealth() > newHealth && gs.getHuman().getRobustness() > 0){
 			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
+		    BasicCommands.addPlayer1Notification(out, "Player's robustness left: " + gs.getHuman().getRobustness(), 4);
+
 		}
 		
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
@@ -826,7 +829,7 @@ public class GameService {
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.something);
         BasicCommands.playEffectAnimation(out, effect, gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()));
         notClickingCard();
-        BasicCommands.addPlayer1Notification(out, "Horn of the Forsaken gave you 3 more robustness", 2);
+        BasicCommands.addPlayer1Notification(out, "The card gave you 3 more robustness", 2);
 
         try {
             Thread.sleep(1000);
@@ -914,9 +917,6 @@ public class GameService {
 	    if (card.getCardname().equals("Wraithling Swarm")) {
 	        WraithlingSwarm(card, tile);
 	    }
-	    System.out.println("Unhighlighted in the parent method");
-	    removeHighlightFromAll();
-
 	}
 
 	    

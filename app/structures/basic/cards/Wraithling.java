@@ -72,7 +72,7 @@ public class Wraithling extends Unit{
 		wraithling.setName("Wraithling_" + id);
 	    id++;
 		
-		System.out.println("Unit added to board: " + ( gameState.getUnitsOnBoard()).size());
+		System.out.println("Wraithling is added to board, all units: " + ( gameState.getUnitsOnBoard()).size());
 
 
 		// draw unit on new tile and play summon animation
@@ -86,8 +86,6 @@ public class Wraithling extends Unit{
 
 		wraithling.setMovedThisTurn(true);
 		wraithling.setAttackedThisTurn(true);
-		gameState.addUnitstoBoard(wraithling);
-
 		// wait for animation to play out
 		try {
 			Thread.sleep(250);
@@ -137,8 +135,7 @@ public class Wraithling extends Unit{
 		
 		
 		Tile tile = getRandomAdjacentUnoccupiedTile(gs.getHuman().getAvatar()
-				.getCurrentTile(gs.getBoard()), gs.getBoard());
-			
+				.getCurrentTile(gs.getBoard()), gs.getBoard());			
 		summonWraithlingToTile(tile, out, gs);
 	}
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import structures.basic.*;
 import structures.basic.cards.Card;
 import akka.actor.ActorRef;
+import commands.BasicCommands;
 
 import java.util.ArrayList;
 import java.util.List;
