@@ -1,7 +1,9 @@
 package structures.basic;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Board {
     private Tile[][] tiles = new Tile[9][5];;
@@ -21,6 +23,21 @@ public class Board {
 
     public void setTiles(Tile[][] tiles) {
         this.tiles = tiles;
+    }
+    
+    public  Set<Tile> getAllUnoccupiedTiles(Tile[][] tiles) {
+        Set<Tile> unoccupiedTiles = new HashSet<>();
+
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 5; j++) {
+                Tile tile = tiles[i][j];
+                if (!tile.isOccupied()) {
+                    unoccupiedTiles.add(tile);
+                }
+            }
+        }
+
+        return unoccupiedTiles;
     }
 
 	public List<Tile> getAdjacentTiles(Tile tile) {

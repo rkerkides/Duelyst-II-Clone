@@ -294,7 +294,12 @@ public class GameService {
 
 	// Method to calculate and return the set of valid actions (tiles) for a given unit
 	public Set<Tile> calculateValidMovement(Tile[][] board, Unit unit) {
+		
 		Set<Tile> validTiles = new HashSet<>();
+		
+		if (unit.getName().equals("Young Flamewing")) {
+			return gs.getBoard().getAllUnoccupiedTiles(board);
+		}
 		// Skip calculation if unit is provoked or has moved/attacked this turn
 		if (checkProvoked(unit) || unit.movedThisTurn() || unit.attackedThisTurn()) {
 			return validTiles;
@@ -316,6 +321,8 @@ public class GameService {
 
 		return validTiles;
 	}
+
+
 
 
 	public Set<Tile> calculateSpellTargets(Card card) {
@@ -783,6 +790,11 @@ public class GameService {
 		
 		if (card.getCardname().equals("Nightsorrow Assassin")) {
 		Nightsorrow.assassin(tile, gs);}
+		
+		if (card.getCardname().equals("Silverguard Squire")) {
+			Elixir.silverguardSquire(out, gs);
+			
+		}
 		gs.addUnitstoBoard(unit);
 
 		// wait for animation to play out
