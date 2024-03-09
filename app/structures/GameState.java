@@ -78,7 +78,7 @@ public class GameState {
 		gameService.updatePlayerHealth(ai,20);
 
 		// Player mana initialised to 2
-		gameService.updatePlayerMana(human, 2);
+		gameService.updatePlayerMana(human, 5);
 
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
@@ -113,18 +113,23 @@ public class GameState {
 	}
 
 	public void handleCardManagement() {
-		if (currentPlayer.getHand().getNumberOfCardsInHand() >= 6) {
-			// Discard the top card from the hand if it's at maximum size.
-			currentPlayer.getDeck().drawCard();
-		} else {
-			// The hand is not full, draw a new card.
-			gameService.drawCards(currentPlayer, 1);
+		try {
+			if (currentPlayer.getHand().getNumberOfCardsInHand() >= 6) {
+				// Discard the top card from the hand if it's at maximum size.
+				currentPlayer.getDeck().drawCard();
+			} else {
+				// The hand is not full, draw a new card.
+				gameService.drawCards(currentPlayer, 1);
+			}
+		}
+		catch (IllegalStateException e){
+				// Handle the exception, for example by displaying an error message or logging
+				System.err.println("Cannot draw a card: " + e.getMessage());
 		}
 	}
 
 
-
-	// Getters and Setters
+        // Getters and Setters
 	public Board getBoard() {
 		return board;
 	}

@@ -12,10 +12,15 @@ public class CardAction {
   public CardAction(GameState gameState, int handPosition) {
     this.gameState = gameState;
     this.handPosition = handPosition;
+    preAction();
 
   }
 
-  public void preAction() {
+  private void preAction() {
+
+    // CLear all highlighted tiles
+    gameState.gameService.removeHighlightFromAll();
+
     // Set the current card clicked to the card at the specified position in the
     // player's hand
     gameState.gameService.setCurrentCardClickedAndHighlight(handPosition);
