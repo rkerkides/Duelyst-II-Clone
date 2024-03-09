@@ -105,7 +105,7 @@ public class TileClicked implements EventProcessor {
 		}
 		if (BeamShock.stunnedUnit==unit) {
 			System.out.println("Unit is stunned.");
-			BasicCommands.addPlayer1Notification(ActorRef out, "Unit is stunned", 2);
+			gameState.gameService.stunnedUnit(unit.getName());
 			gameState.gameService.removeHighlightFromAll();
 			return;
 		}

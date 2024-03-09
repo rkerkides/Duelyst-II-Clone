@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
 import structures.basic.cards.Card;
+import structures.basic.cards.Nightsorrow;
 import structures.basic.cards.ShadowWatcher;
 import structures.basic.cards.Wraithling;
 import structures.basic.player.Hand;
@@ -748,6 +749,9 @@ public class GameService {
 		if (((Card) card).getCardname().equals("Gloom Chaser")) {
 		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
 		
+		if (card.getCardname().equals("Nightsorrow Assassin")) {
+		Nightsorrow.assassin(tile, gs);}
+		
 
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
@@ -774,9 +778,10 @@ public class GameService {
 		BigCard bigCard = card.getBigCard();
 		updateUnitHealth(unit, bigCard.getHealth());
 		updateUnitAttack(unit, bigCard.getAttack());
-
-		unit.setMovedThisTurn(true);
-		unit.setAttackedThisTurn(true);
+		if (!unit.getName().equals("Saberspine Tiger")) {
+			unit.setMovedThisTurn(true);
+			unit.setAttackedThisTurn(true);
+		}
 		gs.addUnitstoBoard(unit);
 
 		// wait for animation to play out

@@ -104,6 +104,7 @@ public class Wraithling extends Unit{
 	}
 
 	private static Tile getRandomAdjacentUnoccupiedTile(Tile currentTile, Board board) {
+		
 	    int currentX = currentTile.getTilex();
 	    int currentY = currentTile.getTiley();
 	    
