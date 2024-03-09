@@ -22,7 +22,7 @@ import utils.StaticConfFiles;
 public class Wraithling extends Unit{
 	
 	public static int WraithlingSwarm=3;
-	private static int id=90;
+	private static int id=1000;
 
 	public static void summonGloomChaserWraithling(Tile tile, ActorRef out, GameState gameState) {
 		
@@ -152,13 +152,12 @@ public class Wraithling extends Unit{
 		summonWraithlingToTile(tile, out, gs);
 	}
 
-	public static Unit summonWraithlingForBloodmoonPriestess(Unit parent, ActorRef out, GameState gameState, GameService gs) {
+	public static void summonWraithlingForBloodmoonPriestess(Unit parent, ActorRef out, GameState gameState, GameService gs) {
 		Tile currentTile = parent.getCurrentTile(gameState.getBoard());
 		Tile randomTile = getRandomAdjacentUnoccupiedTile(currentTile, gameState.getBoard());
 
 		if (randomTile != null ) {
-			Unit unit = summonWraithlingToTile(randomTile, out, gameState);;
-			return unit;
+			summonWraithlingToTile(randomTile, out, gameState);
 		}
 
 		try {
@@ -166,26 +165,10 @@ public class Wraithling extends Unit{
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return null;
 	}
 
 
 
 }
-
-
-
-//if (card.getCardname().equals("Wraithling Swarm")) {
-//	
-//	int x=tile.getTilex();
-//	int y=tile.getTiley();
-//	for (int i = x; i < x+3; i++) {
-//		Tile tempTile = gameState.getBoard().getTile(i, y);
-//		if(tempTile!=null && !tempTile.isOccupied()) {
-//			summonWraithlingToTile(tempTile, out, gameState);
-//		}
-//	}
-	
-//}
 
 
