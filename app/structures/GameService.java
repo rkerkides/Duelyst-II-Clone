@@ -7,12 +7,12 @@ import structures.basic.cards.Card;
 import structures.basic.cards.Nightsorrow;
 import structures.basic.cards.ShadowWatcher;
 import structures.basic.cards.Wraithling;
+import structures.basic.cards.*;
 import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
-import structures.basic.cards.BadOmen;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -167,6 +167,9 @@ public class GameService {
 
 
 	public void performUnitDeath(Unit unit) {
+		//BloodmoonPriestess summons a wraithling after each units removal
+		BloodmoonPriestess.BloodmoonPriestessDeathwatch(out, gs, this);
+
 		//invoke Shadow Watcher Deathwatch ability
 		ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
 		// Check for Bad Omen units after a unit dies
@@ -846,9 +849,11 @@ public class GameService {
     public void zeal() {
         for (Unit unit : gs.getAi().getUnits()) {
             if (unit.getName().equals("Silverguard Knight")) {
-                System.out.println("BUFFED");
                 int newAttack = unit.getAttack() + 2;
                 updateUnitAttack(unit, newAttack);
+				EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
+				BasicCommands.playEffectAnimation(out, effect, unit.getCurrentTile(gs.getBoard()));
+				System.out.println("BUFFED!");
             }
         }
     }

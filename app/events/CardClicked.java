@@ -31,11 +31,6 @@ public class CardClicked implements EventProcessor{
 
 		int handPosition = message.get("position").asInt();
 
-		// CLear all highlighted tiles
-		gameState.gameService.removeHighlightFromAll();
-
-		// Set the current card clicked to the card at the specified position in the player's hand
-		gameState.gameService.setCurrentCardClickedAndHighlight(handPosition);
 
 		CardAction cardAction = new CardAction(gameState, handPosition);
 
