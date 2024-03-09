@@ -10,6 +10,10 @@ import java.util.List;
 public class Deck {
     private List<Card> deck;
 
+    public boolean isEmpty() {
+        return this.deck.isEmpty(); // an empty deck
+    }
+
     // Load the appropriate deck based on the player
     public Deck(Player player) {
         if (player instanceof HumanPlayer) {
