@@ -9,6 +9,7 @@ import structures.GameState;
 import structures.basic.Actionable;
 import structures.basic.Tile;
 import structures.basic.Unit;
+import structures.basic.cards.BeamShock;
 import structures.basic.cards.Card;
 import structures.basic.cards.Wraithling;
 import structures.basic.player.Hand;
@@ -99,6 +100,12 @@ public class TileClicked implements EventProcessor {
 		// Early return if targetTile is null
 		if (targetTile == null) {
 			System.out.println("Target tile is null.");
+			gameState.gameService.removeHighlightFromAll();
+			return;
+		}
+		if (BeamShock.stunnedUnit==unit) {
+			System.out.println("Unit is stunned.");
+			BasicCommands.addPlayer1Notification(ActorRef out, "Unit is stunned", 2);
 			gameState.gameService.removeHighlightFromAll();
 			return;
 		}

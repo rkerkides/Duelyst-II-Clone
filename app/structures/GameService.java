@@ -919,6 +919,10 @@ public class GameService {
 	    }
 	}
 
+	public void stunnedUnit(String name) {
+		BasicCommands.addPlayer1Notification(out, name +" is stunned", 2);		
+	}
+
 	    
 	    
 	
