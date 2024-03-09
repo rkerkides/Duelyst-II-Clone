@@ -748,13 +748,6 @@ public class GameService {
     }
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
-		
-		if (((Card) card).getCardname().equals("Gloom Chaser")) {
-		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
-		
-		if (card.getCardname().equals("Nightsorrow Assassin")) {
-		Nightsorrow.assassin(tile, gs);}
-		
 
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
@@ -785,6 +778,11 @@ public class GameService {
 			unit.setMovedThisTurn(true);
 			unit.setAttackedThisTurn(true);
 		}
+		if (((Card) card).getCardname().equals("Gloom Chaser")) {
+		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
+		
+		if (card.getCardname().equals("Nightsorrow Assassin")) {
+		Nightsorrow.assassin(tile, gs);}
 		gs.addUnitstoBoard(unit);
 
 		// wait for animation to play out
