@@ -29,8 +29,8 @@ public class Elixir {
 			
 			if (leftTile != null && leftTile.isOccupied() &&
 					leftTile.getUnit().getOwner()instanceof AIPlayer) {
-	            leftTile.getUnit().setHealth(leftTile.getUnit().getHealth() + 1);
-	            leftTile.getUnit().setAttack(leftTile.getUnit().getAttack() + 1);
+				gameState.gameService.updateUnitHealth(leftTile.getUnit(), healthBoost);
+				gameState.gameService.updateUnitAttack(leftTile.getUnit(), attackBoost);
 	        }
 			
 		}
@@ -38,9 +38,10 @@ public class Elixir {
 			// Check the right tile
 			Tile rightTile = gameState.getBoard().getTile(newRight, y);
 			
-			if (rightTile != null && rightTile.isOccupied() && rightTile.getUnit().getOwner() instanceof AIPlayer) {
-				rightTile.getUnit().setHealth(rightTile.getUnit().getHealth() + 1);
-				rightTile.getUnit().setAttack(rightTile.getUnit().getAttack() + 1);
+			if (rightTile != null && rightTile.isOccupied() &&
+					rightTile.getUnit().getOwner() instanceof AIPlayer) {
+				gameState.gameService.updateUnitHealth(rightTile.getUnit(), healthBoost);
+				gameState.gameService.updateUnitAttack(rightTile.getUnit(), attackBoost);
 			}
 			
 
@@ -48,6 +49,10 @@ public class Elixir {
 	        
 	        
 	    }
+	
+	public void Sundrop() {
+		//to implement
+	}
 
 
 }

@@ -255,7 +255,7 @@ public class GameService {
 		// After moving, perform the attack if the attacker is now adjacent to the defender
 		if (isWithinAttackRange(attacker.getCurrentTile(gs.getBoard()), defenderTile)) {
 			System.out.println("Attacker moved to adjacent tile and is now attacking.");
-			adjacentAttack(attacker, attacked);
+			attack(attacker, attacked);
 		} else {
 			System.out.println("Attacker could not move close enough to perform an attack.");
 		}
@@ -465,7 +465,7 @@ public class GameService {
 	}
 
 	// Attack an enemy unit and play the attack animation
-	public void adjacentAttack(Unit attacker, Unit attacked) {
+	public void attack(Unit attacker, Unit attacked) {
 		if (!attacker.attackedThisTurn()) {
 			// remove highlight from all tiles
 			removeHighlightFromAll();
@@ -511,7 +511,7 @@ public class GameService {
 	public void counterAttack(Unit originalAttacker, Unit counterAttacker) {
 		if (counterAttacker.getHealth() > 0) {
 			System.out.println("Counter attacking");
-			adjacentAttack(counterAttacker, originalAttacker);
+			attack(counterAttacker, originalAttacker);
 			counterAttacker.setAttackedThisTurn(false);
 			counterAttacker.setMovedThisTurn(false);
 		}
