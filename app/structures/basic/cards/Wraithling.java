@@ -101,6 +101,8 @@ public class Wraithling extends Unit{
 				+ wraithling.getHealth());
 	    BasicCommands.setUnitHealth(out, wraithling, 1);
 	    BasicCommands.setUnitAttack(out, wraithling, 1);
+        gameState.gameService.removeHighlightFromAll();
+
 	}
 
 	private static Tile getRandomAdjacentUnoccupiedTile(Tile currentTile, Board board) {

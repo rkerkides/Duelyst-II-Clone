@@ -854,8 +854,7 @@ public class GameService {
 	            // If there are more Wraithlings to summon, push the card to action history
 	            if (Wraithling.WraithlingSwarm > 0) {
 					// Highlight tiles for summoning
-					Set<Tile> validTiles = getValidSummonTiles();
-					validTiles.forEach(t -> updateTileHighlight(t, 1));
+					highlightSpellRange(card, gs.getCurrentPlayer());
 		            BasicCommands.addPlayer1Notification(out, "You can summon "
 	            + Wraithling.WraithlingSwarm +" more wraithlings", 5);
 	                gs.getActionHistory().push(card);
@@ -863,8 +862,6 @@ public class GameService {
 	            } else {
 	                // Remove highlight from all tiles and update hand positions
 	            	BasicCommands.addPlayer1Notification(out, "No more wraithlings for you!", 5);
-	                removeHighlightFromAll();
-
 	            }
 	        }
 
