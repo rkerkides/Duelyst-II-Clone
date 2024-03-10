@@ -42,6 +42,7 @@ public class Unit implements Actionable {
 	boolean attackedThisTurn = false;
 
 	boolean hasProvoke = false;
+	private int maxHealth;
 	public Unit() {
 	}
 
@@ -179,6 +180,15 @@ public class Unit implements Actionable {
 	public Tile getCurrentTile(Board board) {
 		return board.getTile(position.getTilex(), position.getTiley());
 
+	}
+
+	public int getMaxHealth() {
+		// TODO Auto-generated method stub
+		return this.maxHealth;
+	}
+	
+	public int setMaxHealth(int maxHealth) {
+		return this.maxHealth = maxHealth;
 	}
 
 }
