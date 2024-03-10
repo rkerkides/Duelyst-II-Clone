@@ -80,6 +80,8 @@ public class GameState {
 
 		// Player mana initialised to 2
 		gameService.updatePlayerMana(human, 2);
+		gameService.updatePlayerMana(ai, 2);
+		System.out.println(getAi().getMana());
 
 		// Create the human and AI avatars
 		gameService.loadAvatar(board, human);
