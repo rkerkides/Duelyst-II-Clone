@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
 import structures.basic.cards.Card;
+import structures.basic.cards.Wraithling;
 import structures.basic.player.AIPlayer;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
@@ -93,6 +94,7 @@ public class GameState {
 		System.out.println("Human hand: " + human.getHand().getCards());
 		gameService.drawCards(ai,3);
 		System.out.println(human.getHand().getCards());
+		Wraithling.WraithlingSwarm = 3;
 	}
 
 	// Switch the current player
