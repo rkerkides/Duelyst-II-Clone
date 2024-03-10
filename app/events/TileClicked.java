@@ -82,9 +82,7 @@ public class TileClicked implements EventProcessor {
 	    // Call the method to remove the card from hand and cast the spell
 	    gameState.gameService.removeFromHandAndCast( gameState, card, tile);
 
-	    // Decrease player's mana after casting the spell
-	    gameState.getHuman().setMana(player.getMana() - card.getManacost());
-	    gameState.gameService.updatePlayerMana(player, player.getMana());
+
 	    // Remove highlight from all tiles
 
 	}

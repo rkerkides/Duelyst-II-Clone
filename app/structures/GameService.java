@@ -849,6 +849,7 @@ public class GameService {
         BasicCommands.playEffectAnimation(out, effect, gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()));
         notClickingCard();
         BasicCommands.addPlayer1Notification(out, "The card gave you 3 more robustness", 2);
+        removeHighlightFromAll();
 
         try {
             Thread.sleep(1000);
@@ -891,6 +892,13 @@ public class GameService {
 
 	// Method in GameService class
 	public void removeFromHandAndCast( GameState gameState, Card card, Tile tile) {
+		
+		if (validCast(card, tile) == false) {
+			removeHighlightFromAll();
+			return;
+			
+			
+		}
 		// Remove the card from the player's hand
 		Player player = gs.getCurrentPlayer();
 		Hand hand = player.getHand();
@@ -938,7 +946,23 @@ public class GameService {
 	    if (card.getCardname().equals("Wraithling Swarm")) {
 	        WraithlingSwarm(card, tile);
 	    }
+	    // Decrease player's mana after casting the spell
+	    gameState.getHuman().setMana(player.getMana() - card.getManacost());
+	    updatePlayerMana(player, player.getMana());
 	}
+
+	private boolean validCast(Card card, Tile tile) {
+		if (card.getCardname().equals("Horn of the Forsaken")&&
+				!(tile.getHighlightMode() == 1)) {
+			return false;
+		}
+		if (card.getCardname().equals("Dark Terminus") 
+				&& !(tile.getHighlightMode() == 2)) {
+			return false;
+		}
+		return true;
+	}
+	
 
 	public void stunnedUnit(String name) {
 		BasicCommands.addPlayer1Notification(out, name +" is stunned", 2);		
