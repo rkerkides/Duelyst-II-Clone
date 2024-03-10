@@ -397,6 +397,7 @@ public class GameService {
 
 	// Returns true if the unit should be provoked based on adjacent opponents
 	public boolean checkProvoked(Unit unit) {
+		
 		Player opponent = (gs.getCurrentPlayer() == gs.getHuman()) ? gs.getAi() : gs.getHuman();
 		// Iterate over the opponent's units to check for adjacency and provoking units
 		for (Unit other : opponent.getUnits()) {

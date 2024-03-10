@@ -1,6 +1,7 @@
 package structures.basic;
 
 import structures.basic.cards.Card;
+import structures.basic.cards.Wraithling;
 import structures.basic.player.HumanPlayer;
 import structures.basic.player.Player;
 import utils.OrderedCardLoader;
@@ -24,8 +25,16 @@ public class Deck {
     }
 
     public Card drawCard() {
+        if (deck.isEmpty()) {
+            System.out.println("Deck is empty");
+            return null;
+        } else if (deck.size() == 6) {
+        	Wraithling.WraithlingSwarm=3;
+            
+        }
         return deck.remove(0);
     }
+
 
     public List<Card> getDeck() {
         return deck;
