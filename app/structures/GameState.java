@@ -117,7 +117,12 @@ public class GameState {
 		try {
 			if (currentPlayer.getHand().getNumberOfCardsInHand() >= 6) {
 				// Discard the top card from the hand if it's at maximum size.
-				currentPlayer.getDeck().drawCard();
+				if((currentPlayer.getDeck()).getDeck().isEmpty()) {
+					System.out.print("No more cards, homo sapiens!");				
+					} else {
+					currentPlayer.getDeck().drawCard();
+				}
+
 			} else {
 				// The hand is not full, draw a new card.
 				gameService.drawCards(currentPlayer, 1);
