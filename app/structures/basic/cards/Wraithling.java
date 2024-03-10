@@ -159,7 +159,8 @@ public class Wraithling extends Unit{
 
 		if (randomTile != null ) {
 			summonWraithlingToTile(randomTile, out, gameState);
-				}
+		}
+
 
 		try {
 			Thread.sleep(30);
@@ -171,8 +172,4 @@ public class Wraithling extends Unit{
 
 
 }
-
-
-
-
 

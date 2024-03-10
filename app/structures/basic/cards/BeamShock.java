@@ -15,3 +15,4 @@ public class BeamShock {
 		
 	}
 }
+// Path: app/structures/basic/cards/BeamShock.java
