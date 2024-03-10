@@ -22,10 +22,6 @@ public class Heartbeat implements EventProcessor {
 
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
-		// !TODO Refactor possibly pass Players to Gamestate
-		// Remove the parameters 
-		// possible initialisation to occur using gameState.Initialise
-		gameState.endGame(out);
 	}
 
 }
