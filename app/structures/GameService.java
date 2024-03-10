@@ -3,6 +3,10 @@ package structures;
 import akka.actor.ActorRef;
 import commands.BasicCommands;
 import structures.basic.*;
+import structures.basic.cards.Card;
+import structures.basic.cards.Nightsorrow;
+import structures.basic.cards.ShadowWatcher;
+import structures.basic.cards.Wraithling;
 import structures.basic.cards.*;
 import structures.basic.player.Hand;
 import structures.basic.player.HumanPlayer;
@@ -251,7 +255,7 @@ public class GameService {
 		// After moving, perform the attack if the attacker is now adjacent to the defender
 		if (isWithinAttackRange(attacker.getCurrentTile(gs.getBoard()), defenderTile)) {
 			System.out.println("Attacker moved to adjacent tile and is now attacking.");
-			adjacentAttack(attacker, attacked);
+			attack(attacker, attacked);
 		} else {
 			System.out.println("Attacker could not move close enough to perform an attack.");
 		}
@@ -290,7 +294,12 @@ public class GameService {
 
 	// Method to calculate and return the set of valid actions (tiles) for a given unit
 	public Set<Tile> calculateValidMovement(Tile[][] board, Unit unit) {
+		
 		Set<Tile> validTiles = new HashSet<>();
+		
+		if (unit.getName().equals("Young Flamewing")) {
+			return gs.getBoard().getAllUnoccupiedTiles(board);
+		}
 		// Skip calculation if unit is provoked or has moved/attacked this turn
 		if (checkProvoked(unit) || unit.movedThisTurn() || unit.attackedThisTurn()) {
 			return validTiles;
@@ -312,6 +321,8 @@ public class GameService {
 
 		return validTiles;
 	}
+
+
 
 
 	public Set<Tile> calculateSpellTargets(Card card) {
@@ -454,7 +465,7 @@ public class GameService {
 	}
 
 	// Attack an enemy unit and play the attack animation
-	public void adjacentAttack(Unit attacker, Unit attacked) {
+	public void attack(Unit attacker, Unit attacked) {
 		if (!attacker.attackedThisTurn()) {
 			// remove highlight from all tiles
 			removeHighlightFromAll();
@@ -500,7 +511,7 @@ public class GameService {
 	public void counterAttack(Unit originalAttacker, Unit counterAttacker) {
 		if (counterAttacker.getHealth() > 0) {
 			System.out.println("Counter attacking");
-			adjacentAttack(counterAttacker, originalAttacker);
+			attack(counterAttacker, originalAttacker);
 			counterAttacker.setAttackedThisTurn(false);
 			counterAttacker.setMovedThisTurn(false);
 		}
@@ -744,10 +755,6 @@ public class GameService {
     }
 
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
-		
-		if (((Card) card).getCardname().equals("Gloom Chaser")) {
-		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
-		
 
 		// load unit
 		Unit unit = loadUnit(unit_conf, unit_id, Unit.class);
@@ -760,7 +767,7 @@ public class GameService {
 		player.addUnit(unit);
 		gs.addToTotalUnits(1);
 		gs.addUnitstoBoard(unit);
-		System.out.println("Unit added to board: " + ( gs.getUnitsOnBoard()).size());
+		System.out.println("Unit added to board: " + ( gs.getTotalUnits()));
 		// remove highlight from all tiles
 		removeHighlightFromAll();
 
@@ -774,9 +781,21 @@ public class GameService {
 		BigCard bigCard = card.getBigCard();
 		updateUnitHealth(unit, bigCard.getHealth());
 		updateUnitAttack(unit, bigCard.getAttack());
-
-		unit.setMovedThisTurn(true);
-		unit.setAttackedThisTurn(true);
+		unit.setMaxHealth(bigCard.getHealth());
+		if (!unit.getName().equals("Saberspine Tiger")) {
+			unit.setMovedThisTurn(true);
+			unit.setAttackedThisTurn(true);
+		}
+		if (((Card) card).getCardname().equals("Gloom Chaser")) {
+		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
+		
+		if (card.getCardname().equals("Nightsorrow Assassin")) {
+		Nightsorrow.assassin(tile, gs);}
+		
+		if (card.getCardname().equals("Silverguard Squire")) {
+			Elixir.silverguardSquire(out, gs);
+			
+		}
 		gs.addUnitstoBoard(unit);
 
 		// wait for animation to play out
@@ -923,9 +942,23 @@ public class GameService {
 
 	public void stunnedUnit(String name) {
 		BasicCommands.addPlayer1Notification(out, name +" is stunned", 2);		
+
+    
 	}
+	
+	public void stunning(Tile tile) {
+
+        EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
+        BasicCommands.playEffectAnimation(out, effect, tile);
+	}
+
+	public void healing(Tile currentTile) {
+        EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
+        BasicCommands.playEffectAnimation(out, effect, currentTile);
+    }
+
+}
 
 	    
 	    
 	
-}

@@ -360,7 +360,7 @@ public class AIPlayer extends Player {
 			}
 			if (gameState.gameService.isWithinAttackRange(bestAttack.unit.getCurrentTile(gameState.getBoard()), bestAttack.tile)) {
 				System.out.println("Attacking unit on tile " + bestAttack.tile.getTilex() + ", " + bestAttack.tile.getTiley());
-				gameState.gameService.adjacentAttack(bestAttack.unit, bestAttack.tile.getUnit());
+				gameState.gameService.attack(bestAttack.unit, bestAttack.tile.getUnit());
 			}
 		}
 	}

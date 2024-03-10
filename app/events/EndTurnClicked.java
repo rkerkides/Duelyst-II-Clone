@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import akka.actor.ActorRef;
 import structures.GameState;
 import structures.basic.Unit;
+import structures.basic.cards.BeamShock;
 import structures.basic.player.AIPlayer;
 
 /**
@@ -39,6 +40,9 @@ public class EndTurnClicked implements EventProcessor{
 
 		// Clear the action history, as the turn has ended
 		gameState.getActionHistory().clear();
+		System.out.println(BeamShock.stunnedUnit+" stunned unit is not stunned anymore");
+		BeamShock.stunnedUnit=null;
+
 
 		if (gameState.getCurrentPlayer() instanceof AIPlayer) {
 			((AIPlayer) gameState.getCurrentPlayer()).takeTurn(out, message);

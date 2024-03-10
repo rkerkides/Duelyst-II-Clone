@@ -11,8 +11,6 @@ import structures.basic.Tile;
 import structures.basic.Unit;
 import structures.basic.cards.BeamShock;
 import structures.basic.cards.Card;
-import structures.basic.cards.Wraithling;
-import structures.basic.player.Hand;
 import structures.basic.player.Player;
 
 /**
@@ -105,8 +103,9 @@ public class TileClicked implements EventProcessor {
 		}
 		if (BeamShock.stunnedUnit==unit) {
 			System.out.println("Unit is stunned.");
-			BasicCommands.addPlayer1Notification(ActorRef out, "Unit is stunned", 2);
+			unit.setMovedThisTurn(true);
 			gameState.gameService.removeHighlightFromAll();
+			gameState.gameService.stunnedUnit(unit.getName());
 			return;
 		}
 
@@ -131,7 +130,7 @@ public class TileClicked implements EventProcessor {
 				if (targetTile.isOccupied()) {
 					System.out.println("Target tile is occupied by " + targetTile.getUnit());
 				}
-				gameState.gameService.adjacentAttack(unit, targetTile.getUnit());
+				gameState.gameService.attack(unit, targetTile.getUnit());
 				unit.setAttackedThisTurn(true);
 				unit.setMovedThisTurn(true);
 			} else {
