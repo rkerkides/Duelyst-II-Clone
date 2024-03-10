@@ -12,7 +12,7 @@ import structures.GameState;
 /**
  * MyTest
  */
-public class AiPlayerTests {
+public class InitializedAiPlayerTests {
     GameState gameState = new GameState(); // create state storage
     Initalize initalizeProcessor = new Initalize(); // create an initalize event processor
 
@@ -32,11 +32,10 @@ public class AiPlayerTests {
 
     initalizeProcessor.processEvent(null, gameState, eventMessage); // send it to the initalize event processor
 
-    assertEquals(gameState.getAi().getMana(), 2);
+    assertEquals(gameState.getAi().getMana(),0);
 
   }
   
-  @Ignore
   @Test
   public void checkCardsInHand() {
 
