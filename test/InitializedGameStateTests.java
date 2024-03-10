@@ -8,7 +8,7 @@ import events.Initalize;
 import play.libs.Json;
 import structures.GameState;
 
-public class InititializedGameState {
+public class InitializedGameStateTests {
   GameState gameState = new GameState(); // create state storage
   Initalize initalizeProcessor = new Initalize(); // create an initalize event processor
 
@@ -34,6 +34,13 @@ public class InititializedGameState {
     
     initalizeProcessor.processEvent(null, gameState, eventMessage); // send it to the initalize event processor
     assertNotNull(gameState.getAi());
+  }
+
+  @Test
+  public void checkGameServicesLoaded() {
+    
+    initalizeProcessor.processEvent(null, gameState, eventMessage); // send it to the initalize event processor
+    assertNotNull(gameState.gameService);
   }
 
 }
