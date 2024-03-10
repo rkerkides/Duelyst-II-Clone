@@ -18,9 +18,10 @@ import static utils.StaticConfFiles.card_badOmen;
 public class BadOmen extends Unit {
 
     // method to check if bad omen is onthe board and increment attack each time someone dies.
-    public static void BadOmenDeathwatch( ActorRef out, GameState gameState, GameService gs) {
+    public static void BadOmenDeathwatch( ActorRef out, GameState gameState, GameService gs, Unit victim) {
         for (Unit unit : gameState.getUnits()) {
-            if (unit.getName().equals("Bad Omen")) {
+            if (unit.getName().equals("Bad Omen") &&
+            		!victim.getName().equals("Bad Omen")) {
                 gs.updateUnitAttack(unit, unit.getAttack() + 1);            }
         }
 

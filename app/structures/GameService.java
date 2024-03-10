@@ -167,13 +167,18 @@ public class GameService {
 
 
 	public void performUnitDeath(Unit unit) {
-		//BloodmoonPriestess summons a wraithling after each units removal
-		BloodmoonPriestess.BloodmoonPriestessDeathwatch(out, gs, this);
+		
+		if(unit.getId()<999) {
+			ShadowDancer.Deathwatch(gs);
+			//BloodmoonPriestess summons a wraithling after each units removal
+			BloodmoonPriestess.BloodmoonPriestessDeathwatch(out, gs, this);
 
-		//invoke Shadow Watcher Deathwatch ability
-		ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
-		// Check for Bad Omen units after a unit dies
-		BadOmen.BadOmenDeathwatch(out, gs, this);
+			//invoke Shadow Watcher Deathwatch ability
+			ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
+			// Check for Bad Omen units after a unit dies
+			BadOmen.BadOmenDeathwatch(out, gs, this, unit);
+		}
+
 		// remove unit from board
 		unit.getCurrentTile(gs.getBoard()).removeUnit();
 		unit.setHealth(0);
