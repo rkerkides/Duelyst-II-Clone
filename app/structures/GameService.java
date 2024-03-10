@@ -781,6 +781,7 @@ public class GameService {
 		BigCard bigCard = card.getBigCard();
 		updateUnitHealth(unit, bigCard.getHealth());
 		updateUnitAttack(unit, bigCard.getAttack());
+		unit.setMaxHealth(bigCard.getHealth());
 		if (!unit.getName().equals("Saberspine Tiger")) {
 			unit.setMovedThisTurn(true);
 			unit.setAttackedThisTurn(true);
@@ -941,9 +942,23 @@ public class GameService {
 
 	public void stunnedUnit(String name) {
 		BasicCommands.addPlayer1Notification(out, name +" is stunned", 2);		
+
+    
 	}
+	
+	public void stunning(Tile tile) {
+
+        EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
+        BasicCommands.playEffectAnimation(out, effect, tile);
+	}
+
+	public void sundrop(Tile currentTile) {
+        EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
+        BasicCommands.playEffectAnimation(out, effect, currentTile);
+    }
+
+}
 
 	    
 	    
 	
-}

@@ -3,6 +3,7 @@ package structures.basic.cards;
 import akka.actor.ActorRef;
 import structures.GameState;
 import structures.basic.Tile;
+import structures.basic.Unit;
 import structures.basic.player.AIPlayer;
 
 public class Elixir {
@@ -50,8 +51,20 @@ public class Elixir {
 	        
 	    }
 	
-	public void Sundrop() {
-		//to implement
+	public void Sundrop(Unit unit, GameState gs) {
+		// implement healing effect by 4 health
+		if (unit != null && unit.getHealth() < unit.getMaxHealth() &&
+				unit.getOwner() instanceof AIPlayer ) {
+			
+				int newHealth = unit.getHealth() + 4;
+				
+				if (newHealth > unit.getMaxHealth()) {
+		    	gs.gameService.updateUnitHealth(unit, unit.getMaxHealth());
+			} else {
+				gs.gameService.updateUnitHealth(unit, newHealth);
+			}
+		}
+		gs.gameService.sundrop(unit.getCurrentTile(gs.getBoard()));
 	}
 
 

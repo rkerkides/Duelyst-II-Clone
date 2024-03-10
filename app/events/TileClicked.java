@@ -129,7 +129,7 @@ public class TileClicked implements EventProcessor {
 				if (targetTile.isOccupied()) {
 					System.out.println("Target tile is occupied by " + targetTile.getUnit());
 				}
-				gameState.gameService.adjacentAttack(unit, targetTile.getUnit());
+				gameState.gameService.attack(unit, targetTile.getUnit());
 				unit.setAttackedThisTurn(true);
 				unit.setMovedThisTurn(true);
 			} else {
