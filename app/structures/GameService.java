@@ -386,7 +386,7 @@ public class GameService {
 
 			if (Math.abs(tilex - unit.getPosition().getTilex()) < 2 && Math.abs(tiley - unit.getPosition().getTiley()) < 2) {
 				if (unit.getName().equals("Rock Pulveriser") || unit.getName().equals("Swamp Entangler") ||
-						unit.getName().equals("Silverguard Knight") || unit.getName().equals("Ironcliffe Guardian")) {
+						unit.getName().equals("Silverguard Knight") || unit.getName().equals("Ironcliff Guardian")) {
 					System.out.println("Provoker " + unit.getName() + " in the house.");
 					provoker.add(unit.getPosition());
 				}
@@ -397,6 +397,7 @@ public class GameService {
 
 	// Returns true if the unit should be provoked based on adjacent opponents
 	public boolean checkProvoked(Unit unit) {
+		
 		Player opponent = (gs.getCurrentPlayer() == gs.getHuman()) ? gs.getAi() : gs.getHuman();
 		// Iterate over the opponent's units to check for adjacency and provoking units
 		for (Unit other : opponent.getUnits()) {

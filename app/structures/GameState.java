@@ -94,7 +94,6 @@ public class GameState {
 		System.out.println("Human hand: " + human.getHand().getCards());
 		gameService.drawCards(ai,3);
 		System.out.println(human.getHand().getCards());
-		Wraithling.WraithlingSwarm = 3;
 	}
 
 	// Switch the current player
