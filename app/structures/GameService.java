@@ -378,7 +378,7 @@ public class GameService {
 
 	// Checks if provoke unit is present on the board and around the tile on which an alleged enemy unit (target) is located
 	public Set<Position> checkProvoker(Tile tile) {
-		Set<Position> provoker = new HashSet<>();
+		Set<Position> provokers = new HashSet<>();
 
 		for (Unit unit : gs.getInactivePlayer().getUnits()) {
 			int tilex = tile.getTilex();
@@ -386,13 +386,13 @@ public class GameService {
 
 			if (Math.abs(tilex - unit.getPosition().getTilex()) < 2 && Math.abs(tiley - unit.getPosition().getTiley()) < 2) {
 				if (unit.getName().equals("Rock Pulveriser") || unit.getName().equals("Swamp Entangler") ||
-						unit.getName().equals("Silverguard Knight") || unit.getName().equals("Ironcliffe Guardian")) {
+						unit.getName().equals("Silverguard Knight") || unit.getName().equals("Ironcliff Guardian")) {
 					System.out.println("Provoker " + unit.getName() + " in the house.");
-					provoker.add(unit.getPosition());
+					provokers.add(unit.getPosition());
 				}
 			}
 		}
-		return provoker;
+		return provokers;
 	}
 
 	// Returns true if the unit should be provoked based on adjacent opponents
@@ -407,10 +407,12 @@ public class GameService {
 
 			// Check if the opponent unit's name matches any provoking unit
 			if (other.getName().equals("Rock Pulveriser") || other.getName().equals("Swamp Entangler") ||
-					other.getName().equals("Silverguard Knight") || other.getName().equals("Ironcliffe Guardian")) {
+					other.getName().equals("Silverguard Knight") || other.getName().equals("Ironcliff Guardian")) {
+
+
 				// Check if the opponent unit is adjacent to the current unit
 				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
-					BasicCommands.addPlayer1Notification(out, "Unit is provoked by " + other.getName(), 2);
+					BasicCommands.addPlayer1Notification(out, "You are provoked!", 2);
 					return true;
 				}
 			}
