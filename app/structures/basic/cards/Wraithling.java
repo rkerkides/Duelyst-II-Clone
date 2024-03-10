@@ -71,7 +71,7 @@ public class Wraithling extends Unit{
 		wraithling.setName("Wraithling_" + id);
 	    id++;
 		
-		System.out.println("Wraithling is added to board, all units: " + ( gameState.getUnitsOnBoard()).size());
+		System.out.println("Wraithling is added to board, all units: " + ( gameState.getTotalUnits()));
 
 
 		// draw unit on new tile and play summon animation

@@ -32,7 +32,7 @@ public class Elixir {
 					leftTile.getUnit().getOwner()instanceof AIPlayer) {
 				gameState.gameService.updateUnitHealth(leftTile.getUnit(), healthBoost);
 				gameState.gameService.updateUnitAttack(leftTile.getUnit(), attackBoost);
-				gameState.gameService.sundrop(leftTile);
+				gameState.gameService.healing(leftTile);
 
 	        }
 			
@@ -45,7 +45,7 @@ public class Elixir {
 					rightTile.getUnit().getOwner() instanceof AIPlayer) {
 				gameState.gameService.updateUnitHealth(rightTile.getUnit(), healthBoost);
 				gameState.gameService.updateUnitAttack(rightTile.getUnit(), attackBoost);
-				gameState.gameService.sundrop(rightTile);
+				gameState.gameService.healing(rightTile);
 
 			}
 			
@@ -68,7 +68,7 @@ public class Elixir {
 				gs.gameService.updateUnitHealth(unit, newHealth);
 			}
 		}
-		gs.gameService.sundrop(unit.getCurrentTile(gs.getBoard()));
+		gs.gameService.healing(unit.getCurrentTile(gs.getBoard()));
 	}
 
 

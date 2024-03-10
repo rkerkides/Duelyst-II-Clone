@@ -767,7 +767,7 @@ public class GameService {
 		player.addUnit(unit);
 		gs.addToTotalUnits(1);
 		gs.addUnitstoBoard(unit);
-		System.out.println("Unit added to board: " + ( gs.getUnitsOnBoard()).size());
+		System.out.println("Unit added to board: " + ( gs.getTotalUnits()));
 		// remove highlight from all tiles
 		removeHighlightFromAll();
 
@@ -952,7 +952,7 @@ public class GameService {
         BasicCommands.playEffectAnimation(out, effect, tile);
 	}
 
-	public void sundrop(Tile currentTile) {
+	public void healing(Tile currentTile) {
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
         BasicCommands.playEffectAnimation(out, effect, currentTile);
     }
