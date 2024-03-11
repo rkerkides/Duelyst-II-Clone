@@ -109,7 +109,6 @@ public abstract class Player {
 			return null;
 		}
         Card card = this.deck.drawCard();
-		System.out.println("Player " + this + " drew card " + card + " from deck");
         this.hand.addCard(card);
 		return card;
 	}
@@ -117,7 +116,6 @@ public abstract class Player {
 	public void setRobustness(int i) {
 		this.robustness = i;
 		this.robustness = this.robustness < 0 ? 0 : this.robustness;
-	    System.out.println("Player's robustness: " + this.robustness);
 	}
 
 
