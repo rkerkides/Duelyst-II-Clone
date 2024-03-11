@@ -103,6 +103,10 @@ public class GameState {
 		}
 	}
 
+	/**
+	 * This will be called when endTurn event
+	 * is clicked, to manage the states
+	 */
 	public void endTurn(){
 		handleCardManagement();
 		currentPlayer.incrementTurn();
@@ -111,6 +115,12 @@ public class GameState {
 		this.gameService.updatePlayerMana(currentPlayer, currentPlayer.getTurn() + 1);
 	}
 
+	
+	/**
+	 * This will handle the cards in the deck
+	 * and the hand of the player
+	 * used when the endTurn is clicked 
+	 */
 	public void handleCardManagement() {
 		try {
 			if (currentPlayer.getHand().getNumberOfCardsInHand() >= 6) {
@@ -132,7 +142,7 @@ public class GameState {
 	}
 
 
-        // Getters and Setters
+	
 	public Board getBoard() {
 		return board;
 	}

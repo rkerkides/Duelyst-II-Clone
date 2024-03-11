@@ -65,6 +65,14 @@ public class TileClicked implements EventProcessor {
 		}
 	}
 
+	/**
+	 * this will be used to handle the spelling logic
+	 *
+	 * @param out
+	 * @param gameState
+	 * @param card
+	 * @param tile
+	 */
 	private void handleSpellCasting(ActorRef out, GameState gameState, Card card, Tile tile) {
 	    Player player = gameState.getCurrentPlayer();
 
@@ -89,7 +97,13 @@ public class TileClicked implements EventProcessor {
 	
 
 	
-	// Process unit move or attack based on targetTile's state
+	
+	/**
+	 * Process unit move or attack based on targetTile's state
+	 * @param gameState
+	 * @param unit
+	 * @param targetTile
+	 */
 	private void handleUnitAction(GameState gameState, Unit unit, Tile targetTile) {
 		// Early return if targetTile is null
 		if (targetTile == null) {
