@@ -26,7 +26,9 @@ public class Deck {
 
     public Card drawCard() {
         if (deck.isEmpty()) {
-        } else if (deck.size() == 6) {
+            System.out.println("Deck is empty");
+            return null;
+        } else if (deck.size() > 6) {
         	Wraithling.WraithlingSwarm=3;
             
         }

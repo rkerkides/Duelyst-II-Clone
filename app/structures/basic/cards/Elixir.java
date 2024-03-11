@@ -59,42 +59,36 @@ public class Elixir {
 	    }
 	
 	public static void Sundrop(Unit unit, GameState gs) {
-		// implement healing effect by 4 health
-		if (unit!= null && unit.getHealth() == unit.getMaxHealth() 
-				&& unit.getOwner() instanceof AIPlayer) {
-			  AIPlayer aiPlayer = (AIPlayer) gs.getAi(); // Assuming gs is your GameState object
-		        
-		        // Find the unit with the lowest health
-		        Optional<Unit> unitWithLowestHealth = aiPlayer.getUnits().stream()
-		                .min(Comparator.comparingInt(Unit::getHealth));
+        // Implement healing effect by 4 health
+        if (unit != null && unit.getOwner() instanceof AIPlayer) {
+            AIPlayer aiPlayer = (AIPlayer) gs.getAi(); // Assuming gs is your GameState object
 
-		        // Check if a unit with the lowest health is found
-		        Unit lowestHealthUnit = unitWithLowestHealth.orElse(null);
-		        
-				int newHealth = lowestHealthUnit.getHealth() + 4;
-				
-				if (newHealth > unit.getMaxHealth()) {
-			    	gs.gameService.updateUnitHealth(unit, unit.getMaxHealth());
-				} else {
-					gs.gameService.updateUnitHealth(unit, newHealth);
-				}
+            if (unit.getHealth() == unit.getMaxHealth()) {
+                // Find the unit with the lowest health
+                Optional<Unit> unitWithLowestHealth = aiPlayer.getUnits().stream()
+                        .min(Comparator.comparingInt(Unit::getHealth));
 
-			
-			
-		}
-		if (unit != null && unit.getHealth() < unit.getMaxHealth() &&
-				unit.getOwner() instanceof AIPlayer ) {
-			
-				int newHealth = unit.getHealth() + 4;
-				
-				if (newHealth > unit.getMaxHealth()) {
-		    	gs.gameService.updateUnitHealth(unit, unit.getMaxHealth());
-			} else {
-				gs.gameService.updateUnitHealth(unit, newHealth);
-			}
-		}
-		gs.gameService.healing(unit.getCurrentTile(gs.getBoard()));
-	}
+                // Check if a unit with the lowest health is found
+                Unit lowestHealthUnit = unitWithLowestHealth.orElse(null);
 
+                if (lowestHealthUnit != null) {
+                    int newHealth = lowestHealthUnit.getHealth() + 4;
+                    if (newHealth > lowestHealthUnit.getMaxHealth()) {
+                        gs.gameService.updateUnitHealth(lowestHealthUnit, lowestHealthUnit.getMaxHealth());
+                    } else {
+                        gs.gameService.updateUnitHealth(lowestHealthUnit, newHealth);
+                    }
+                }
+            } else {
+                int newHealth = unit.getHealth() + 4;
+                if (newHealth > unit.getMaxHealth()) {
+                    gs.gameService.updateUnitHealth(unit, unit.getMaxHealth());
+                } else {
+                    gs.gameService.updateUnitHealth(unit, newHealth);
+                }
+            }
+        }
+        gs.gameService.healing(unit.getCurrentTile(gs.getBoard()));
+    }
 
 }
