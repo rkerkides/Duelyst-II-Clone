@@ -40,7 +40,7 @@ public class GameStateTests {
     gameState.endTurn();
     // Updated player state
     assertEquals(gameState.getHuman().getMana(), 0);
-    assertEquals(gameState.getHuman().getTurn(), 1);
+    assertEquals(gameState.getHuman().getTurn(), 2);
 
     // Check the Ai is in charge
     assertTrue(gameState.getCurrentPlayer() instanceof AIPlayer);

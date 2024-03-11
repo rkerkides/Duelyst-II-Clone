@@ -91,9 +91,7 @@ public class GameState {
 
 		//Drawing initial 3 cards from the deck for the game start
 		gameService.drawCards(human,3);
-		System.out.println("Human hand: " + human.getHand().getCards());
 		gameService.drawCards(ai,3);
-		System.out.println(human.getHand().getCards());
 	}
 
 	// Switch the current player
@@ -118,7 +116,6 @@ public class GameState {
 			if (currentPlayer.getHand().getNumberOfCardsInHand() >= 6) {
 				// Discard the top card from the hand if it's at maximum size.
 				if((currentPlayer.getDeck()).getDeck().isEmpty()) {
-					System.out.print("No more cards, homo sapiens!");				
 					} else {
 					currentPlayer.getDeck().drawCard();
 				}
