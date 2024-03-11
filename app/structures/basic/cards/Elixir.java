@@ -1,5 +1,8 @@
 package structures.basic.cards;
 
+import java.util.Comparator;
+import java.util.Optional;
+
 import akka.actor.ActorRef;
 import structures.GameState;
 import structures.basic.Tile;
@@ -57,6 +60,28 @@ public class Elixir {
 	
 	public static void Sundrop(Unit unit, GameState gs) {
 		// implement healing effect by 4 health
+		if (unit!= null && unit.getHealth() == unit.getMaxHealth() 
+				&& unit.getOwner() instanceof AIPlayer) {
+			  AIPlayer aiPlayer = (AIPlayer) gs.getAi(); // Assuming gs is your GameState object
+		        
+		        // Find the unit with the lowest health
+		        Optional<Unit> unitWithLowestHealth = aiPlayer.getUnits().stream()
+		                .min(Comparator.comparingInt(Unit::getHealth));
+
+		        // Check if a unit with the lowest health is found
+		        Unit lowestHealthUnit = unitWithLowestHealth.orElse(null);
+		        
+				int newHealth = lowestHealthUnit.getHealth() + 4;
+				
+				if (newHealth > unit.getMaxHealth()) {
+			    	gs.gameService.updateUnitHealth(unit, unit.getMaxHealth());
+				} else {
+					gs.gameService.updateUnitHealth(unit, newHealth);
+				}
+
+			
+			
+		}
 		if (unit != null && unit.getHealth() < unit.getMaxHealth() &&
 				unit.getOwner() instanceof AIPlayer ) {
 			
