@@ -128,6 +128,7 @@ public class Tile {
 
 	public void setUnit(Unit unit) {
 		if (this.isOccupied()) {
+			System.out.println("Tile is already occupied");
 			return;
 		}
 		this.setOccupied();
