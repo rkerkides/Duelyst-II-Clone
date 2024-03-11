@@ -6,6 +6,7 @@ import commands.BasicCommands;
 import events.EndTurnClicked;
 import structures.GameState;
 import structures.basic.*;
+import structures.basic.cards.BeamShock;
 import structures.basic.cards.Card;
 
 import java.util.*;
@@ -20,6 +21,11 @@ public class AIPlayer extends Player {
 
 	// restrained to just end-turn to facilitate testing before implementing AI
 	public void takeTurn(ActorRef out, JsonNode message) {
+		
+		
+		System.out.println(BeamShock.stunnedUnit+" stunned unit is not stunned anymore");
+		BeamShock.stunnedUnit=null;
+		
 		// make best move
 		makeBestMove();
 		
