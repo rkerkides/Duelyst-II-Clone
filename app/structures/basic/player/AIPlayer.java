@@ -259,8 +259,8 @@ public class AIPlayer extends Player {
 
 	private void makeBestMove() {
 		try {
-			performCardActions();
 			performAttacks();
+			performCardActions();
 			performMovements();
 		} catch (Exception e) {
 			// Handle other exceptions or log them
