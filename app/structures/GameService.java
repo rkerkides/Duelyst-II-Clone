@@ -14,7 +14,9 @@ import structures.basic.player.Player;
 import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static utils.BasicObjectBuilders.loadUnit;
@@ -98,6 +100,7 @@ public class GameService {
 		updateUnitHealth(avatar, 20);
 		updateUnitAttack(avatar, 2);
 		avatar.setHealth(20);
+		avatar.setMaxHealth(20);
 		avatar.setAttack(2);
 		try {
 			Thread.sleep(30);
@@ -269,33 +272,51 @@ public class GameService {
 
 	// Highlight tiles for movement and attack
 	public void highlightMoveAndAttackRange(Unit unit) {
-		Tile[][] tiles = gs.getBoard().getTiles();
-		Set<Tile> validMovementTiles = calculateValidMovement(tiles, unit);
-		Set<Tile> validAttackTiles = calculateAttackTargets(unit);
+	    Tile[][] tiles = gs.getBoard().getTiles();
+	    Set<Tile> validMovementTiles = calculateValidMovement(tiles, unit);
+	    Set<Tile> validAttackTiles = calculateAttackTargets(unit);
 
-		// Highlight valid movement and attack tiles
-		if (validMovementTiles != null) {
-			for (Tile tile : validMovementTiles) {
-				if (!tile.isOccupied()) {
-					// Highlight tile for movement
-					updateTileHighlight(tile, 1);
-				} else if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
-					// Highlight tile for attack
-					updateTileHighlight(tile, 2);
-				}
-			}
-		}
+	    // Highlight valid movement and attack tiles
+	    if (validMovementTiles != null) {
+	        for (Tile tile : validMovementTiles) {
+	            if (!tile.isOccupied()) {
+	                // Highlight tile for movement
+	                updateTileHighlight(tile, 1);
+	            } else if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
+	                // Highlight tile for attack
+	                updateTileHighlight(tile, 2);
+	            }
+	            // Highlight additional attack tiles if adjacent to valid movement tiles
+	            highlightAdjacentAttackTiles(tile, unit);
+	        }
+	    }
 
-		// Highlight valid attack tiles
-		for (Tile tile : validAttackTiles) {
-			System.out.println("Tile is occupied: " + tile.isOccupied() + " and unit owner is: " + tile.getUnit().getOwner() + " and unit id is: " + tile.getUnit().getId());
-			if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
-				System.out.println("Highlighting attack tile");
-				// Highlight tile for attack
-				updateTileHighlight(tile, 2); // Assuming 2 is the highlight mode for attack
-			}
-		}
+	    // Highlight valid attack tiles
+	    for (Tile tile : validAttackTiles) {
+	        if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
+	            // Highlight tile for attack
+	            updateTileHighlight(tile, 2); // Assuming 2 is the highlight mode for attack
+	        }
+	    }
 	}
+	//to check 
+
+	private void highlightAdjacentAttackTiles(Tile tile, Unit unit) {
+	    Board board = gs.getBoard();
+	    int x = tile.getTilex();
+	    int y = tile.getTiley();
+
+	    int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+	    for (int[] direction : directions) {
+	        int newX = x + direction[0];
+	        int newY = y + direction[1];
+	        if (isValidTile(newX, newY) && board.getTile(newX, newY).isOccupied() && board.getTile(newX, newY).getUnit().getOwner() != unit.getOwner()) {
+	            updateTileHighlight(board.getTile(newX, newY), 2); // Highlight tile for attack
+	        }
+	    }
+	}
+
+
 
 	// Method to calculate and return the set of valid actions (tiles) for a given unit
 	public Set<Tile> calculateValidMovement(Tile[][] board, Unit unit) {
@@ -476,8 +497,7 @@ public class GameService {
 	public void attack(Unit attacker, Unit attacked) {
 		if (!attacker.attackedThisTurn()) {
 			// remove highlight from all tiles
-			removeHighlightFromAll();
-
+			updateTileHighlight(attacked.getCurrentTile(gs.getBoard()), 2);
 			BasicCommands.playUnitAnimation(out, attacker, UnitAnimationType.attack);
 			try {
 				Thread.sleep(1500);
@@ -501,6 +521,8 @@ public class GameService {
  
 					Wraithling.summonAvatarWraithling(out, gs);
 				}
+			removeHighlightFromAll();
+
 				
 			}
 
@@ -593,9 +615,25 @@ public class GameService {
 	                }
 	            }
 	        }
-	    } else if (card.getCardname().equals("Wraithling Swarm")) {
+	    }
+	    
+	    if (card.getCardname().equals("Wraithling Swarm")) {
 	    		return getValidSummonTiles();
 	    }
+	    
+	    if (card.getCardname().equals("Beamshock")) {
+	    	List<Unit> humanUnits = gs.getHuman().getUnits();
+			Unit u = humanUnits.stream().max(Comparator.comparingInt(Unit::getAttack)).orElse(null);
+			validTiles.add(u.getCurrentTile(gs.getBoard()));
+        }
+	    if (card.getCardname().equals("Truestrike")) {
+    		validTiles.add(gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()));
+        }
+	    if (card.getCardname().equals("Sundrop Elixir")) {
+	    	//could potentially change for different units as well
+    		validTiles.add(gs.getAi().getAvatar().getCurrentTile(gs.getBoard()));
+        }
+	    
 	    return validTiles;
 	}
 
@@ -661,8 +699,18 @@ public class GameService {
 		removeHighlightFromAll();
 
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
-		// Move unit to tile according to the result of yFirst
-		BasicCommands.moveUnitToTile(out, unit, newTile, yFirst(currentTile, newTile, unit));
+		
+		if (!unit.getName().equals("Young Flamewing")) {
+			// Move unit to tile according to the result of yFirst
+			BasicCommands.moveUnitToTile(out, unit, newTile, yFirst(currentTile, newTile, unit));		
+			}
+		else {
+			BasicCommands.deleteUnit(out, unit);
+			BasicCommands.drawUnit(out, unit, newTile);
+			updateUnitHealth(unit, unit.getHealth());
+			updateUnitAttack(unit, unit.getAttack());
+		}
+
 
 		try {
 			Thread.sleep(2000);
@@ -901,7 +949,8 @@ public class GameService {
 	// Method in GameService class
 	public void removeFromHandAndCast( GameState gameState, Card card, Tile tile) {
 		
-		if (validCast(card, tile) == false) {
+		if (gameState.getCurrentPlayer() instanceof HumanPlayer &&
+				validCast(card, tile) == false) {
 			removeHighlightFromAll();
 			return;
 			
@@ -954,6 +1003,18 @@ public class GameService {
 	    if (card.getCardname().equals("Wraithling Swarm")) {
 	        WraithlingSwarm(card, tile);
 	    }
+	    if (card.getCardname().equals("Beamshock")) {
+	    	BeamShock.stunUnit(gameState);
+	    }
+	    if (card.getCardname().equals("Truestrike")) {
+	        Strike.TrueStrike(gameState, gameState.getHuman().getAvatar());
+	    }
+	    if (card.getCardname().equals("Sundrop Elixir")) {
+	        Elixir.Sundrop(gameState.getAi().getAvatar(), gameState);
+	    }
+	    
+	    
+	    
 	    // Decrease player's mana after casting the spell
 	    gameState.getHuman().setMana(player.getMana() - card.getManacost());
 	    updatePlayerMana(player, player.getMana());
@@ -982,12 +1043,18 @@ public class GameService {
 
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
         BasicCommands.playEffectAnimation(out, effect, tile);
+        BasicCommands.addPlayer1Notification(out, "AI sunned your" + tile.getUnit().getName(), 2);
 	}
 
 	public void healing(Tile currentTile) {
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
         BasicCommands.playEffectAnimation(out, effect, currentTile);
     }
+		public void strike(Tile tile) {
+
+        EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_inmolation);
+        BasicCommands.playEffectAnimation(out, effect, tile);
+	}
 
 }
 
