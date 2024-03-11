@@ -11,7 +11,6 @@ import structures.basic.cards.Card;
 import java.util.*;
 
 public class AIPlayer extends Player {
-
 	private final GameState gameState;
 
 	public AIPlayer(GameState gameState) {
@@ -23,10 +22,14 @@ public class AIPlayer extends Player {
 	public void takeTurn(ActorRef out, JsonNode message) {
 		// make best move
 		makeBestMove();
+		
+		for (Card card : this.hand.getCards()) {
+			System.out.println("Card: " + card.getCardname());
+		}
 
 		// ends turn
 		EndTurnClicked endTurn = new EndTurnClicked();
-		BasicCommands.addPlayer1Notification(out, "AI ends its turn", 2);
+		BasicCommands.addPlayer1Notification(out, "   AI ends its turn", 2);
 		endTurn.processEvent(out, gameState, message);
 	}
 
@@ -273,8 +276,8 @@ public class AIPlayer extends Player {
 				} else {
 					gameState.gameService.removeCardFromHandAndSummon(bestSummon.card, bestSummon.tile);
 				}
-			} else if (bestSpell != null) {/*
-				gameState.gameService.removeCardFromHandAndCastSpell(bestSpell.card, bestSpell.tile);*/
+			} else if (bestSpell != null) {
+				gameState.gameService.removeFromHandAndCast(gameState, bestSpell.card, bestSpell.tile);
 			} else if (bestSummon != null) {
 				gameState.gameService.removeCardFromHandAndSummon(bestSummon.card, bestSummon.tile);
 			} else {
@@ -298,28 +301,99 @@ public class AIPlayer extends Player {
 	// Returns the best spell card to cast
 	private PossibleSpell returnBestSpell() {
 		// Implement spell card casting
-		/*ArrayList<PossibleSpell> possibleSpells = returnAllSpells(gameState);
-		if (possibleSpells.isEmpty()) {
+		ArrayList<PossibleSpell> allSpells = returnAllSpells(gameState);
+		if (allSpells.isEmpty()) {
 			System.out.println("Spells is empty");
 			return null;
 		}
-		Set<PossibleSpell> rankedSpells = new HashSet<>(rankSpells(possibleSpells));
+		System.out.println("Spells is not empty, ranking spells to return the best one...to cast");
+		Set<PossibleSpell> rankedSpells = new HashSet<>(rankSpells(allSpells));
 		PossibleSpell bestSpell = findBestSpell(rankedSpells);
-		return bestSpell;*/
-		return null;
+		System.out.println("Best spell found: " + bestSpell.toString());
+		return bestSpell;
 	}
+
+	private Set<PossibleSpell> rankSpells(ArrayList<PossibleSpell> possibleSpells) {
+	    // Create a comparator to compare spells based on their effectiveness
+	    Comparator<PossibleSpell> spellComparator = Comparator.comparingInt(spell -> {
+	        if (spell.card.getCardname().equals("Sundrop Elixir")) {
+	            // Sundrop Elixir should be ranked higher because it heals for 4 health at a low cost
+	            return 4 * spell.card.getManacost();
+	        } else if (spell.card.getCardname().equals("True Strike")) {
+	            // True Strike deals 2 damage at a low cost
+	            return 2 * spell.card.getManacost();
+	        } else if (spell.card.getCardname().equals("Beam Shock")) {
+	            return 5; // Arbitrarily assigning a value of 5 for Beam Shock
+	        } else {
+	            // Default value for other spells
+	            return 0;
+	        }
+	    });
+
+	    // Sort the spells based on the comparator
+	    possibleSpells.sort(spellComparator);
+	    
+        System.out.println("Spells ranked:");
+        
+        Iterator<PossibleSpell> iterator = possibleSpells.iterator();
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+	    // Return a HashSet of the sorted spells
+	    return new HashSet<>(possibleSpells);
+	    
+	}
+
+
+	private PossibleSpell findBestSpell(Set<PossibleSpell> rankedSpells) {
+	    // Initialise variables to keep track of the best spell and its rank
+	    PossibleSpell bestSpell = null;
+	    int bestRank = Integer.MIN_VALUE;
+
+	    // Iterate over the set of ranked spells
+	    for (PossibleSpell spell : rankedSpells) {
+	        // Check if the current spell has a higher rank than the best spell found so far
+	        if (getSpellRank(spell) > bestRank) {
+	            // Update the best spell and its rank
+	            bestSpell = spell;
+	            bestRank = getSpellRank(spell);
+	        }
+	    }
+	    System.out.println("Best spell found: " + bestSpell.toString() + " with rank " + bestRank);
+
+	    // Return the best spell found
+	    return bestSpell;
+	}
+
+	// Helper method to calculate the rank of a spell
+	private int getSpellRank(PossibleSpell spell) {
+	    if (spell.card.getCardname().equals("Sundrop Elixir")) {
+	        return 4 * spell.card.getManacost();
+	    } else if (spell.card.getCardname().equals("True Strike")) {
+	        return 2 * spell.card.getManacost();
+	    } else if (spell.card.getCardname().equals("Beam Shock")) {
+	        return 5;
+	    } else {
+	        return 0;
+	    }
+	}
+
+
 
 	private ArrayList<PossibleSpell> returnAllSpells(GameState gameState) {
 		ArrayList<PossibleSpell> spells = new ArrayList<>();
-		/*for (Card card : this.hand.getCards()) {
-			if (card instanceof SpellCard) {
+		for (Card card : this.hand.getCards()) {
+			if (!card.isCreature()) {
 				Set<Tile> positions;
-				positions = gameState.gameService.getValidSpellTiles();
+				positions = gameState.gameService.getSpellRange(card);
 				for (Tile tile : positions) {
 					spells.add(new PossibleSpell(card, tile));
+					System.out.println("Adding spell " + card.getCardname() + " to list of possible spells");
 				}
 			}
-		}*/
+		}
+		System.out.println(Arrays.toString(spells.toArray())+ "Spells");
+		
 		return spells;
 	}
 
@@ -364,24 +438,87 @@ public class AIPlayer extends Player {
 			}
 		}
 	}
-
 	private void performMovements() {
-		while (true) {
-			ArrayList<PossibleMovement> possibleMoves = returnAllMovements(gameState);
-			if (possibleMoves == null || possibleMoves.isEmpty()) {
-				System.out.println("No more moves left on the board");
-				return;
-			}
+	    ArrayList<PossibleMovement> possibleMoves = returnAllMovements(gameState);
+	    if (possibleMoves.isEmpty()) {
+	        System.out.println("No more moves left on the board");
+	        return;
+	    }
 
-			try { Thread.sleep(1000); } catch (InterruptedException e) {
-				System.out.println("AIPlayer interrupted");
-			}
+	    for (PossibleMovement move : possibleMoves) {
+	        if (move.unit.movedThisTurn()) {
+	            continue; // Skip this movement if the unit has already moved
+	        }
 
-			Set<PossibleMovement> rankedMovements = new HashSet<>(rankMovements(possibleMoves));
-			PossibleMovement bestMove = findBestMovement(rankedMovements);
-			gameState.gameService.updateUnitPositionAndMove(bestMove.unit, bestMove.tile);
-		}
+	        // Check if the destination tile is unoccupied
+	        if (!move.tile.isOccupied()) {
+	            // Perform the move
+	            gameState.gameService.updateUnitPositionAndMove(move.unit, move.tile);
+
+	            // Mark the unit as moved
+	            move.unit.setMovedThisTurn(true);
+
+	            // Check for adjacent enemy units and attack if found
+	            performAttacksAfterMovement(move.unit);
+	        }
+	    }
 	}
+
+	private void performAttacksAfterMovement(Unit movedUnit) {
+	    // Get the current tile of the moved unit
+	    Tile currentTile = movedUnit.getCurrentTile(gameState.getBoard());
+
+	    // Get adjacent tiles
+	    List<Tile> adjacentTiles = gameState.getBoard().getAdjacentTiles(currentTile);
+
+	    // Check each adjacent tile for enemy units
+	    for (Tile tile : adjacentTiles) {
+	        if (tile.isOccupied() && tile.getUnit().getOwner() != movedUnit.getOwner()) {
+	            // Perform the attack
+	            gameState.gameService.attack(movedUnit, tile.getUnit());
+
+	            // Break the loop after performing one attack
+	            return;
+	        }
+	    }
+	}
+
+
+
+
+
+	private void performAttacks(boolean postMove) {
+	    ArrayList<PossibleAttack> attacks = returnAllAttacks(gameState);
+	    if (attacks.isEmpty()) {
+	        System.out.println("No more actions left on the board");
+	        return;
+	    }
+
+	    for (PossibleAttack attack : attacks) {
+	        if (postMove && !attack.unit.movedThisTurn()) continue; // Skip if the unit has moved but we're not in post-move mode
+	        if (gameState.gameService.isWithinAttackRange(attack.unit.getCurrentTile(gameState.getBoard()), attack.tile)) {
+	            gameState.gameService.attack(attack.unit, attack.tile.getUnit());
+	        }
+	    }
+	}
+
+//	private void performMovements() {
+//		while (true) {
+//			ArrayList<PossibleMovement> possibleMoves = returnAllMovements(gameState);
+//			if (possibleMoves == null || possibleMoves.isEmpty()) {
+//				System.out.println("No more moves left on the board");
+//				return;
+//			}
+//
+//			try { Thread.sleep(1000); } catch (InterruptedException e) {
+//				System.out.println("AIPlayer interrupted");
+//			}
+//
+//			Set<PossibleMovement> rankedMovements = new HashSet<>(rankMovements(possibleMoves));
+//			PossibleMovement bestMove = findBestMovement(rankedMovements);
+//			gameState.gameService.updateUnitPositionAndMove(bestMove.unit, bestMove.tile);
+//		}
+//	}
 
 
 	@Override

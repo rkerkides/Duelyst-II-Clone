@@ -11,7 +11,7 @@ public class Strike {
 		if (u != null && u.getOwner() instanceof HumanPlayer) {
 			
 			gs.gameService.updateUnitHealth(u, u.getHealth() - 2);
-			gs.gameService.stunning(u.getCurrentTile(gs.getBoard()));
+			gs.gameService.strike(u.getCurrentTile(gs.getBoard()));
 		}
 		
 		

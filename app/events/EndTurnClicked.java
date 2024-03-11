@@ -40,8 +40,7 @@ public class EndTurnClicked implements EventProcessor{
 
 		// Clear the action history, as the turn has ended
 		gameState.getActionHistory().clear();
-		System.out.println(BeamShock.stunnedUnit+" stunned unit is not stunned anymore");
-		BeamShock.stunnedUnit=null;
+
 
 
 		if (gameState.getCurrentPlayer() instanceof AIPlayer) {

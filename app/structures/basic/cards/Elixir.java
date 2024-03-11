@@ -55,7 +55,7 @@ public class Elixir {
 	        
 	    }
 	
-	public void Sundrop(Unit unit, GameState gs) {
+	public static void Sundrop(Unit unit, GameState gs) {
 		// implement healing effect by 4 health
 		if (unit != null && unit.getHealth() < unit.getMaxHealth() &&
 				unit.getOwner() instanceof AIPlayer ) {
