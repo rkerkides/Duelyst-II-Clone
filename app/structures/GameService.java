@@ -189,7 +189,6 @@ public class GameService {
 		owner.removeUnit(unit);
 		unit.setOwner(null);
 		gs.removeFromTotalUnits(1);
-		System.out.println("unit removed from totalunits");
 		BasicCommands.playUnitAnimation(out, unit, UnitAnimationType.death);
 		try {
 			Thread.sleep(2000);
@@ -262,10 +261,8 @@ public class GameService {
 
 		// After moving, perform the attack if the attacker is now adjacent to the defender
 		if (isWithinAttackRange(attacker.getCurrentTile(gs.getBoard()), defenderTile)) {
-			System.out.println("Attacker moved to adjacent tile and is now attacking.");
 			attack(attacker, attacked);
 		} else {
-			System.out.println("Attacker could not move close enough to perform an attack.");
 		}
 	}
 
@@ -408,7 +405,6 @@ public class GameService {
 			if (Math.abs(tilex - unit.getPosition().getTilex()) < 2 && Math.abs(tiley - unit.getPosition().getTiley()) < 2) {
 				if (unit.getName().equals("Rock Pulveriser") || unit.getName().equals("Swamp Entangler") ||
 						unit.getName().equals("Silverguard Knight") || unit.getName().equals("Ironcliff Guardian")) {
-					System.out.println("Provoker " + unit.getName() + " in the house.");
 					provokers.add(unit.getPosition());
 				}
 			}
@@ -472,7 +468,6 @@ public class GameService {
 		// Attack adjacent units if there are any
 		if (!provokers.isEmpty()) {
 			for (Position position : provokers) {
-				System.out.println(position + "provoker position");
 				Tile provokerTile = gs.getBoard().getTile(position.getTilex(), position.getTiley());
 				validAttacks.add(provokerTile);
 			}
@@ -540,7 +535,6 @@ public class GameService {
 	// Counter attack an enemy unit and play the attack animation
 	public void counterAttack(Unit originalAttacker, Unit counterAttacker) {
 		if (counterAttacker.getHealth() > 0) {
-			System.out.println("Counter attacking");
 			attack(counterAttacker, originalAttacker);
 			counterAttacker.setAttackedThisTurn(false);
 			counterAttacker.setMovedThisTurn(false);
@@ -551,7 +545,6 @@ public class GameService {
 	public void highlightSpellRange(Card card, Player player) {
 		// Validate inputs
 		if (card == null  || player == null) {
-			System.out.println("Invalid parameters for highlighting summon range.");
 			return;
 		}
 		if (!card.isCreature()) {
@@ -573,7 +566,6 @@ public class GameService {
 			}
 		}
 
-		System.out.println("Highlighting spellragne " + card.getCardname());
 	}
 
 	// highlight tiles for summoning units
@@ -662,7 +654,6 @@ public class GameService {
 	public boolean isValidSummon(Card card, Tile tile) {
 		// depending on cards, this may change
 		// for now, all cards can move to tiles highlighted white
-		System.out.println("isValidSummon: " + tile.getHighlightMode());
 		return tile.getHighlightMode() == 1;
 	}
 
@@ -680,7 +671,6 @@ public class GameService {
 
 	public void updateUnitPositionAndMove(Unit unit, Tile newTile) {
 		if (newTile.getHighlightMode() != 1 && gs.getCurrentPlayer() instanceof HumanPlayer) {
-			System.out.println("New tile is not highlighted for movement");
 			removeHighlightFromAll();
 			return;
 		}
@@ -768,7 +758,6 @@ public class GameService {
 
     // remove card from hand and summon unit
     public void removeCardFromHandAndSummon(Card card, Tile tile) {
-    	System.out.println("Removing card from hand and summoning" + card.getCardname());
 
 		Player player = gs.getCurrentPlayer();
 		Hand hand = player.getHand();
@@ -782,7 +771,6 @@ public class GameService {
 				}
 			}
 		}
-		System.out.println("Current card: " + card.getCardname() + " position " + handPosition);
 
 		// check if enough mana
 		if (player.getMana() < card.getManacost()) {
@@ -823,7 +811,6 @@ public class GameService {
 		player.addUnit(unit);
 		gs.addToTotalUnits(1);
 		gs.addUnitstoBoard(unit);
-		System.out.println("Unit added to board: " + ( gs.getTotalUnits()));
 		// remove highlight from all tiles
 		removeHighlightFromAll();
 
@@ -862,7 +849,6 @@ public class GameService {
 		}
 
 
-		System.out.println("Summoning unit " + unit + " to tile " + tile.getTilex() + ", " + tile.getTiley());
 	}
 
 	public void setCurrentCardClickedAndHighlight(int handPosition) {
@@ -921,7 +907,6 @@ public class GameService {
                 updateUnitAttack(unit, newAttack);
 				EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
 				BasicCommands.playEffectAnimation(out, effect, unit.getCurrentTile(gs.getBoard()));
-				System.out.println("BUFFED!");
             }
         }
     }
@@ -988,7 +973,6 @@ public class GameService {
 	        HornOfTheForesaken(card);
 	        // Increase player's robustness after casting the spell
 	        gameState.getCurrentPlayer().setRobustness(player.getRobustness() + 3);
-	        System.out.println("Player's robustness: " + player.getRobustness());
 	    } 
 	    if (card.getCardname().equals("Dark Terminus")) {
 	        // Check if the targeted tile contains an enemy unit
