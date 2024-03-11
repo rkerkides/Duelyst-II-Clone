@@ -142,7 +142,7 @@ public class AIPlayer extends Player {
 
 					// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
 				} else if (attack.tile.getUnit() == gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
-					attack.moveQuality = 8;
+					attack.moveQuality = 9;
 
 					// Value for attacking any unit not being the avatar by non-avatar AI units
 				} else if (attack.tile.getUnit() != gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
