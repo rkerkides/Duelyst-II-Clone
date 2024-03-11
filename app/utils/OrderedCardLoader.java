@@ -32,7 +32,6 @@ public class OrderedCardLoader {
 			for (String filename :filenames) {
 				if (filename.startsWith("1_")) {
 					// this is a deck 1 card
-					System.out.println(filename);
 					cardsInDeck.add(BasicObjectBuilders.loadCard(cardsDIR+filename, counter++, Card.class));
 				}
 			}
