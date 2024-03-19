@@ -6,7 +6,6 @@ import commands.BasicCommands;
 import events.EndTurnClicked;
 import structures.GameState;
 import structures.basic.*;
-import structures.basic.cards.BeamShock;
 import structures.basic.cards.Card;
 
 import java.util.*;
@@ -93,43 +92,62 @@ public class AIPlayer extends Player {
 		Set<PossibleMovement> moves = new HashSet<>(movements);
 
 		for (PossibleMovement move : moves) {
-			if (!move.unit.movedThisTurn() && !move.unit.attackedThisTurn()) {
-				ArrayList<Unit> enemyUnits = (ArrayList<Unit>) gameState.getHuman().getUnits();
+			Unit unit = move.unit;
+			// Reset score for each potential movement
+			int score = 0;
 
-				int maxScore = 0; // Initialize to minimum possible score
+			if (!unit.movedThisTurn() && !unit.attackedThisTurn()) {
+				// Check if the unit has the provoke ability
+				boolean isProvoker = unit.getName().equals("Swamp Entangler") ||
+						unit.getName().equals("Rock Pulveriser") ||
+						unit.getName().equals("Silverguard Knight") ||
+						unit.getName().equals("Ironcliff Guardian");
 
-				for (Unit enemy : enemyUnits) {
-					int score = 0;
-					int distanceX = Math.abs(move.tile.getTilex() - enemy.getPosition().getTilex());
-					int distanceY = Math.abs(move.tile.getTiley() - enemy.getPosition().getTiley());
-					int distanceScore = 9 - (distanceX + distanceY);
+				if (isProvoker) {
+					// Score based on proximity to the avatar, closer is better
+					int distanceToAvatar = calculateDistance(move.tile, avatar.getCurrentTile(gameState.getBoard()));
+					int proximityScore = Math.max(0, 100 - distanceToAvatar * 10);
 
-					if (move.unit.getAttack() == 0) {
-						// If unit has low attack, invert the score to prioritize moving away
-						distanceScore = -(distanceScore);
+					score += proximityScore;
+
+					// Optionally, adjust score based on positioning relative to enemies
+					for (Unit enemy : gameState.getHuman().getUnits()) {
+						int distanceToEnemy = calculateDistance(move.tile, enemy.getCurrentTile(gameState.getBoard()));
+						// Optionally, deprioritize movements that would leave the provoker too far from enemies
+						score -= Math.max(0, distanceToEnemy - 2) * 5; // Encourage staying within engagement range of enemies
 					}
+				} else {
+					// Scoring for non-provoker units can be adjusted here as needed
+					ArrayList<Unit> enemyUnits = (ArrayList<Unit>) gameState.getHuman().getUnits();
+					for (Unit enemy : enemyUnits) {
+						int distanceX = Math.abs(move.tile.getTilex() - enemy.getPosition().getTilex());
+						int distanceY = Math.abs(move.tile.getTiley() - enemy.getPosition().getTiley());
+						int distanceScore = 9 - (distanceX + distanceY);
 
-					if (move.unit.getName().equals("AI Avatar")) {
-						// Prioritize keeping the avatar close to other friendly units
+						score += distanceScore;
+						score += (20 - enemy.getHealth()); // More aggressively move towards lower health units
 
-					}
+						if (enemy == gameState.getHuman().getAvatar()) {
+							score += 18; // Prioritize attacking the primary human player unit
+						}
 
-					score += distanceScore;
-					score += (20 - enemy.getHealth()); // More aggressively move towards lower health units
-
-					if (enemy == gameState.getHuman().getAvatar()) {
-						score += 5; // Prioritize attacking the primary human player unit
-					}
-
-					if (score > maxScore) {
-						move.moveQuality = score; // Higher score for more desirable moves
-						maxScore = score;
+						if (enemy.getHealth() <= unit.getAttack()) {
+							score += 20; // Prioritize attacking lethal targets
+						}
 					}
 				}
+
+				move.moveQuality = score;
 			}
 		}
 		return moves;
 	}
+
+	// Helper method to calculate distance between two tiles
+	private int calculateDistance(Tile a, Tile b) {
+		return Math.abs(a.getTilex() - b.getTilex()) + Math.abs(a.getTiley() - b.getTiley());
+	}
+
 
 	private Set<PossibleAttack> rankAttacks(ArrayList<PossibleAttack> attacks) {
 		System.out.println("Ranking possible attacks...");
@@ -140,31 +158,44 @@ public class AIPlayer extends Player {
 		Set<PossibleAttack> rankedAttacks = new HashSet<>(attacks);
 
 		for (PossibleAttack attack : rankedAttacks) {
-			if (!attack.unit.attackedThisTurn()) {
+			Unit target = attack.tile.getUnit();
+			Unit attacker = attack.unit;
+			if (!attacker.attackedThisTurn()) {
 				// Penalize units with no attack
-				if (attack.unit.getAttack() == 0) {
-					System.out.println("Unit " + attack.unit + " has no attack");
+				if (attacker.getAttack() == 0) {
+					System.out.println("Unit " + attacker + " has no attack");
 					attack.moveQuality = -1;
 				}
 				// Prioritize eliminating a unit by checking if the attack is lethal
-				else if (attack.tile.getUnit().getHealth() <= attack.unit.getAttack()) {
+				else if (target.getHealth() <= attacker.getAttack()) {
 					attack.moveQuality = 10; // Assign the highest value for lethal attacks
 
 				// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
-				} else if (attack.tile.getUnit() == gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
+				} else if (target == gameState.getHuman().getAvatar() && attacker != this.avatar) {
 					attack.moveQuality = 9;
 
+				// Avatar should only attack opposing avatar if it has more health than the target
+				} else if (target == gameState.getHuman().getAvatar() && attacker == this.avatar) {
+					if (attacker.getHealth() > target.getHealth()) {
+						attack.moveQuality = 8;
+					} else {
+						attack.moveQuality = -1;
+					}
 				// Value for attacking any unit not being the avatar by non-avatar AI units
-				} else if (attack.tile.getUnit() != gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
-					attack.moveQuality = 5;
-
+				} else if (target != gameState.getHuman().getAvatar() && attacker != this.avatar) {
+					// Don't attack if counterattack will result in death
+					if (target.getAttack() > attacker.getHealth()) {
+						attack.moveQuality = -1;
+					} else {
+						attack.moveQuality = 5;
+					}
 				// Generic attack value
 				} else {
 					attack.moveQuality = 0;
 				}
 			}
 
-			System.out.println("Attack " + attack.unit + " value = " + attack.moveQuality);
+			System.out.println("Attack " + attacker + " value = " + attack.moveQuality);
 		}
 		return rankedAttacks;
 	}
@@ -175,19 +206,48 @@ public class AIPlayer extends Player {
 			return null;
 		}
 
+		Unit opponentAvatar = gameState.getHuman().getAvatar();
+		Tile opponentAvatarTile = opponentAvatar.getCurrentTile(gameState.getBoard());
+		Tile aiAvatarTile = this.avatar.getCurrentTile(gameState.getBoard());
+
 		Set<PossibleSummon> rankedSummons = new HashSet<>(summons);
 
 		for (PossibleSummon summon : rankedSummons) {
 			if (summon.card.getManacost() <= this.mana) {
+				Tile summonTile = summon.tile;
+				int score = 0;
+
+				// Encourage summoning closer to the opponent's avatar
+				int distanceToOpponentAvatar = calculateDistance(summonTile, opponentAvatarTile);
+				score += (100 - distanceToOpponentAvatar * 5); // Adjust scoring as needed
+
+				// Optionally, increase score for positions between the AI avatar and opponent units
+				boolean isBetween = isTileBetween(aiAvatarTile, summonTile, opponentAvatarTile);
+				if (isBetween) {
+					score += 50; // Bonus for strategic positioning
+				}
+
+				// Score adjustments for summoning powerful units in advantageous positions
 				if (summon.card.getManacost() < summon.card.getBigCard().getAttack()) {
-					summon.moveQuality = 6;
+					score += 30;
+				} else {
+					score += 20;
 				}
-				else {
-					summon.moveQuality = 5;
-				}
+
+				summon.moveQuality = score;
 			}
 		}
 		return rankedSummons;
+	}
+
+	// Helper method to determine if a tile is between two other tiles
+	private boolean isTileBetween(Tile aiAvatarTile, Tile summonTile, Tile opponentAvatarTile) {
+		boolean isBetweenX = (summonTile.getTilex() >= Math.min(aiAvatarTile.getTilex(), opponentAvatarTile.getTilex())) &&
+				(summonTile.getTilex() <= Math.max(aiAvatarTile.getTilex(), opponentAvatarTile.getTilex()));
+		boolean isBetweenY = (summonTile.getTiley() >= Math.min(aiAvatarTile.getTiley(), opponentAvatarTile.getTiley())) &&
+				(summonTile.getTiley() <= Math.max(aiAvatarTile.getTiley(), opponentAvatarTile.getTiley()));
+
+		return isBetweenX && isBetweenY;
 	}
 
 	private PossibleSummon findBestSummon(Set<PossibleSummon> summons) {
@@ -450,26 +510,28 @@ public class AIPlayer extends Player {
 		}
 	}
 	private void performMovements() {
-	    ArrayList<PossibleMovement> possibleMoves = returnAllMovements(gameState);
-	    if (possibleMoves.isEmpty()) {
-	        System.out.println("No more moves left on the board");
-	        return;
-	    }
+		while (true) {
+			ArrayList<PossibleMovement> possibleMoves = returnAllMovements(gameState);
+			if (possibleMoves.isEmpty()) {
+				System.out.println("No more moves left on the board");
+				return;
+			}
 
-		Set<PossibleMovement> rankedMovements = new HashSet<>(rankMovements(possibleMoves));
-		PossibleMovement bestMove = findBestMovement(rankedMovements);
+			Set<PossibleMovement> rankedMovements = new HashSet<>(rankMovements(possibleMoves));
+			PossibleMovement bestMove = findBestMovement(rankedMovements);
 
-		if (bestMove == null || bestMove.unit.movedThisTurn() || bestMove.unit.attackedThisTurn()) {
-			return;
-		}
+			if (bestMove == null || bestMove.unit.movedThisTurn() || bestMove.unit.attackedThisTurn()) {
+				return;
+			}
 
-		// Check if the destination tile is unoccupied
-		if (!bestMove.tile.isOccupied()) {
-			// Perform the move
-			gameState.gameService.updateUnitPositionAndMove(bestMove.unit, bestMove.tile);
+			// Check if the destination tile is unoccupied
+			if (!bestMove.tile.isOccupied()) {
+				// Perform the move
+				gameState.gameService.updateUnitPositionAndMove(bestMove.unit, bestMove.tile);
 
-			// Check for adjacent enemy units and attack if found
-			performAttacksAfterMovement(bestMove.unit);
+				// Check for adjacent enemy units and attack if found
+				performAttacksAfterMovement(bestMove.unit);
+			}
 		}
 	}
 
@@ -483,30 +545,14 @@ public class AIPlayer extends Player {
 	    // Check each adjacent tile for enemy units
 	    for (Tile tile : adjacentTiles) {
 	        if (tile.isOccupied() && tile.getUnit().getOwner() != movedUnit.getOwner()) {
+				if (movedUnit.getAttack() == 0) {
+					return;
+				}
 	            // Perform the attack
 	            gameState.gameService.attack(movedUnit, tile.getUnit());
 
 	            // Break the loop after performing one attack
 	            return;
-	        }
-	    }
-	}
-
-
-
-
-
-	private void performAttacks(boolean postMove) {
-	    ArrayList<PossibleAttack> attacks = returnAllAttacks(gameState);
-	    if (attacks.isEmpty()) {
-	        System.out.println("No more actions left on the board");
-	        return;
-	    }
-
-	    for (PossibleAttack attack : attacks) {
-	        if (postMove && !attack.unit.movedThisTurn()) continue; // Skip if the unit has moved but we're not in post-move mode
-	        if (gameState.gameService.isWithinAttackRange(attack.unit.getCurrentTile(gameState.getBoard()), attack.tile)) {
-	            gameState.gameService.attack(attack.unit, attack.tile.getUnit());
 	        }
 	    }
 	}

@@ -835,6 +835,13 @@ public class GameService {
 		if (!unit.getName().equals("Saberspine Tiger")) {
 			unit.setMovedThisTurn(true);
 			unit.setAttackedThisTurn(true);
+		} else {
+			BasicCommands.addPlayer1Notification(out, "Saberspine Tiger is in a rush!", 3);
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		if (card.getCardname().equals("Gloom Chaser")) {
 		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
@@ -1041,7 +1048,12 @@ public class GameService {
 
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
         BasicCommands.playEffectAnimation(out, effect, tile);
-        BasicCommands.addPlayer1Notification(out, "AI used Beamshock! " + tile.getUnit().getName() + " is stunned.", 2);
+        BasicCommands.addPlayer1Notification(out, "Beamshock! " + tile.getUnit().getName() + " is stunned.", 3);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void healing(Tile currentTile) {
