@@ -76,8 +76,6 @@ public class TileClicked implements EventProcessor {
 	 * @param tile
 	 */
 	private void handleSpellCasting(ActorRef out, GameState gameState, Card card, Tile tile) {
-	    Player player = gameState.getCurrentPlayer();
-
 	    // Check if player has sufficient mana for casting the spell
 	    if (gameState.getHuman().getMana() < card.getManacost()) {
 	        // Notify the player of insufficient mana
@@ -88,7 +86,7 @@ public class TileClicked implements EventProcessor {
 	    }
 
 	    // Call the method to remove the card from hand and cast the spell
-	    gameState.gameService.removeFromHandAndCast( gameState, card, tile);
+	    gameState.gameService.removeFromHandAndCast(gameState, card, tile);
 
 
 	    // Remove highlight from all tiles

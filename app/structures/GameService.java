@@ -26,7 +26,6 @@ public class GameService {
 	private final ActorRef out;
 	private final GameState gs;
 
-
 	public GameService(ActorRef out, GameState gs) {
 		this.out = out;
 		this.gs = gs;
@@ -568,12 +567,12 @@ public class GameService {
 			}
 			if (card.getCardname().equals("Wraithling Swarm")) {
 				validCastTiles.forEach(tile -> updateTileHighlight(tile, 1));
-				BasicCommands.addPlayer1Notification(out, "You have 3 wraightlings to place", 2);
+				BasicCommands.addPlayer1Notification(out, "You have 3 wraithlings to place", 2);
 				return;
 			}
 		}
 
-		System.out.println("Highlighting spellragne " + card.getCardname());
+		System.out.println("Highlighting spellrange " + card.getCardname());
 	}
 
 	// highlight tiles for summoning units
@@ -927,30 +926,30 @@ public class GameService {
     }
 
 	public void WraithlingSwarm(Card card, Tile tile) {
+		// Number of Wraithlings to summon
+		Wraithling.summonWraithlingToTile(tile, out, gs);
+		HumanPlayer player = (HumanPlayer) gs.getHuman();
+		player.setWraithlingSwarmCounter(player.getWraithlingSwarmCounter() - 1);
 
-	   	         // Number of Wraithlings to summon
-	            Wraithling.summonWraithlingToTile(tile, out, gs);
-	            Wraithling.WraithlingSwarm--;
-
-	            // If there are more Wraithlings to summon, push the card to action history
-	            if (Wraithling.WraithlingSwarm > 0) {
-					// Highlight tiles for summoning
-					highlightSpellRange(card, gs.getCurrentPlayer());
-		            BasicCommands.addPlayer1Notification(out, "You can summon "
-	            + Wraithling.WraithlingSwarm +" more wraithlings", 5);
-	                gs.getActionHistory().push(card);
-	                gs.getCurrentPlayer().setMana(gs.getCurrentPlayer().getMana() + card.getManacost());
-	            } else {
-	                // Remove highlight from all tiles and update hand positions
-	            	BasicCommands.addPlayer1Notification(out, "No more wraithlings for you!", 5);
-	            }
-	        }
+		// If there are more Wraithlings to summon, push the card to action history
+		if (player.getWraithlingSwarmCounter() > 0) {
+			// Highlight tiles for summoning
+			highlightSpellRange(card, gs.getCurrentPlayer());
+			BasicCommands.addPlayer1Notification(out, "You can summon " + player.getWraithlingSwarmCounter() +" more wraithlings", 5);
+			gs.getActionHistory().push(card);
+			gs.getCurrentPlayer().setMana(gs.getCurrentPlayer().getMana() + card.getManacost());
+		} else {
+			// Remove highlight from all tiles and update hand positions
+			BasicCommands.addPlayer1Notification(out, "No more wraithlings for you!", 5);
+			player.setWraithlingSwarmCounter(3);
+		}
+	}
 
 	// Method in GameService class
 	public void removeFromHandAndCast( GameState gameState, Card card, Tile tile) {
 		
 		if (gameState.getCurrentPlayer() instanceof HumanPlayer &&
-				validCast(card, tile) == false) {
+                !validCast(card, tile)) {
 			removeHighlightFromAll();
 			return;
 			
@@ -1027,6 +1026,10 @@ public class GameService {
 		}
 		if (card.getCardname().equals("Dark Terminus") 
 				&& !(tile.getHighlightMode() == 2)) {
+			return false;
+		}
+		if (card.getCardname().equals("Wraithling Swarm")
+				&& !(tile.getHighlightMode() == 1)) {
 			return false;
 		}
 		return true;
