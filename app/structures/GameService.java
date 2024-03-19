@@ -916,16 +916,21 @@ public class GameService {
     }
 
     public void zeal() {
-        for (Unit unit : gs.getAi().getUnits()) {
-            if (unit.getName().equals("Silverguard Knight")) {
-                int newAttack = unit.getAttack() + 2;
-                updateUnitAttack(unit, newAttack);
+		for (Unit unit : gs.getAi().getUnits()) {
+			if (unit.getName().equals("Silverguard Knight")) {
+				int newAttack = unit.getAttack() + 2;
+				updateUnitAttack(unit, newAttack);
 				EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
 				BasicCommands.playEffectAnimation(out, effect, unit.getCurrentTile(gs.getBoard()));
-				System.out.println("BUFFED!");
-            }
-        }
-    }
+				BasicCommands.addPlayer1Notification(out, "Silverguard Knight's zeal!", 3);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	public void WraithlingSwarm(Card card, Tile tile) {
 		// Number of Wraithlings to summon
