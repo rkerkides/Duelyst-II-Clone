@@ -131,7 +131,7 @@ public class GameService {
 		if (unit.getName().equals("Player Avatar") &&
 				unit.getHealth() > newHealth && gs.getHuman().getRobustness() > 0){
 			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
-		    BasicCommands.addPlayer1Notification(out, "Player's robustness left: " + gs.getHuman().getRobustness(), 4);
+		    BasicCommands.addPlayer1Notification(out, "Avatar robustness left: " + gs.getHuman().getRobustness(), 4);
 
 		}
 		
@@ -170,8 +170,8 @@ public class GameService {
 
 	public void performUnitDeath(Unit unit) {
 		
-		if(unit.getId()<999) {
-			ShadowDancer.Deathwatch(gs);
+		if(unit.getId()<999 && !unit.getName().equals("Player Avatar")  && !unit.getName().equals("AI Avatar")) {
+			ShadowDancer.Deathwatch(gs, out);
 			//BloodmoonPriestess summons a wraithling after each units removal
 			BloodmoonPriestess.BloodmoonPriestessDeathwatch(out, gs, this);
 

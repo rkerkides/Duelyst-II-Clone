@@ -1,11 +1,13 @@
 package structures.basic.cards;
 
+import akka.actor.ActorRef;
+import commands.BasicCommands;
 import structures.GameState;
 import structures.basic.Unit;
 
 public class ShadowDancer extends Unit {
 	
-	public static void Deathwatch(GameState gs) {
+	public static void Deathwatch(GameState gs, ActorRef out) {
 		
 		Unit humanAvatar=gs.getHuman().getAvatar();
 		Unit aiAvatar=gs.getAi().getAvatar();
@@ -17,7 +19,9 @@ public class ShadowDancer extends Unit {
             	gs.gameService.healing(humanAvatar.getCurrentTile(gs.getBoard()));
             	
             	gs.gameService.updateUnitHealth(aiAvatar, aiAvatar.getHealth() - 1);
-            	gs.gameService.stunning(aiAvatar.getCurrentTile(gs.getBoard()));
+            	gs.gameService.strike(aiAvatar.getCurrentTile(gs.getBoard()));
+
+				BasicCommands.addPlayer1Notification(out, "Shadowdancer heals avatar and hurts enemy!", 3);
 
 			}
         }
