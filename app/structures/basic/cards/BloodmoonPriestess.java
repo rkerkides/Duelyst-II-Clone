@@ -7,11 +7,6 @@ import structures.basic.Unit;
 
 public class BloodmoonPriestess {
 
-
-
-
-    // method to check if bad omen is onthe board and increment attack each time someone dies.
-
     public static void BloodmoonPriestessDeathwatch( ActorRef out, GameState gameState, GameService gs) {
 
         for(Unit unit:gameState.getUnits()){

@@ -20,8 +20,6 @@ import utils.BasicObjectBuilders;
 import utils.StaticConfFiles;
 
 public class Wraithling extends Unit{
-	
-	public static int WraithlingSwarm=3;
 	private static int id=1000;
 
 	public static void summonGloomChaserWraithling(Tile tile, ActorRef out, GameState gameState) {

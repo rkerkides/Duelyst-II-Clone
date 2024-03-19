@@ -11,6 +11,7 @@ import structures.basic.Tile;
 import structures.basic.Unit;
 import structures.basic.cards.BeamShock;
 import structures.basic.cards.Card;
+import structures.basic.player.AIPlayer;
 import structures.basic.player.Player;
 
 /**
@@ -76,8 +77,6 @@ public class TileClicked implements EventProcessor {
 	 * @param tile
 	 */
 	private void handleSpellCasting(ActorRef out, GameState gameState, Card card, Tile tile) {
-	    Player player = gameState.getCurrentPlayer();
-
 	    // Check if player has sufficient mana for casting the spell
 	    if (gameState.getHuman().getMana() < card.getManacost()) {
 	        // Notify the player of insufficient mana
@@ -88,7 +87,7 @@ public class TileClicked implements EventProcessor {
 	    }
 
 	    // Call the method to remove the card from hand and cast the spell
-	    gameState.gameService.removeFromHandAndCast( gameState, card, tile);
+	    gameState.gameService.removeFromHandAndCast(gameState, card, tile);
 
 
 	    // Remove highlight from all tiles
@@ -113,7 +112,8 @@ public class TileClicked implements EventProcessor {
 			gameState.gameService.removeHighlightFromAll();
 			return;
 		}
-		if (BeamShock.stunnedUnit==unit) {
+		AIPlayer ai = (AIPlayer) gameState.getAi();
+		if (ai.stunnedUnit==unit) {
 			System.out.println("Unit is stunned.");
 			unit.setMovedThisTurn(true);
 			gameState.gameService.removeHighlightFromAll();

@@ -26,7 +26,6 @@ public class GameService {
 	private final ActorRef out;
 	private final GameState gs;
 
-
 	public GameService(ActorRef out, GameState gs) {
 		this.out = out;
 		this.gs = gs;
@@ -41,6 +40,9 @@ public class GameService {
 			BasicCommands.setPlayer1Health(out, player);
 		} else {
 			BasicCommands.setPlayer2Health(out, player);
+		}
+		if (newHealth <= 0) {
+			gs.endGame(out);
 		}
 	}
 
@@ -121,23 +123,20 @@ public class GameService {
 	public void updateUnitHealth(Unit unit, int newHealth) {
 
 		if (newHealth > 20) {
-			return;
+			newHealth = 20;
+		} else if (newHealth < 0) {
+			newHealth = 0;
 		}
 
 		if (unit.getName().equals("Player Avatar") &&
 				unit.getHealth() > newHealth && gs.getHuman().getRobustness() > 0){
 			gs.getHuman().setRobustness(gs.getHuman().getRobustness()-1);
-		    BasicCommands.addPlayer1Notification(out, "Player's robustness left: " + gs.getHuman().getRobustness(), 4);
+		    BasicCommands.addPlayer1Notification(out, "Avatar robustness left: " + gs.getHuman().getRobustness(), 4);
 
 		}
 		
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
-		try {
-			Thread.sleep(30);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if (newHealth <= 0) {
+		if (newHealth == 0) {
 			performUnitDeath(unit);
 			return;
 		}
@@ -171,15 +170,19 @@ public class GameService {
 
 	public void performUnitDeath(Unit unit) {
 		
-		if(unit.getId()<999) {
-			ShadowDancer.Deathwatch(gs);
-			//BloodmoonPriestess summons a wraithling after each units removal
-			BloodmoonPriestess.BloodmoonPriestessDeathwatch(out, gs, this);
-
-			//invoke Shadow Watcher Deathwatch ability
-			ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
-			// Check for Bad Omen units after a unit dies
-			BadOmen.BadOmenDeathwatch(out, gs, this, unit);
+		if(unit.getId()<999 && !unit.getName().equals("Player Avatar")  && !unit.getName().equals("AI Avatar")) {
+			if (!unit.getName().equals("Shadowdancer")) {
+				ShadowDancer.Deathwatch(gs, out);
+			}
+			if (!unit.getName().equals("Bloodmoon Priestess")) {
+				BloodmoonPriestess.BloodmoonPriestessDeathwatch(out, gs, this);
+			}
+			if (!unit.getName().equals("Shadow Watcher")) {
+				ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
+			}
+			if (!unit.getName().equals("Bad Omen")) {
+				BadOmen.BadOmenDeathwatch(out, gs, this, unit);
+			}
 		}
 
 		// remove unit from board
@@ -322,13 +325,14 @@ public class GameService {
 	public Set<Tile> calculateValidMovement(Tile[][] board, Unit unit) {
 		
 		Set<Tile> validTiles = new HashSet<>();
-		
-		if (unit.getName().equals("Young Flamewing")) {
-			return gs.getBoard().getAllUnoccupiedTiles(board);
-		}
+
 		// Skip calculation if unit is provoked or has moved/attacked this turn
 		if (checkProvoked(unit) || unit.movedThisTurn() || unit.attackedThisTurn()) {
 			return validTiles;
+		}
+
+		if (unit.getName().equals("Young Flamewing")) {
+			return gs.getBoard().getAllUnoccupiedTiles(board);
 		}
 
 		Player currentPlayer = unit.getOwner();
@@ -346,15 +350,6 @@ public class GameService {
 		}
 
 		return validTiles;
-	}
-
-
-
-
-	public Set<Tile> calculateSpellTargets(Card card) {
-		Set<Tile> validSpellTargets = new HashSet<>();
-		// Logic to determine valid spell targets
-		return validSpellTargets;
 	}
 
 	// Helper method to add a valid tile to the set of valid actions if the conditions are met
@@ -390,11 +385,6 @@ public class GameService {
 	// Checks if a tile position is within the boundaries of the game board
 	private boolean isValidTile(int x, int y) {
 		return x >= 0 && y >= 0 && x < 9 && y < 5; // Assuming a 9x5 board
-	}
-
-	// Determines if a unit is considered friendly based on current game state
-	private boolean isFriendlyUnit(Unit unit) {
-		return gs.getCurrentPlayer().getUnits().contains(unit);
 	}
 
 	// Checks if provoke unit is present on the board and around the tile on which an alleged enemy unit (target) is located
@@ -434,7 +424,7 @@ public class GameService {
 
 				// Check if the opponent unit is adjacent to the current unit
 				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
-					BasicCommands.addPlayer1Notification(out, "You are provoked!", 2);
+					BasicCommands.addPlayer1Notification(out, unit.getName() + " is provoked!", 2);
 					return true;
 				}
 			}
@@ -568,12 +558,12 @@ public class GameService {
 			}
 			if (card.getCardname().equals("Wraithling Swarm")) {
 				validCastTiles.forEach(tile -> updateTileHighlight(tile, 1));
-				BasicCommands.addPlayer1Notification(out, "You have 3 wraightlings to place", 2);
+				BasicCommands.addPlayer1Notification(out, "You have 3 wraithlings to place", 2);
 				return;
 			}
 		}
 
-		System.out.println("Highlighting spellragne " + card.getCardname());
+		System.out.println("Highlighting spellrange " + card.getCardname());
 	}
 
 	// highlight tiles for summoning units
@@ -699,18 +689,13 @@ public class GameService {
 		removeHighlightFromAll();
 
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
-		
-		if (!unit.getName().equals("Young Flamewing")) {
-			// Move unit to tile according to the result of yFirst
-			BasicCommands.moveUnitToTile(out, unit, newTile, yFirst(currentTile, newTile, unit));		
-			}
-		else {
-			BasicCommands.deleteUnit(out, unit);
-			BasicCommands.drawUnit(out, unit, newTile);
-			updateUnitHealth(unit, unit.getHealth());
-			updateUnitAttack(unit, unit.getAttack());
-		}
 
+		// Move unit to tile according to the result of yFirst
+		BasicCommands.moveUnitToTile(out, unit, newTile, yFirst(currentTile, newTile, unit));
+
+		if (unit.getName().equals("Young Flamewing")) {
+			BasicCommands.addPlayer1Notification(out, "Flamewing is flying!", 3);
+		}
 
 		try {
 			Thread.sleep(2000);
@@ -841,12 +826,19 @@ public class GameService {
 		if (!unit.getName().equals("Saberspine Tiger")) {
 			unit.setMovedThisTurn(true);
 			unit.setAttackedThisTurn(true);
+		} else {
+			BasicCommands.addPlayer1Notification(out, "Saberspine Tiger is in a rush!", 3);
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		if (((Card) card).getCardname().equals("Gloom Chaser")) {
+		if (card.getCardname().equals("Gloom Chaser")) {
 		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
 		
 		if (card.getCardname().equals("Nightsorrow Assassin")) {
-		Nightsorrow.assassin(tile, gs);}
+		Nightsorrow.assassin(tile, gs, out);}
 		
 		if (card.getCardname().equals("Silverguard Squire")) {
 			Elixir.silverguardSquire(out, gs);
@@ -915,42 +907,47 @@ public class GameService {
     }
 
     public void zeal() {
-        for (Unit unit : gs.getAi().getUnits()) {
-            if (unit.getName().equals("Silverguard Knight")) {
-                int newAttack = unit.getAttack() + 2;
-                updateUnitAttack(unit, newAttack);
+		for (Unit unit : gs.getAi().getUnits()) {
+			if (unit.getName().equals("Silverguard Knight")) {
+				int newAttack = unit.getAttack() + 2;
+				updateUnitAttack(unit, newAttack);
 				EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
 				BasicCommands.playEffectAnimation(out, effect, unit.getCurrentTile(gs.getBoard()));
-				System.out.println("BUFFED!");
-            }
-        }
-    }
+				BasicCommands.addPlayer1Notification(out, "Silverguard Knight's zeal!", 3);
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	public void WraithlingSwarm(Card card, Tile tile) {
+		// Number of Wraithlings to summon
+		Wraithling.summonWraithlingToTile(tile, out, gs);
+		HumanPlayer player = (HumanPlayer) gs.getHuman();
+		player.setWraithlingSwarmCounter(player.getWraithlingSwarmCounter() - 1);
 
-	   	         // Number of Wraithlings to summon
-	            Wraithling.summonWraithlingToTile(tile, out, gs);
-	            Wraithling.WraithlingSwarm--;
-
-	            // If there are more Wraithlings to summon, push the card to action history
-	            if (Wraithling.WraithlingSwarm > 0) {
-					// Highlight tiles for summoning
-					highlightSpellRange(card, gs.getCurrentPlayer());
-		            BasicCommands.addPlayer1Notification(out, "You can summon "
-	            + Wraithling.WraithlingSwarm +" more wraithlings", 5);
-	                gs.getActionHistory().push(card);
-	                gs.getCurrentPlayer().setMana(gs.getCurrentPlayer().getMana() + card.getManacost());
-	            } else {
-	                // Remove highlight from all tiles and update hand positions
-	            	BasicCommands.addPlayer1Notification(out, "No more wraithlings for you!", 5);
-	            }
-	        }
+		// If there are more Wraithlings to summon, push the card to action history
+		if (player.getWraithlingSwarmCounter() > 0) {
+			// Highlight tiles for summoning
+			highlightSpellRange(card, gs.getCurrentPlayer());
+			BasicCommands.addPlayer1Notification(out, "You can summon " + player.getWraithlingSwarmCounter() +" more wraithlings", 5);
+			gs.getActionHistory().push(card);
+			gs.getCurrentPlayer().setMana(gs.getCurrentPlayer().getMana() + card.getManacost());
+		} else {
+			// Remove highlight from all tiles and update hand positions
+			BasicCommands.addPlayer1Notification(out, "No more wraithlings for you!", 5);
+			player.setWraithlingSwarmCounter(3);
+		}
+	}
 
 	// Method in GameService class
 	public void removeFromHandAndCast( GameState gameState, Card card, Tile tile) {
 		
 		if (gameState.getCurrentPlayer() instanceof HumanPlayer &&
-				validCast(card, tile) == false) {
+                !validCast(card, tile)) {
 			removeHighlightFromAll();
 			return;
 			
@@ -1010,7 +1007,7 @@ public class GameService {
 	        Strike.TrueStrike(gameState, gameState.getHuman().getAvatar());
 	    }
 	    if (card.getCardname().equals("Sundrop Elixir")) {
-	        Elixir.Sundrop(gameState.getAi().getAvatar(), gameState);
+	        Elixir.Sundrop(gameState.getAi().getAvatar(), gameState, out);
 	    }
 	    
 	    
@@ -1029,6 +1026,10 @@ public class GameService {
 				&& !(tile.getHighlightMode() == 2)) {
 			return false;
 		}
+		if (card.getCardname().equals("Wraithling Swarm")
+				&& !(tile.getHighlightMode() == 1)) {
+			return false;
+		}
 		return true;
 	}
 	
@@ -1043,17 +1044,32 @@ public class GameService {
 
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
         BasicCommands.playEffectAnimation(out, effect, tile);
-        BasicCommands.addPlayer1Notification(out, "AI sunned your" + tile.getUnit().getName(), 2);
+        BasicCommands.addPlayer1Notification(out, "Beamshock! " + tile.getUnit().getName() + " is stunned.", 3);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void healing(Tile currentTile) {
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
         BasicCommands.playEffectAnimation(out, effect, currentTile);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     }
 		public void strike(Tile tile) {
 
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_inmolation);
         BasicCommands.playEffectAnimation(out, effect, tile);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

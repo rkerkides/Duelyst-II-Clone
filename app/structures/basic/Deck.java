@@ -28,9 +28,6 @@ public class Deck {
         if (deck.isEmpty()) {
             System.out.println("Deck is empty");
             return null;
-        } else if (deck.size() < 10) {
-        	Wraithling.WraithlingSwarm=3;
-            
         }
         return deck.remove(0);
     }

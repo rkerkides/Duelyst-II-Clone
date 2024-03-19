@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import akka.actor.ActorRef;
 import structures.GameState;
 import structures.basic.Unit;
-import structures.basic.cards.BeamShock;
 import structures.basic.player.AIPlayer;
 
 /**

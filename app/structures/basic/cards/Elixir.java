@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Optional;
 
 import akka.actor.ActorRef;
+import commands.BasicCommands;
 import structures.GameState;
 import structures.basic.Tile;
 import structures.basic.Unit;
@@ -15,8 +16,8 @@ public class Elixir {
 		
 		Tile avatarPosition= gs.getAi().getAvatar().getCurrentTile(gs.getBoard());
 		boostAdjacentUnits(avatarPosition, 1, 1, gs);
-		
-		
+		BasicCommands.addPlayer1Notification(out, "Silverguard Squire's Opening Gambit!", 3);
+		try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
 	}
 	
 	public static void boostAdjacentUnits(Tile tile, int healthBoost, int attackBoost, GameState gameState) {
@@ -58,7 +59,7 @@ public class Elixir {
 	        
 	    }
 	
-	public static void Sundrop(Unit unit, GameState gs) {
+	public static void Sundrop(Unit unit, GameState gs, ActorRef out) {
         // Implement healing effect by 4 health
         if (unit != null && unit.getOwner() instanceof AIPlayer) {
             AIPlayer aiPlayer = (AIPlayer) gs.getAi(); // Assuming gs is your GameState object
@@ -88,6 +89,7 @@ public class Elixir {
                 }
             }
         }
+		BasicCommands.addPlayer1Notification(out, "Sundrop Elixir heals a unit!", 3);
         gs.gameService.healing(unit.getCurrentTile(gs.getBoard()));
     }
 
