@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.Optional;
 
 import akka.actor.ActorRef;
+import commands.BasicCommands;
 import structures.GameState;
 import structures.basic.Tile;
 import structures.basic.Unit;
@@ -15,7 +16,7 @@ public class Elixir {
 		
 		Tile avatarPosition= gs.getAi().getAvatar().getCurrentTile(gs.getBoard());
 		boostAdjacentUnits(avatarPosition, 1, 1, gs);
-		
+		BasicCommands.addPlayer1Notification(out, "Silverguard Squire has boosted adjacent units", 3);
 		
 	}
 	

@@ -698,18 +698,13 @@ public class GameService {
 		removeHighlightFromAll();
 
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
-		
-		if (!unit.getName().equals("Young Flamewing")) {
-			// Move unit to tile according to the result of yFirst
-			BasicCommands.moveUnitToTile(out, unit, newTile, yFirst(currentTile, newTile, unit));		
-			}
-		else {
-			BasicCommands.deleteUnit(out, unit);
-			BasicCommands.drawUnit(out, unit, newTile);
-			updateUnitHealth(unit, unit.getHealth());
-			updateUnitAttack(unit, unit.getAttack());
-		}
 
+		// Move unit to tile according to the result of yFirst
+		BasicCommands.moveUnitToTile(out, unit, newTile, yFirst(currentTile, newTile, unit));
+
+		if (unit.getName().equals("Young Flamewing")) {
+			BasicCommands.addPlayer1Notification(out, "Flamewing is flying!", 3);
+		}
 
 		try {
 			Thread.sleep(2000);
@@ -1046,7 +1041,7 @@ public class GameService {
 
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
         BasicCommands.playEffectAnimation(out, effect, tile);
-        BasicCommands.addPlayer1Notification(out, "AI stunned your " + tile.getUnit().getName(), 2);
+        BasicCommands.addPlayer1Notification(out, "AI used Beamshock! " + tile.getUnit().getName() + " is stunned.", 2);
 	}
 
 	public void healing(Tile currentTile) {
