@@ -19,9 +19,7 @@ public class ShadowDancer extends Unit {
             	gs.gameService.updateUnitHealth(aiAvatar, aiAvatar.getHealth() - 1);
             	gs.gameService.stunning(aiAvatar.getCurrentTile(gs.getBoard()));
 
-            	
-            	
-                           }
+			}
         }
 		System.err.println("ShadowDance");
 	}

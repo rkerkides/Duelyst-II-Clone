@@ -841,11 +841,11 @@ public class GameService {
 			unit.setMovedThisTurn(true);
 			unit.setAttackedThisTurn(true);
 		}
-		if (((Card) card).getCardname().equals("Gloom Chaser")) {
+		if (card.getCardname().equals("Gloom Chaser")) {
 		Wraithling.summonGloomChaserWraithling(tile, out, gs);}
 		
 		if (card.getCardname().equals("Nightsorrow Assassin")) {
-		Nightsorrow.assassin(tile, gs);}
+		Nightsorrow.assassin(tile, gs, out);}
 		
 		if (card.getCardname().equals("Silverguard Squire")) {
 			Elixir.silverguardSquire(out, gs);
