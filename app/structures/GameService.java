@@ -325,13 +325,14 @@ public class GameService {
 	public Set<Tile> calculateValidMovement(Tile[][] board, Unit unit) {
 		
 		Set<Tile> validTiles = new HashSet<>();
-		
-		if (unit.getName().equals("Young Flamewing")) {
-			return gs.getBoard().getAllUnoccupiedTiles(board);
-		}
+
 		// Skip calculation if unit is provoked or has moved/attacked this turn
 		if (checkProvoked(unit) || unit.movedThisTurn() || unit.attackedThisTurn()) {
 			return validTiles;
+		}
+
+		if (unit.getName().equals("Young Flamewing")) {
+			return gs.getBoard().getAllUnoccupiedTiles(board);
 		}
 
 		Player currentPlayer = unit.getOwner();
@@ -349,15 +350,6 @@ public class GameService {
 		}
 
 		return validTiles;
-	}
-
-
-
-
-	public Set<Tile> calculateSpellTargets(Card card) {
-		Set<Tile> validSpellTargets = new HashSet<>();
-		// Logic to determine valid spell targets
-		return validSpellTargets;
 	}
 
 	// Helper method to add a valid tile to the set of valid actions if the conditions are met
@@ -393,11 +385,6 @@ public class GameService {
 	// Checks if a tile position is within the boundaries of the game board
 	private boolean isValidTile(int x, int y) {
 		return x >= 0 && y >= 0 && x < 9 && y < 5; // Assuming a 9x5 board
-	}
-
-	// Determines if a unit is considered friendly based on current game state
-	private boolean isFriendlyUnit(Unit unit) {
-		return gs.getCurrentPlayer().getUnits().contains(unit);
 	}
 
 	// Checks if provoke unit is present on the board and around the tile on which an alleged enemy unit (target) is located
