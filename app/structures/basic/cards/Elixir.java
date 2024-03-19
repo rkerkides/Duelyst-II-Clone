@@ -16,8 +16,8 @@ public class Elixir {
 		
 		Tile avatarPosition= gs.getAi().getAvatar().getCurrentTile(gs.getBoard());
 		boostAdjacentUnits(avatarPosition, 1, 1, gs);
-		BasicCommands.addPlayer1Notification(out, "Silverguard Squire has boosted adjacent units", 3);
-		
+		BasicCommands.addPlayer1Notification(out, "Silverguard Squire's Opening Gambit!", 3);
+		try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
 	}
 	
 	public static void boostAdjacentUnits(Tile tile, int healthBoost, int attackBoost, GameState gameState) {
