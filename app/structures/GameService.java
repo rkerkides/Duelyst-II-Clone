@@ -171,14 +171,18 @@ public class GameService {
 	public void performUnitDeath(Unit unit) {
 		
 		if(unit.getId()<999 && !unit.getName().equals("Player Avatar")  && !unit.getName().equals("AI Avatar")) {
-			ShadowDancer.Deathwatch(gs, out);
-			//BloodmoonPriestess summons a wraithling after each units removal
-			BloodmoonPriestess.BloodmoonPriestessDeathwatch(out, gs, this);
-
-			//invoke Shadow Watcher Deathwatch ability
-			ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
-			// Check for Bad Omen units after a unit dies
-			BadOmen.BadOmenDeathwatch(out, gs, this, unit);
+			if (!unit.getName().equals("Shadowdancer")) {
+				ShadowDancer.Deathwatch(gs, out);
+			}
+			if (!unit.getName().equals("Bloodmoon Priestess")) {
+				BloodmoonPriestess.BloodmoonPriestessDeathwatch(out, gs, this);
+			}
+			if (!unit.getName().equals("Shadow Watcher")) {
+				ShadowWatcher.ShadowWatcherDeathwatch(out, gs, this);
+			}
+			if (!unit.getName().equals("Bad Omen")) {
+				BadOmen.BadOmenDeathwatch(out, gs, this, unit);
+			}
 		}
 
 		// remove unit from board
@@ -1016,7 +1020,7 @@ public class GameService {
 	        Strike.TrueStrike(gameState, gameState.getHuman().getAvatar());
 	    }
 	    if (card.getCardname().equals("Sundrop Elixir")) {
-	        Elixir.Sundrop(gameState.getAi().getAvatar(), gameState);
+	        Elixir.Sundrop(gameState.getAi().getAvatar(), gameState, out);
 	    }
 	    
 	    
@@ -1064,11 +1068,21 @@ public class GameService {
 	public void healing(Tile currentTile) {
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_buff);
         BasicCommands.playEffectAnimation(out, effect, currentTile);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     }
 		public void strike(Tile tile) {
 
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_inmolation);
         BasicCommands.playEffectAnimation(out, effect, tile);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

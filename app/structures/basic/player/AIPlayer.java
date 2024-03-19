@@ -117,7 +117,7 @@ public class AIPlayer extends Player {
 						score -= Math.max(0, distanceToEnemy - 2) * 5; // Encourage staying within engagement range of enemies
 					}
 				} else {
-					// Scoring for non-provoker units can be adjusted here as needed
+					// Scoring for non-provoker units
 					ArrayList<Unit> enemyUnits = (ArrayList<Unit>) gameState.getHuman().getUnits();
 					for (Unit enemy : enemyUnits) {
 						int distanceX = Math.abs(move.tile.getTilex() - enemy.getPosition().getTilex());
@@ -134,6 +134,14 @@ public class AIPlayer extends Player {
 						if (enemy.getHealth() <= unit.getAttack()) {
 							score += 20; // Prioritize attacking lethal targets
 						}
+
+						// Avatar should not lead the line!
+						if (unit == avatar) {
+							// Check if moving would make the avatar the leftmost unit
+							if (wouldBeLeftmostAfterMoving(move.tile)) {
+								score -= 50; // Penalize this movement significantly
+							}
+						}
 					}
 				}
 
@@ -141,6 +149,19 @@ public class AIPlayer extends Player {
 			}
 		}
 		return moves;
+	}
+
+	private boolean wouldBeLeftmostAfterMoving(Tile moveTo) {
+		int avatarX = moveTo.getTilex();
+		for (Unit ally : this.units) {
+			if (ally != this.avatar) {
+				if (ally.getCurrentTile(gameState.getBoard()).getTilex() < avatarX) {
+					// Found an ally that would be left of the avatar's new position
+					return false;
+				}
+			}
+		}
+		return true; // No ally is left of the avatar's new position, so it would be the leftmost
 	}
 
 	// Helper method to calculate distance between two tiles
@@ -166,18 +187,26 @@ public class AIPlayer extends Player {
 					System.out.println("Unit " + attacker + " has no attack");
 					attack.moveQuality = -1;
 				}
+				else if (target.getName().equals("Player Avatar") && target.getHealth() <= attacker.getAttack()) {
+					attack.moveQuality = 690; // Assign the highest value for lethal attacks on the avatar
+				}
 				// Prioritize eliminating a unit by checking if the attack is lethal
 				else if (target.getHealth() <= attacker.getAttack()) {
-					attack.moveQuality = 10; // Assign the highest value for lethal attacks
+					attack.moveQuality = 100; // Assign really high value for lethal attacks
 
 				// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
 				} else if (target == gameState.getHuman().getAvatar() && attacker != this.avatar) {
+					attack.moveQuality = 10;
+				} else if (target.getName().equals("Shadow Watcher")) {
 					attack.moveQuality = 9;
-
+				} else if (target.getName().equals("Bad Omen") || target.getName().equals("Bloodmoon Priestess")) {
+					attack.moveQuality = 8;
+				} else if (target.getName().equals("Shadowdancer")) {
+					attack.moveQuality = 7;
 				// Avatar should only attack opposing avatar if it has more health than the target
 				} else if (target == gameState.getHuman().getAvatar() && attacker == this.avatar) {
 					if (attacker.getHealth() > target.getHealth()) {
-						attack.moveQuality = 8;
+						attack.moveQuality = 5;
 					} else {
 						attack.moveQuality = -1;
 					}
@@ -324,9 +353,9 @@ public class AIPlayer extends Player {
 
 	private void makeBestMove() {
 		try {
-			performAttacks();
 			performCardActions();
 			performMovements();
+			performAttacks();
 		} catch (Exception e) {
 			System.out.println("AIPlayer interrupted");
 		}
@@ -545,7 +574,16 @@ public class AIPlayer extends Player {
 	    // Check each adjacent tile for enemy units
 	    for (Tile tile : adjacentTiles) {
 	        if (tile.isOccupied() && tile.getUnit().getOwner() != movedUnit.getOwner()) {
+				// Don't attack if unit has no attack value
 				if (movedUnit.getAttack() == 0) {
+					return;
+				}
+				// Don't attack if counterattack will result in death
+				if (movedUnit.getHealth() <= tile.getUnit().getAttack() && movedUnit.getAttack() < tile.getUnit().getHealth()) {
+					return;
+				}
+				// Don't attack with avatar if target will not die
+				if (movedUnit == this.avatar && tile.getUnit().getHealth() > 2) {
 					return;
 				}
 	            // Perform the attack

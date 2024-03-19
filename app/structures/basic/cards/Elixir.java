@@ -59,7 +59,7 @@ public class Elixir {
 	        
 	    }
 	
-	public static void Sundrop(Unit unit, GameState gs) {
+	public static void Sundrop(Unit unit, GameState gs, ActorRef out) {
         // Implement healing effect by 4 health
         if (unit != null && unit.getOwner() instanceof AIPlayer) {
             AIPlayer aiPlayer = (AIPlayer) gs.getAi(); // Assuming gs is your GameState object
@@ -89,6 +89,7 @@ public class Elixir {
                 }
             }
         }
+		BasicCommands.addPlayer1Notification(out, "Sundrop Elixir heals a unit!", 3);
         gs.gameService.healing(unit.getCurrentTile(gs.getBoard()));
     }
 
