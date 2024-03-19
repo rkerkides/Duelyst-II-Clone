@@ -11,6 +11,7 @@ import structures.basic.Tile;
 import structures.basic.Unit;
 import structures.basic.cards.BeamShock;
 import structures.basic.cards.Card;
+import structures.basic.player.AIPlayer;
 import structures.basic.player.Player;
 
 /**
@@ -111,7 +112,8 @@ public class TileClicked implements EventProcessor {
 			gameState.gameService.removeHighlightFromAll();
 			return;
 		}
-		if (BeamShock.stunnedUnit==unit) {
+		AIPlayer ai = (AIPlayer) gameState.getAi();
+		if (ai.stunnedUnit==unit) {
 			System.out.println("Unit is stunned.");
 			unit.setMovedThisTurn(true);
 			gameState.gameService.removeHighlightFromAll();

@@ -13,24 +13,29 @@ import java.util.*;
 
 public class AIPlayer extends Player {
 	private final GameState gameState;
+	public Unit stunnedUnit;
 
 	public AIPlayer(GameState gameState) {
 		super();
 		this.gameState = gameState;
+		this.stunnedUnit = null;
 	}
 
-	// restrained to just end-turn to facilitate testing before implementing AI
 	public void takeTurn(ActorRef out, JsonNode message) {
 
-		if (BeamShock.stunnedUnit != null) {
-			BasicCommands.addPlayer1Notification(out, BeamShock.stunnedUnit.getName() + " is not stunned anymore", 2);
-			BeamShock.stunnedUnit = null;
+		if (stunnedUnit != null) {
+			BasicCommands.addPlayer1Notification(out, stunnedUnit.getName() + " is not stunned anymore", 2);
+			stunnedUnit = null;
 		}
 		// make best move
 		makeBestMove();
 		
 		for (Card card : this.hand.getCards()) {
 			System.out.println("Card: " + card.getCardname());
+		}
+
+		if (gameState.isGameFinished) {
+			return;
 		}
 
 		// ends turn
