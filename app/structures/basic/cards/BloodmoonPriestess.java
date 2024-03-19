@@ -10,7 +10,7 @@ public class BloodmoonPriestess {
 
 
 
-    // method to check if bad omen is onthe board and increment attack each time someone dies.
+    // method to check if bad omen is on the board and increment attack each time someone dies.
 
     public static void BloodmoonPriestessDeathwatch( ActorRef out, GameState gameState, GameService gs) {
 

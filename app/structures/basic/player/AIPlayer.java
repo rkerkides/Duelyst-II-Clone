@@ -277,8 +277,8 @@ public class AIPlayer extends Player {
 			PossibleSpell bestSpell = returnBestSpell();
 			PossibleSummon bestSummon = returnBestSummon();
 			if (bestSpell != null && bestSummon != null) {
-				if (bestSpell.moveQuality > bestSummon.moveQuality) {/*
-					gameState.gameService.removeCardFromHandAndCastSpell(bestSpell.card, bestSpell.tile);*/
+				if (bestSpell.moveQuality > bestSummon.moveQuality) {
+					gameState.gameService.removeFromHandAndCast(gameState, bestSpell.card, bestSpell.tile);
 				} else {
 					gameState.gameService.removeCardFromHandAndSummon(bestSummon.card, bestSummon.tile);
 				}

@@ -43,16 +43,9 @@ public class GameState {
 	// Entity objects that are part of the game state
 	public GameService gameService;
 	private Player human;
-
 	private Player ai;
 	private Board board;
-	public static Set<Tile> validMoves = new HashSet<>();
-	public static Set<Tile> validAttacks = new HashSet<>();
-
-	ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
-
-	ArrayList<Unit> units = new ArrayList<Unit>();
-
+	private ArrayList<Unit> unitsOnBoard =  new ArrayList<Unit>();
 	/**
 	 * This function initialises all the assets Board, Player etc As well as
 	 * tracking critical game states
@@ -215,14 +208,6 @@ public class GameState {
 
 	public Stack<Actionable> getActionHistory() {
 		return actionHistory;
-	}
-
-	public void addActionToHistory(Actionable action) {
-		actionHistory.add(action);
-	}
-
-	public void removeFromActionHistory() {
-		actionHistory.pop();
 	}
 
 	public int getTotalUnits() {

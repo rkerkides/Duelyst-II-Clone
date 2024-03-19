@@ -1043,7 +1043,7 @@ public class GameService {
 
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
         BasicCommands.playEffectAnimation(out, effect, tile);
-        BasicCommands.addPlayer1Notification(out, "AI sunned your" + tile.getUnit().getName(), 2);
+        BasicCommands.addPlayer1Notification(out, "AI stunned your" + tile.getUnit().getName(), 2);
 	}
 
 	public void healing(Tile currentTile) {
