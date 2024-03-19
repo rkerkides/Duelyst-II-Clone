@@ -21,11 +21,11 @@ public class AIPlayer extends Player {
 
 	// restrained to just end-turn to facilitate testing before implementing AI
 	public void takeTurn(ActorRef out, JsonNode message) {
-		
-		
-		System.out.println(BeamShock.stunnedUnit+" stunned unit is not stunned anymore");
-		BeamShock.stunnedUnit=null;
-		
+
+		if (BeamShock.stunnedUnit != null) {
+			BasicCommands.addPlayer1Notification(out, BeamShock.stunnedUnit.getName() + " is not stunned anymore", 2);
+			BeamShock.stunnedUnit = null;
+		}
 		// make best move
 		makeBestMove();
 		
@@ -135,27 +135,27 @@ public class AIPlayer extends Player {
 		Set<PossibleAttack> rankedAttacks = new HashSet<>(attacks);
 
 		for (PossibleAttack attack : rankedAttacks) {
-			if (!attack.unit.movedThisTurn() && !attack.unit.attackedThisTurn()) {
-				// Prioritize eliminating a unit by checking if the attack is lethal
-				if (attack.tile.getUnit().getHealth() <= attack.unit.getAttack()) {
-					attack.moveQuality = 10; // Assign the highest value for lethal attacks
-
-					// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
-				} else if (attack.tile.getUnit() == gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
-					attack.moveQuality = 9;
-
-					// Value for attacking any unit not being the avatar by non-avatar AI units
-				} else if (attack.tile.getUnit() != gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
-					attack.moveQuality = 5;
-
-					// Generic attack value
-				} else {
-					attack.moveQuality = 0;
-				}
+			if (!attack.unit.attackedThisTurn()) {
 				// Penalize units with no attack
 				if (attack.unit.getAttack() == 0) {
 					System.out.println("Unit " + attack.unit + " has no attack");
 					attack.moveQuality = -1;
+				}
+				// Prioritize eliminating a unit by checking if the attack is lethal
+				else if (attack.tile.getUnit().getHealth() <= attack.unit.getAttack()) {
+					attack.moveQuality = 10; // Assign the highest value for lethal attacks
+
+				// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
+				} else if (attack.tile.getUnit() == gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
+					attack.moveQuality = 9;
+
+				// Value for attacking any unit not being the avatar by non-avatar AI units
+				} else if (attack.tile.getUnit() != gameState.getHuman().getAvatar() && attack.unit != this.avatar) {
+					attack.moveQuality = 5;
+
+				// Generic attack value
+				} else {
+					attack.moveQuality = 0;
 				}
 			}
 
@@ -263,7 +263,7 @@ public class AIPlayer extends Player {
 			performCardActions();
 			performMovements();
 		} catch (Exception e) {
-			// Handle other exceptions or log them
+			System.out.println("AIPlayer interrupted");
 		}
 	}
 
@@ -451,23 +451,21 @@ public class AIPlayer extends Player {
 	        return;
 	    }
 
-	    for (PossibleMovement move : possibleMoves) {
-	        if (move.unit.movedThisTurn()) {
-	            continue; // Skip this movement if the unit has already moved
-	        }
+		Set<PossibleMovement> rankedMovements = new HashSet<>(rankMovements(possibleMoves));
+		PossibleMovement bestMove = findBestMovement(rankedMovements);
 
-	        // Check if the destination tile is unoccupied
-	        if (!move.tile.isOccupied()) {
-	            // Perform the move
-	            gameState.gameService.updateUnitPositionAndMove(move.unit, move.tile);
+		if (bestMove == null || bestMove.unit.movedThisTurn() || bestMove.unit.attackedThisTurn()) {
+			return;
+		}
 
-	            // Mark the unit as moved
-	            move.unit.setMovedThisTurn(true);
+		// Check if the destination tile is unoccupied
+		if (!bestMove.tile.isOccupied()) {
+			// Perform the move
+			gameState.gameService.updateUnitPositionAndMove(bestMove.unit, bestMove.tile);
 
-	            // Check for adjacent enemy units and attack if found
-	            performAttacksAfterMovement(move.unit);
-	        }
-	    }
+			// Check for adjacent enemy units and attack if found
+			performAttacksAfterMovement(bestMove.unit);
+		}
 	}
 
 	private void performAttacksAfterMovement(Unit movedUnit) {
@@ -507,25 +505,6 @@ public class AIPlayer extends Player {
 	        }
 	    }
 	}
-
-//	private void performMovements() {
-//		while (true) {
-//			ArrayList<PossibleMovement> possibleMoves = returnAllMovements(gameState);
-//			if (possibleMoves == null || possibleMoves.isEmpty()) {
-//				System.out.println("No more moves left on the board");
-//				return;
-//			}
-//
-//			try { Thread.sleep(1000); } catch (InterruptedException e) {
-//				System.out.println("AIPlayer interrupted");
-//			}
-//
-//			Set<PossibleMovement> rankedMovements = new HashSet<>(rankMovements(possibleMoves));
-//			PossibleMovement bestMove = findBestMovement(rankedMovements);
-//			gameState.gameService.updateUnitPositionAndMove(bestMove.unit, bestMove.tile);
-//		}
-//	}
-
 
 	@Override
 	public String toString() {

@@ -42,6 +42,9 @@ public class GameService {
 		} else {
 			BasicCommands.setPlayer2Health(out, player);
 		}
+		if (newHealth <= 0) {
+			gs.endGame(out);
+		}
 	}
 
 	public void updatePlayerMana(Player player, int newMana) {
@@ -121,7 +124,9 @@ public class GameService {
 	public void updateUnitHealth(Unit unit, int newHealth) {
 
 		if (newHealth > 20) {
-			return;
+			newHealth = 20;
+		} else if (newHealth < 0) {
+			newHealth = 0;
 		}
 
 		if (unit.getName().equals("Player Avatar") &&
@@ -132,12 +137,7 @@ public class GameService {
 		}
 		
 		try {Thread.sleep(30);} catch (InterruptedException e) {e.printStackTrace();}
-		try {
-			Thread.sleep(30);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if (newHealth <= 0) {
+		if (newHealth == 0) {
 			performUnitDeath(unit);
 			return;
 		}
@@ -434,7 +434,7 @@ public class GameService {
 
 				// Check if the opponent unit is adjacent to the current unit
 				if (Math.abs(unitx - other.getPosition().getTilex()) <= 1 && Math.abs(unity - other.getPosition().getTiley()) <= 1) {
-					BasicCommands.addPlayer1Notification(out, "You are provoked!", 2);
+					BasicCommands.addPlayer1Notification(out, unit.getName() + " is provoked!", 2);
 					return true;
 				}
 			}
@@ -1043,7 +1043,7 @@ public class GameService {
 
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
         BasicCommands.playEffectAnimation(out, effect, tile);
-        BasicCommands.addPlayer1Notification(out, "AI stunned your" + tile.getUnit().getName(), 2);
+        BasicCommands.addPlayer1Notification(out, "AI stunned your " + tile.getUnit().getName(), 2);
 	}
 
 	public void healing(Tile currentTile) {
