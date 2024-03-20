@@ -131,6 +131,10 @@ public class AIPlayer extends Player {
 							score += 18; // Prioritize attacking the primary human player unit
 						}
 
+						if (enemy.getName().equals("Shadow Watcher")) {
+							score += 20; // Prioritize quick elimination of Shadow Watcher
+						}
+
 						if (enemy.getHealth() <= unit.getAttack()) {
 							score += 20; // Prioritize attacking lethal targets
 						}
@@ -196,10 +200,6 @@ public class AIPlayer extends Player {
 				else if (target.getHealth() <= attacker.getAttack()) {
 					attack.moveQuality = 100; // Assign really high value for lethal attacks
 
-				// Avoid attacking units that will counterattack for greater damage
-				} else if (target.getAttack() > attacker.getAttack()) {
-					attack.moveQuality = 0;
-
 				// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
 				} else if (target == gameState.getHuman().getAvatar() && attacker != this.avatar) {
 					if (target.getHealth() <= 10) {
@@ -215,14 +215,19 @@ public class AIPlayer extends Player {
 					} else {
 						attack.moveQuality = -1;
 					}
+				// Prioritize attacking Shadow Watcher due to its ability to snowball
 				} else if (target.getName().equals("Shadow Watcher")) {
-					attack.moveQuality = 9;
+					attack.moveQuality = 80;
 					// Don't attack if counterattack will result in death
 					if (target.getAttack() > attacker.getHealth()) {
 						attack.moveQuality = -1;
 					} else {
 						attack.moveQuality = 5;
 					}
+					// Avoid attacking units that will counterattack for greater damage
+				} else if (target.getAttack() > attacker.getAttack()) {
+					attack.moveQuality = 0;
+					
 				} else if (target.getName().equals("Bad Omen") || target.getName().equals("Bloodmoon Priestess")) {
 					attack.moveQuality = 8;
 					// Don't attack if counterattack will result in death
