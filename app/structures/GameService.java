@@ -731,6 +731,10 @@ public class GameService {
 		if (player instanceof HumanPlayer) {
 			for (int i = 0; i < numberOfCards; i++) {
 				Card cardDrawn = player.drawCard();
+				if (cardDrawn == null) {
+					BasicCommands.addPlayer1Notification(out, "No cards left in deck!", 2);
+					return;
+				}
 				int handPosition = player.getHand().getNumberOfCardsInHand();
 				BasicCommands.drawCard(out, cardDrawn, handPosition, 0);
 				try {

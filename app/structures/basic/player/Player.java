@@ -109,8 +109,11 @@ public abstract class Player {
 			return null;
 		}
         Card card = this.deck.drawCard();
-        this.hand.addCard(card);
-		return card;
+		if (card != null) {
+			this.hand.addCard(card);
+			return card;
+		}
+		return null;
 	}
 
 	public void setRobustness(int i) {
