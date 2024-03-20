@@ -34,8 +34,8 @@ public class Elixir {
 			
 			if (leftTile != null && leftTile.isOccupied() &&
 					leftTile.getUnit().getOwner()instanceof AIPlayer) {
-				gameState.gameService.updateUnitHealth(leftTile.getUnit(), healthBoost);
-				gameState.gameService.updateUnitAttack(leftTile.getUnit(), attackBoost);
+				gameState.gameService.updateUnitHealth(leftTile.getUnit(), leftTile.getUnit().getHealth() + healthBoost);
+				gameState.gameService.updateUnitAttack(leftTile.getUnit(), leftTile.getUnit().getAttack() + attackBoost);
 				gameState.gameService.healing(leftTile);
 
 	        }
@@ -47,17 +47,14 @@ public class Elixir {
 			
 			if (rightTile != null && rightTile.isOccupied() &&
 					rightTile.getUnit().getOwner() instanceof AIPlayer) {
-				gameState.gameService.updateUnitHealth(rightTile.getUnit(), healthBoost);
-				gameState.gameService.updateUnitAttack(rightTile.getUnit(), attackBoost);
+				gameState.gameService.updateUnitHealth(rightTile.getUnit(), rightTile.getUnit().getHealth() + healthBoost);
+				gameState.gameService.updateUnitAttack(rightTile.getUnit(), rightTile.getUnit().getAttack() + attackBoost);
 				gameState.gameService.healing(rightTile);
 
 			}
-			
 
-		}	    	
-	        
-	        
-	    }
+		}
+	}
 	
 	public static void Sundrop(Unit unit, GameState gs, ActorRef out) {
         // Implement healing effect by 4 health
