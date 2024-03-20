@@ -197,12 +197,6 @@ public class AIPlayer extends Player {
 				// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
 				} else if (target == gameState.getHuman().getAvatar() && attacker != this.avatar) {
 					attack.moveQuality = 10;
-				} else if (target.getName().equals("Shadow Watcher")) {
-					attack.moveQuality = 9;
-				} else if (target.getName().equals("Bad Omen") || target.getName().equals("Bloodmoon Priestess")) {
-					attack.moveQuality = 8;
-				} else if (target.getName().equals("Shadowdancer")) {
-					attack.moveQuality = 7;
 				// Avatar should only attack opposing avatar if it has more health than the target
 				} else if (target == gameState.getHuman().getAvatar() && attacker == this.avatar) {
 					if (attacker.getHealth() > target.getHealth()) {
@@ -210,6 +204,12 @@ public class AIPlayer extends Player {
 					} else {
 						attack.moveQuality = -1;
 					}
+				} else if (target.getName().equals("Shadow Watcher")) {
+					attack.moveQuality = 9;
+				} else if (target.getName().equals("Bad Omen") || target.getName().equals("Bloodmoon Priestess")) {
+					attack.moveQuality = 8;
+				} else if (target.getName().equals("Shadowdancer")) {
+					attack.moveQuality = 7;
 				// Value for attacking any unit not being the avatar by non-avatar AI units
 				} else if (target != gameState.getHuman().getAvatar() && attacker != this.avatar) {
 					// Don't attack if counterattack will result in death

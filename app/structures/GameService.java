@@ -309,8 +309,8 @@ public class GameService {
 	    int x = tile.getTilex();
 	    int y = tile.getTiley();
 
-	    int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-	    for (int[] direction : directions) {
+		int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
+		for (int[] direction : directions) {
 	        int newX = x + direction[0];
 	        int newY = y + direction[1];
 	        if (isValidTile(newX, newY) && board.getTile(newX, newY).isOccupied() && board.getTile(newX, newY).getUnit().getOwner() != unit.getOwner()) {
