@@ -227,7 +227,7 @@ public class AIPlayer extends Player {
 					// Avoid attacking units that will counterattack for greater damage
 				} else if (target.getAttack() > attacker.getAttack()) {
 					attack.moveQuality = 0;
-					
+
 				} else if (target.getName().equals("Bad Omen") || target.getName().equals("Bloodmoon Priestess")) {
 					attack.moveQuality = 8;
 					// Don't attack if counterattack will result in death
