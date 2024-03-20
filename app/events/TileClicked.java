@@ -86,6 +86,10 @@ public class TileClicked implements EventProcessor {
 	        return; // Exit the method early if mana is insufficient
 	    }
 
+		if (card.getCardname().equals("Wraithling Swarm")) {
+
+		}
+
 	    // Call the method to remove the card from hand and cast the spell
 	    gameState.gameService.removeFromHandAndCast(gameState, card, tile);
 
