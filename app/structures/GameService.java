@@ -1024,6 +1024,8 @@ public class GameService {
 		if (card.getCardname().equals("Wraithling Swarm")
 				&& !(tile.getHighlightMode() == 1)) {
 			BasicCommands.addPlayer1Notification(out, "Invalid tile. The Wraithling Swarm spell is broken!", 3);
+			HumanPlayer player = (HumanPlayer) gs.getHuman();
+			player.setWraithlingSwarmCounter(3);
 			return false;
 		}
 		return true;
