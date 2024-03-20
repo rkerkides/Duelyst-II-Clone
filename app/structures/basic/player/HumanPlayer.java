@@ -15,7 +15,7 @@ public class HumanPlayer extends Player {
     }
 
     public void setWraithlingSwarmCounter(int i) {
-        wraithlingSwarmCounter--;
+        wraithlingSwarmCounter = i;
     }
 
 }
