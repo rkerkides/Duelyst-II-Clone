@@ -135,8 +135,10 @@ public class AIPlayer extends Player {
 							score += 20; // Prioritize attacking lethal targets
 						}
 
-						// Avatar should not lead the line!
-						if (unit == avatar) {
+						// Avatar should not lead the line if it doesn't have 20 health!
+						// 20 health condition is because I want the avatar to begin the game offensively
+						// but remain cautious after that, as more units are added that can protect it
+						if (unit == avatar && unit.getHealth() < 20) {
 							// Check if moving would make the avatar the leftmost unit
 							if (wouldBeLeftmostAfterMoving(move.tile)) {
 								score -= 50; // Penalize this movement significantly
@@ -194,9 +196,18 @@ public class AIPlayer extends Player {
 				else if (target.getHealth() <= attacker.getAttack()) {
 					attack.moveQuality = 100; // Assign really high value for lethal attacks
 
+				// Avoid attacking units that will counterattack for greater damage
+				} else if (target.getAttack() > attacker.getAttack()) {
+					attack.moveQuality = 0;
+
 				// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
 				} else if (target == gameState.getHuman().getAvatar() && attacker != this.avatar) {
-					attack.moveQuality = 10;
+					if (target.getHealth() <= 10) {
+						// Prioritize attacking the primary human player unit if it has low health
+						attack.moveQuality = 20;
+					} else {
+						attack.moveQuality = 10;
+					}
 				// Avatar should only attack opposing avatar if it has more health than the target
 				} else if (target == gameState.getHuman().getAvatar() && attacker == this.avatar) {
 					if (attacker.getHealth() > target.getHealth()) {
@@ -206,10 +217,28 @@ public class AIPlayer extends Player {
 					}
 				} else if (target.getName().equals("Shadow Watcher")) {
 					attack.moveQuality = 9;
+					// Don't attack if counterattack will result in death
+					if (target.getAttack() > attacker.getHealth()) {
+						attack.moveQuality = -1;
+					} else {
+						attack.moveQuality = 5;
+					}
 				} else if (target.getName().equals("Bad Omen") || target.getName().equals("Bloodmoon Priestess")) {
 					attack.moveQuality = 8;
+					// Don't attack if counterattack will result in death
+					if (target.getAttack() > attacker.getHealth()) {
+						attack.moveQuality = -1;
+					} else {
+						attack.moveQuality = 5;
+					}
 				} else if (target.getName().equals("Shadowdancer")) {
 					attack.moveQuality = 7;
+					// Don't attack if counterattack will result in death
+					if (target.getAttack() > attacker.getHealth()) {
+						attack.moveQuality = -1;
+					} else {
+						attack.moveQuality = 5;
+					}
 				// Value for attacking any unit not being the avatar by non-avatar AI units
 				} else if (target != gameState.getHuman().getAvatar() && attacker != this.avatar) {
 					// Don't attack if counterattack will result in death

@@ -272,7 +272,6 @@ public class GameService {
 		}
 	}
 
-
 	// Highlight tiles for movement and attack
 	public void highlightMoveAndAttackRange(Unit unit) {
 	    Tile[][] tiles = gs.getBoard().getTiles();
@@ -285,12 +284,12 @@ public class GameService {
 	            if (!tile.isOccupied()) {
 	                // Highlight tile for movement
 	                updateTileHighlight(tile, 1);
+					// Highlight additional attack tiles if adjacent to valid movement tiles
+					highlightAdjacentAttackTiles(tile, unit);
 	            } else if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
 	                // Highlight tile for attack
 	                updateTileHighlight(tile, 2);
 	            }
-	            // Highlight additional attack tiles if adjacent to valid movement tiles
-	            highlightAdjacentAttackTiles(tile, unit);
 	        }
 	    }
 
@@ -305,21 +304,19 @@ public class GameService {
 	//to check 
 
 	private void highlightAdjacentAttackTiles(Tile tile, Unit unit) {
-	    Board board = gs.getBoard();
-	    int x = tile.getTilex();
-	    int y = tile.getTiley();
+		Board board = gs.getBoard();
+		int x = tile.getTilex();
+		int y = tile.getTiley();
 
 		int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
 		for (int[] direction : directions) {
-	        int newX = x + direction[0];
-	        int newY = y + direction[1];
-	        if (isValidTile(newX, newY) && board.getTile(newX, newY).isOccupied() && board.getTile(newX, newY).getUnit().getOwner() != unit.getOwner()) {
-	            updateTileHighlight(board.getTile(newX, newY), 2); // Highlight tile for attack
-	        }
-	    }
+			int newX = x + direction[0];
+			int newY = y + direction[1];
+			if (isValidTile(newX, newY) && board.getTile(newX, newY).isOccupied() && board.getTile(newX, newY).getUnit().getOwner() != unit.getOwner()) {
+				updateTileHighlight(board.getTile(newX, newY), 2); // Highlight tile for attack
+			}
+		}
 	}
-
-
 
 	// Method to calculate and return the set of valid actions (tiles) for a given unit
 	public Set<Tile> calculateValidMovement(Tile[][] board, Unit unit) {
@@ -341,24 +338,24 @@ public class GameService {
 
 		// Handle immediate adjacent tiles (including diagonals)
 		for (int[] direction : directions) {
-			addValidTileInDirection(board, unit, direction[0], direction[1], validTiles, currentPlayer, false);
+			addValidTileInDirection(board, unit, direction[0], direction[1], validTiles, currentPlayer);
 		}
 
 		// Handle two tiles away horizontally or vertically, making sure not to pass through enemy units
 		for (int[] direction : extendedDirections) {
-			addValidTileInDirection(board, unit, direction[0], direction[1], validTiles, currentPlayer, true);
+			addValidTileInDirection(board, unit, direction[0], direction[1], validTiles, currentPlayer);
 		}
 
 		return validTiles;
 	}
 
 	// Helper method to add a valid tile to the set of valid actions if the conditions are met
-	private void addValidTileInDirection(Tile[][] board, Unit unit, int dx, int dy, Set<Tile> validTiles, Player currentPlayer, boolean extendedMove) {
+	private void addValidTileInDirection(Tile[][] board, Unit unit, int dx, int dy, Set<Tile> validTiles, Player currentPlayer) {
 		int x = unit.getPosition().getTilex() + dx;
 		int y = unit.getPosition().getTiley() + dy;
 
 		// For extended moves, check if the halfway tile is occupied by an enemy unit
-		if (extendedMove && Math.abs(dx) <= 2 && Math.abs(dy) <= 2) {
+		if (Math.abs(dx) <= 2 && Math.abs(dy) <= 2) {
 			int halfwayX = unit.getPosition().getTilex() + (dx / 2);
 			int halfwayY = unit.getPosition().getTiley() + (dy / 2);
 			// Ensure halfway indices are within bounds before accessing the board
