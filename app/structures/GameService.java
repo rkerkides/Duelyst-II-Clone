@@ -932,10 +932,10 @@ public class GameService {
 			highlightSpellRange(card, gs.getCurrentPlayer());
 			BasicCommands.addPlayer1Notification(out, "You can summon " + player.getWraithlingSwarmCounter() +" more wraithlings", 5);
 			gs.getActionHistory().push(card);
-			gs.getCurrentPlayer().setMana(gs.getCurrentPlayer().getMana() + card.getManacost());
+			updatePlayerMana(gs.getCurrentPlayer(), gs.getCurrentPlayer().getMana() + card.getManacost());
 		} else {
 			// Remove highlight from all tiles and update hand positions
-			BasicCommands.addPlayer1Notification(out, "No more wraithlings for you!", 5);
+			BasicCommands.addPlayer1Notification(out, "All wraithlings summoned!", 5);
 			player.setWraithlingSwarmCounter(3);
 		}
 	}
@@ -947,8 +947,6 @@ public class GameService {
                 !validCast(card, tile)) {
 			removeHighlightFromAll();
 			return;
-			
-			
 		}
 		// Remove the card from the player's hand
 		Player player = gs.getCurrentPlayer();
@@ -1025,6 +1023,7 @@ public class GameService {
 		}
 		if (card.getCardname().equals("Wraithling Swarm")
 				&& !(tile.getHighlightMode() == 1)) {
+			BasicCommands.addPlayer1Notification(out, "Invalid tile. The Wraithling Swarm spell is broken!", 3);
 			return false;
 		}
 		return true;
@@ -1032,13 +1031,10 @@ public class GameService {
 	
 
 	public void stunnedUnit(String name) {
-		BasicCommands.addPlayer1Notification(out, name +" is stunned", 2);		
-
-    
+		BasicCommands.addPlayer1Notification(out, name +" is stunned", 2);
 	}
 	
 	public void stunning(Tile tile) {
-
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.f1_martyrdom);
         BasicCommands.playEffectAnimation(out, effect, tile);
         BasicCommands.addPlayer1Notification(out, "Beamshock! " + tile.getUnit().getName() + " is stunned.", 3);
