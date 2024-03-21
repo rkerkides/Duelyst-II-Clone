@@ -214,6 +214,12 @@ public class AIPlayer extends Player {
 				else if (target.getName().equals("Player Avatar") && target.getHealth() <= attacker.getAttack()) {
 					attack.moveQuality = 690; // Assign the highest value for lethal attacks on the avatar
 				}
+				else if (target.getName().equals("Shadow Watcher") && target.getHealth() <= attacker.getAttack()) {
+					attack.moveQuality = 680; // Assign a really high value for lethal attacks on shadow watcher
+				}
+				else if (target.getId() > 1000 && target.getHealth() <= attacker.getAttack()) {
+					attack.moveQuality = 90; // Assign a slightly lower value for lethal attacks on wraithlings
+				}
 				// Prioritize eliminating a unit by checking if the attack is lethal
 				else if (target.getHealth() <= attacker.getAttack()) {
 					attack.moveQuality = 100; // Assign really high value for lethal attacks
@@ -299,6 +305,15 @@ public class AIPlayer extends Player {
 				int distanceToOpponentAvatar = calculateDistance(summonTile, opponentAvatarTile);
 				score += (100 - distanceToOpponentAvatar * 5); // Adjust scoring as needed
 
+				// Encourage summoning closer to Shadow Watcher
+				Unit shadowWatcher = findShadowWatcher(gameState.getHuman().getUnits());
+				if (shadowWatcher != null) {
+					int distanceToShadowWatcher = calculateDistance(summonTile, shadowWatcher.getCurrentTile(gameState.getBoard()));
+					// Decrease score based on distance, so closer distances have higher scores
+					int shadowWatcherScore = Math.max(0, 1000 - distanceToShadowWatcher * 10);
+					score += shadowWatcherScore;
+				}
+
 				// Optionally, increase score for positions between the AI avatar and opponent units
 				boolean isBetween = isTileBetween(aiAvatarTile, summonTile, opponentAvatarTile);
 				if (isBetween) {
@@ -310,6 +325,41 @@ public class AIPlayer extends Player {
 					score += 30;
 				} else {
 					score += 20;
+				}
+
+				if (summon.card.getCardname().equals("Silverguard Squire")) {
+					Tile avatarLeft = gameState.getBoard().getTile(aiAvatarTile.getTilex() - 1, aiAvatarTile.getTiley());
+					Tile avatarRight = gameState.getBoard().getTile(aiAvatarTile.getTilex() + 1, aiAvatarTile.getTiley());
+
+					if (avatarLeft.isOccupied() && avatarLeft.getUnit().getOwner() == this && avatarRight.isOccupied()
+							&& avatarRight.getUnit().getOwner() == this) {
+						score += 50;
+					} else if (avatarLeft.isOccupied() && avatarLeft.getUnit().getOwner() == this) {
+						score += 20;
+					} else if (avatarRight.isOccupied() && avatarRight.getUnit().getOwner() == this) {
+						score += 20;
+					} else {
+						score -= 50;
+					}
+				}
+
+				if (summon.card.getCardname().equals("Saberspine Tiger")) {
+					if (distanceToOpponentAvatar <= 3) {
+						score += 50;
+					}
+					if (shadowWatcher != null) {
+						int distanceToShadowWatcher = calculateDistance(summonTile, shadowWatcher.getCurrentTile(gameState.getBoard()));
+						if (distanceToShadowWatcher <= 3) {
+							score += 100;
+						}
+					}
+					// Encourage summoning closer to units that have less health remaining than the tiger's attack
+					for (Unit enemy : gameState.getHuman().getUnits()) {
+						if (enemy.getHealth() <= summon.card.getBigCard().getAttack()) {
+							int distanceToEnemy = calculateDistance(summonTile, enemy.getCurrentTile(gameState.getBoard()));
+							score += 10 * (3 - distanceToEnemy);
+						}
+					}
 				}
 
 				summon.moveQuality = score;
@@ -402,6 +452,7 @@ public class AIPlayer extends Player {
 
 	private void makeBestMove() {
 		try {
+			performMovements();
 			performCardActions();
 			performMovements();
 			performAttacks();
@@ -606,42 +657,8 @@ public class AIPlayer extends Player {
 			if (!bestMove.tile.isOccupied()) {
 				// Perform the move
 				gameState.gameService.updateUnitPositionAndMove(bestMove.unit, bestMove.tile);
-
-				// Check for adjacent enemy units and attack if found
-				performAttacksAfterMovement(bestMove.unit);
 			}
 		}
-	}
-
-	private void performAttacksAfterMovement(Unit movedUnit) {
-	    // Get the current tile of the moved unit
-	    Tile currentTile = movedUnit.getCurrentTile(gameState.getBoard());
-
-	    // Get adjacent tiles
-	    List<Tile> adjacentTiles = gameState.getBoard().getAdjacentTiles(currentTile);
-
-	    // Check each adjacent tile for enemy units
-	    for (Tile tile : adjacentTiles) {
-	        if (tile.isOccupied() && tile.getUnit().getOwner() != movedUnit.getOwner()) {
-				// Don't attack if unit has no attack value
-				if (movedUnit.getAttack() == 0) {
-					return;
-				}
-				// Don't attack if counterattack will result in death
-				if (movedUnit.getHealth() <= tile.getUnit().getAttack() && movedUnit.getAttack() < tile.getUnit().getHealth()) {
-					return;
-				}
-				// Don't attack with avatar if target will not die
-				if (movedUnit == this.avatar && tile.getUnit().getHealth() > 2) {
-					return;
-				}
-	            // Perform the attack
-	            gameState.gameService.attack(movedUnit, tile.getUnit());
-
-	            // Break the loop after performing one attack
-	            return;
-	        }
-	    }
 	}
 
 	@Override
