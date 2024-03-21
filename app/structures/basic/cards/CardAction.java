@@ -4,8 +4,6 @@ import akka.actor.ActorRef;
 import structures.GameState;
 
 public class CardAction {
-
-  ActorRef out;
   GameState gameState;
   int handPosition;
 

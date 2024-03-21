@@ -184,28 +184,4 @@ public class Tile {
 	public void setOccupied() {
 		this.occupied = true;
 	}
-
-
-	//random tile on the board for summoning during testing
-	public static Tile getRandomEmptyTile(Tile[][] board) {
-		List<Tile> emptyTiles = new ArrayList<>();
-
-		for (Tile[] row : board) {
-			for (Tile tile : row) {
-				if (!tile.isOccupied()) {
-					emptyTiles.add(tile);
-				}
-			}
-		}
-
-		if (!emptyTiles.isEmpty()) {
-			// Choose a random empty tile
-			Random random = new Random();
-			int randomIndex = random.nextInt(emptyTiles.size());
-			return emptyTiles.get(randomIndex);
-		} else {
-			return null; // No empty tiles available
-		}
-
-	}
 }
