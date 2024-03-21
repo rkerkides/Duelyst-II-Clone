@@ -720,26 +720,25 @@ public class GameService {
 
 	private boolean yFirst(Tile currentTile, Tile newTile, Unit unit) {
 		Board board = gs.getBoard();
-
-		// Calculate the movement direction in both axes
 		int dx = newTile.getTilex() - currentTile.getTilex();
 		int dy = newTile.getTiley() - currentTile.getTiley();
 
-		// Check if the move is diagonal (both dx and dy are non-zero)
 		if (Math.abs(dx) == 1 && Math.abs(dy) == 1) {
-			// Determine if there's an enemy unit directly in front or behind
-			int frontX = currentTile.getTilex() + dx;
-			int frontY = currentTile.getTiley();
-			int behindX = currentTile.getTilex();
-			int behindY = currentTile.getTiley() - dy;
+			// Check for enemies along the path when moving x then y and y then x
+			Tile xFirstTile = board.getTile(currentTile.getTilex() + dx, currentTile.getTiley());
+			Tile yFirstTile = board.getTile(currentTile.getTilex(), currentTile.getTiley() + dy);
 
-			boolean isEnemyInFront = isValidTile(frontX, frontY) && board.getTile(frontX, frontY).isOccupied() && board.getTile(frontX, frontY).getUnit().getOwner() != unit.getOwner();
-			boolean isEnemyBehind = isValidTile(behindX, behindY) && board.getTile(behindX, behindY).isOccupied() && board.getTile(behindX, behindY).getUnit().getOwner() != unit.getOwner();
+			boolean xFirstBlocked = xFirstTile.isOccupied() && xFirstTile.getUnit().getOwner() != unit.getOwner();
+			boolean yFirstBlocked = yFirstTile.isOccupied() && yFirstTile.getUnit().getOwner() != unit.getOwner();
 
-			// Set yFirst to true if there's an enemy directly in front or behind
-			return isEnemyInFront || isEnemyBehind;
+			// If the path is blocked in the x direction, try y first, and vice versa.
+			if (xFirstBlocked && !yFirstBlocked) {
+				return true; // Prioritize y if x is blocked.
+			} else if (!xFirstBlocked && yFirstBlocked) {
+				return false; // Prioritize x if y is blocked.
+			}
 		}
-		return false;
+		return false; // Default to false
 	}
 
 	public void drawCards(Player player, int numberOfCards) {
