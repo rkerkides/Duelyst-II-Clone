@@ -21,6 +21,21 @@ import java.util.Set;
 
 import static utils.BasicObjectBuilders.loadUnit;
 
+/**
+ * The GameService class is responsible for managing various aspects of the game logic and state.
+ * It acts as a central service for managing core game mechanics and facilitating communication between the game state and the user interface.
+ * This class provides a comprehensive set of methods to handle game functionalities including, but not limited to:
+ * - Updating player health and mana
+ * - Loading and setting up the game board and units
+ * - Highlighting valid movement and attack ranges for units
+ * - Performing unit movements and attacks
+ * - Summoning units onto the game board
+ * - Drawing cards from the player's deck
+ * - Casting spells
+ * - Handling various game events and interactions
+ * Through these functionalities, the GameService ensures the smooth execution of game rules and interactions,
+ * thereby providing a seamless gaming experience.
+ */
 public class GameService {
 	
 	private final ActorRef out;
@@ -31,6 +46,7 @@ public class GameService {
 		this.gs = gs;
 	}
 
+	// Method to update the health of a player
 	public void updatePlayerHealth(Player player, int newHealth) {
 		// Set the new health value on the player object first
 		player.setHealth(newHealth);
@@ -46,6 +62,7 @@ public class GameService {
 		}
 	}
 
+	// Method to update the mana of a player
 	public void updatePlayerMana(Player player, int newMana) {
 		// Set the new mana value on the player object first
 		player.setMana(newMana);
@@ -77,7 +94,7 @@ public class GameService {
 		return board;
 	}
 
-
+	// initial player setup
 	public void loadAvatar(Board board, Player player) {
 		// check if player is human or AI
 		Tile avatarTile;
@@ -118,8 +135,7 @@ public class GameService {
 		BasicCommands.setUnitAttack(out, avatar, 2);
 	}
 
-
-	
+	// Method to update the health of a unit on the board
 	public void updateUnitHealth(Unit unit, int newHealth) {
 
 		if (newHealth > 20) {
@@ -167,7 +183,7 @@ public class GameService {
 		BasicCommands.setUnitAttack(out, unit, newAttack);
 	}
 
-
+	// Method to cause a unit to die and manage the consequences
 	public void performUnitDeath(Unit unit) {
 		
 		if(unit.getId()<999 && !unit.getName().equals("Player Avatar")  && !unit.getName().equals("AI Avatar")) {
@@ -299,6 +315,7 @@ public class GameService {
 	    }
 	}
 
+	// Method to highlight adjacent tiles for attack
 	private void highlightAdjacentAttackTiles(Tile tile, Unit unit) {
 		Board board = gs.getBoard();
 		int x = tile.getTilex();
@@ -489,6 +506,7 @@ public class GameService {
 		return validAttacks;
 	}
 
+	// Boolean method to check if a unit is within attack range of another unit
 	public boolean isWithinAttackRange(Tile unitTile, Tile targetTile) {
 		int dx = Math.abs(unitTile.getTilex() - targetTile.getTilex());
 		int dy = Math.abs(unitTile.getTiley() - targetTile.getTiley());
@@ -584,6 +602,7 @@ public class GameService {
 		validTiles.forEach(tile -> updateTileHighlight(tile, 1));
 	}
 
+	// Returns the set of valid tiles for summoning units
 	public Set<Tile> getValidSummonTiles() {
 		Player player = gs.getCurrentPlayer();
 		Set<Tile> validTiles = new HashSet<>();
@@ -680,6 +699,7 @@ public class GameService {
 		BasicCommands.drawTile(out, tile, tileHighlightMode);
 	}
 
+	// Method to actually move the unit to the new tile
 	public void updateUnitPositionAndMove(Unit unit, Tile newTile) {
 		if (newTile.getHighlightMode() != 1 && gs.getCurrentPlayer() instanceof HumanPlayer) {
 			System.out.println("New tile is not highlighted for movement");
@@ -718,6 +738,7 @@ public class GameService {
 		unit.setMovedThisTurn(true);
 	}
 
+	// Method to determine whether to move in the x or y direction first
 	private boolean yFirst(Tile currentTile, Tile newTile, Unit unit) {
 		Board board = gs.getBoard();
 		int dx = newTile.getTilex() - currentTile.getTilex();
@@ -765,7 +786,6 @@ public class GameService {
 	}
 
 
-
     // remove card from hand and summon unit
     public void removeCardFromHandAndSummon(Card card, Tile tile) {
     	System.out.println("Removing card from hand and summoning" + card.getCardname());
@@ -810,6 +830,7 @@ public class GameService {
 		}
     }
 
+	// Method to summon a unit to the board
 	public void summonUnit(String unit_conf, int unit_id, Card card, Tile tile, Player player) {
 
 		// load unit
@@ -872,18 +893,16 @@ public class GameService {
 		System.out.println("Summoning unit " + unit + " to tile " + tile.getTilex() + ", " + tile.getTiley());
 	}
 
+	// Method to add highlight to card and set it as clicked
 	public void setCurrentCardClickedAndHighlight(int handPosition) {
 		notClickingCard();
 		Card card = gs.getCurrentPlayer().getHand().getCardAtPosition(handPosition);
 		gs.setCurrentCardPosition(handPosition);
 		gs.setCurrentCardClicked(card);
 		BasicCommands.drawCard(out, card, handPosition,1);
-		if (card.isCreature()) {
-			//displayMessageForSpell(card);
-		}
-	
 	}
 
+	// Method to remove the current card clicked and stop highlighting
 	public void notClickingCard() {
 		gs.setCurrentCardClicked(null);
 		gs.setCurrentCardPosition(0);
@@ -894,6 +913,7 @@ public class GameService {
 		}
 	}
 
+	// Method for updating hand positions following a card removal
 	public void updateHandPositions(Hand hand) {
 		if (hand.getNumberOfCardsInHand() == 0) {
 			BasicCommands.deleteCard(out, 1);
@@ -906,7 +926,8 @@ public class GameService {
 			BasicCommands.drawCard(out, hand.getCardAtIndex(i), i + 1, 0);
 		}
 	}
-	
+
+	// Method for casting the Horn of the Forsaken spell
 	public void HornOfTheForesaken(Card card) {
         EffectAnimation effect = BasicObjectBuilders.loadEffect(StaticConfFiles.something);
         BasicCommands.playEffectAnimation(out, effect, gs.getHuman().getAvatar().getCurrentTile(gs.getBoard()));
@@ -921,6 +942,7 @@ public class GameService {
         }
     }
 
+	// Method for casting the Zeal spell
     public void zeal() {
 		for (Unit unit : gs.getAi().getUnits()) {
 			if (unit.getName().equals("Silverguard Knight")) {
@@ -938,6 +960,8 @@ public class GameService {
 		}
 	}
 
+
+	// Method for casting the Wraithling Swarm spell
 	public void WraithlingSwarm(Card card, Tile tile) {
 		// Number of Wraithlings to summon
 		Wraithling.summonWraithlingToTile(tile, out, gs);
@@ -1030,6 +1054,7 @@ public class GameService {
 	    updatePlayerMana(player, player.getMana());
 	}
 
+	// Ensure that the player has selected a valid tile for casting the spell
 	private boolean validCast(Card card, Tile tile) {
 		if (card.getCardname().equals("Horn of the Forsaken")&&
 				!(tile.getHighlightMode() == 1)) {

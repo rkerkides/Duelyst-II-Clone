@@ -23,9 +23,10 @@ public class EndTurnClicked implements EventProcessor{
 	@Override
 	public void processEvent(ActorRef out, GameState gameState, JsonNode message) {
 
+		// Ends the current turn and prepares the game state for the next player
 		gameState.endTurn();
 
-		// Reset all units' movedThisTurn status and unhighlight all tiles
+		// Resets unit movement and attack statuses, and unhighlights all game board tiles
 		gameState.gameService.removeHighlightFromAll();
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 5; j++) {
@@ -37,11 +38,10 @@ public class EndTurnClicked implements EventProcessor{
 			}
 		}
 
-		// Clear the action history, as the turn has ended
+		// Clears the action history to remove records of the previous turn's actions
 		gameState.getActionHistory().clear();
 
-
-
+		// Initiates AI player's turn if the current player is an AI
 		if (gameState.getCurrentPlayer() instanceof AIPlayer) {
 			((AIPlayer) gameState.getCurrentPlayer()).takeTurn(out, message);
 		}

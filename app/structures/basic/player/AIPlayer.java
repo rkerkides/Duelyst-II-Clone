@@ -10,6 +10,26 @@ import structures.basic.cards.Card;
 
 import java.util.*;
 
+/**
+ * AIPlayer extends the Player class, encapsulating AI logic for automated gameplay within the game.
+ * This class is responsible for simulating intelligent decision-making for the AI during its turn,
+ * including unit movement, attacks, card plays, and other strategic actions. The AI player uses
+ * game state information to determine the best moves based on various heuristics and strategies.
+ *
+ * <p>Key responsibilities include:</p>
+ * <ul>
+ *     <li>Determining the best sequence of actions during the AI's turn, including moving units,
+ *     attacking, summoning units, and casting spells.</li>
+ *     <li>Managing the AI's hand, deciding which cards to play based on the current game state.</li>
+ *     <li>Evaluating possible movements, attacks, and summons to maximize strategic advantage.</li>
+ *     <li>Interacting with the game state to execute the chosen actions and update the board accordingly.</li>
+ *     <li>Handling special cases such as stunned units and ensuring the AI adheres to game rules.</li>
+ * </ul>
+ *
+ * <p>This class heavily relies on the {@link GameState} to make informed decisions and interact
+ * with the game. It implements logic to automate gameplay in a way that is, hopefully, challenging and engaging
+ * for human players.</p>
+ */
 public class AIPlayer extends Player {
 	private final GameState gameState;
 	public Unit stunnedUnit;
