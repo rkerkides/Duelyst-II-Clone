@@ -28,8 +28,6 @@ public class GameState {
 	// Keep track of the player currently taking their turn
 	private Player currentPlayer;
 
-	// Keep track of the unit that is currently clicked
-	private Unit currentUnitClicked;
 	// Keep track of the card that is currently clicked
 	private Card currentCardClicked;
 	// Keep track of the position of the card that is currently clicked
@@ -147,16 +145,6 @@ public class GameState {
 	public void addUnitstoBoard(Unit unit) {
 		this.unitsOnBoard.add(unit);
 		}
-	 
-
-	public void setTotalUnits(int totalUnits) {
-		this.totalUnits = totalUnits;
-	}
-
-
-	public ArrayList<Unit> getUnitsOnBoard() {
-		return unitsOnBoard;
-	}
 
 	public Player getHuman() {
 		return this.human;
@@ -169,25 +157,12 @@ public class GameState {
 	public Player getCurrentPlayer() {
 		return currentPlayer;
 	}
-
-	public void setCurrentPlayer(Player player) {
-		currentPlayer = player;
-	}
-
-	public Unit getCurrentUnitClicked() {
-		return currentUnitClicked;
-	}
 	public Player getInactivePlayer() {
 		if (currentPlayer == human) {
 			return ai;
 		} else {
 			return human;
 		}
-	}
-
-
-	public void setCurrentUnitClicked(Unit unit) {
-		currentUnitClicked = unit;
 	}
 
 	public Card getCurrentCardClicked() {
