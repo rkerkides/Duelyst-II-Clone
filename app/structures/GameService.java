@@ -1041,14 +1041,18 @@ public class GameService {
 		}
 		if (card.getCardname().equals("Wraithling Swarm")
 				&& !(tile.getHighlightMode() == 1)) {
-			BasicCommands.addPlayer1Notification(out, "Invalid tile. The Wraithling Swarm spell is broken!", 3);
-
 			HumanPlayer player = (HumanPlayer) gs.getHuman();
-			player.setWraithlingSwarmCounter(3);
 
-			// Decrease player's mana after casting the spell
-			gs.getHuman().setMana(player.getMana() - card.getManacost());
-			updatePlayerMana(player, player.getMana());
+			// Reset the Wraithling Swarm counter and decrease mana as swarm counter < 3 indicates
+			// that the player has started but not finished summoning all 3 Wraithlings
+			if (player.getWraithlingSwarmCounter() < 3) {
+				BasicCommands.addPlayer1Notification(out, "Invalid tile. Wraithling Swarm spell broken!", 3);
+
+				player.setWraithlingSwarmCounter(3);
+				// Decrease player's mana after casting the spell
+				gs.getHuman().setMana(player.getMana() - card.getManacost());
+				updatePlayerMana(player, player.getMana());
+			}
 			return false;
 		}
 		return true;
