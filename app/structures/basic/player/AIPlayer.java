@@ -144,9 +144,17 @@ public class AIPlayer extends Player {
 						// but remain cautious after that, as more units are added that can protect it
 						if (unit == avatar && unit.getHealth() < 20) {
 							// Check if moving would make the avatar the leftmost unit
-							if (wouldBeLeftmostAfterMoving(move.tile)) {
+							if (wouldBeLeftmostAfterMoving(move.tile) && this.units.size() > 1) {
 								score -= 50; // Penalize this movement significantly
 							}
+						}
+						// Add logic specifically to prioritize moving towards Shadow Watcher
+						Unit shadowWatcher = findShadowWatcher(gameState.getHuman().getUnits());
+						if (shadowWatcher != null) {
+							int distanceToShadowWatcher = calculateDistance(move.tile, shadowWatcher.getCurrentTile(gameState.getBoard()));
+							// Decrease score based on distance, so closer distances have higher scores
+							int shadowWatcherScore = Math.max(0, 1000 - distanceToShadowWatcher * 10);
+							score += shadowWatcherScore;
 						}
 					}
 				}
@@ -155,6 +163,16 @@ public class AIPlayer extends Player {
 			}
 		}
 		return moves;
+	}
+
+	// Helper method to find the Shadow Watcher unit among human player's units
+	private Unit findShadowWatcher(List<Unit> enemyUnits) {
+		for (Unit enemy : enemyUnits) {
+			if (enemy.getName().equals("Shadow Watcher")) {
+				return enemy;
+			}
+		}
+		return null; // Return null if no Shadow Watcher is found
 	}
 
 	private boolean wouldBeLeftmostAfterMoving(Tile moveTo) {
@@ -217,12 +235,9 @@ public class AIPlayer extends Player {
 					}
 				// Prioritize attacking Shadow Watcher due to its ability to snowball
 				} else if (target.getName().equals("Shadow Watcher")) {
-					attack.moveQuality = 80;
-					// Don't attack if counterattack will result in death
-					if (target.getAttack() > attacker.getHealth()) {
-						attack.moveQuality = -1;
-					} else {
-						attack.moveQuality = 5;
+					attack.moveQuality = 120;
+					if (target.getAttack() > 6 && attacker.getName().equals("AI Avatar")) {
+						attack.moveQuality = 0;
 					}
 					// Avoid attacking units that will counterattack for greater damage
 				} else if (target.getAttack() > attacker.getAttack()) {
