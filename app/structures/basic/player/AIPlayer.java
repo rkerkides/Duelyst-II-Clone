@@ -22,7 +22,7 @@ public class AIPlayer extends Player {
 
 	public void takeTurn(ActorRef out, JsonNode message) {
 
-		if (stunnedUnit != null) {
+		if (stunnedUnit != null && stunnedUnit.getHealth() > 0) {
 			BasicCommands.addPlayer1Notification(out, stunnedUnit.getName() + " is not stunned anymore", 2);
 			stunnedUnit = null;
 		}
@@ -147,14 +147,6 @@ public class AIPlayer extends Player {
 							if (wouldBeLeftmostAfterMoving(move.tile) && this.units.size() > 1) {
 								score -= 50; // Penalize this movement significantly
 							}
-						}
-						// Add logic specifically to prioritize moving towards Shadow Watcher
-						Unit shadowWatcher = findShadowWatcher(gameState.getHuman().getUnits());
-						if (shadowWatcher != null) {
-							int distanceToShadowWatcher = calculateDistance(move.tile, shadowWatcher.getCurrentTile(gameState.getBoard()));
-							// Decrease score based on distance, so closer distances have higher scores
-							int shadowWatcherScore = Math.max(0, 1000 - distanceToShadowWatcher * 10);
-							score += shadowWatcherScore;
 						}
 					}
 				}
@@ -405,7 +397,7 @@ public class AIPlayer extends Player {
 
 	private PossibleMovement findBestMovement(Set<PossibleMovement> moves) {
 		System.out.println("AI finding best movement...");
-		Integer minValue = 0;
+		int minValue = 0;
 		PossibleMovement bestMove = null;
 
 		for (PossibleMovement move : moves) {
@@ -441,7 +433,7 @@ public class AIPlayer extends Player {
 		}
 
 		if (bestAttack != null) {
-			System.out.println("Best action found: Tile " + bestAttack.tile + " and Unit " + bestAttack.unit + " with value = " + bestAttack.moveQuality);
+			System.out.println("Best attack found: Defender " + bestAttack.tile.getUnit() + " and attacker " + bestAttack.unit + " with value = " + bestAttack.moveQuality);
 		} else {
 			System.out.println("No attack meets the evaluation criteria.");
 		}
@@ -452,6 +444,8 @@ public class AIPlayer extends Player {
 
 	private void makeBestMove() {
 		try {
+			// AIPlayer makes the best move
+			// Some are repeated to accommodate special cases like  Saberspine Tiger
 			performMovements();
 			performCardActions();
 			performMovements();
@@ -577,8 +571,6 @@ public class AIPlayer extends Player {
 	        return 0;
 	    }
 	}
-
-
 
 	private ArrayList<PossibleSpell> returnAllSpells(GameState gameState) {
 		ArrayList<PossibleSpell> spells = new ArrayList<>();

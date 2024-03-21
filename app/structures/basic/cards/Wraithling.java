@@ -66,7 +66,7 @@ public class Wraithling extends Unit{
 		gameState.getHuman().addUnit(wraithling);
 		gameState.addToTotalUnits(1);
 		gameState.addUnitstoBoard(wraithling);
-		wraithling.setName("Wraithling_" + id);
+		wraithling.setName("Wraithling");
 	    id++;
 		
 		System.out.println("Wraithling is added to board, all units: " + ( gameState.getTotalUnits()));
