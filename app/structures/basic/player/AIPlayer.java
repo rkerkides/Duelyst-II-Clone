@@ -139,13 +139,31 @@ public class AIPlayer extends Player {
 							score += 20; // Prioritize attacking lethal targets
 						}
 
-						// Avatar should not lead the line if it doesn't have 20 health!
-						// 20 health condition is because I want the avatar to begin the game offensively
-						// but remain cautious after that, as more units are added that can protect it
-						if (unit == avatar && unit.getHealth() < 20) {
+						// Avatar should not lead the line
+						if (unit == avatar) {
 							// Check if moving would make the avatar the leftmost unit
 							if (wouldBeLeftmostAfterMoving(move.tile) && this.units.size() > 1) {
 								score -= 50; // Penalize this movement significantly
+							}
+							boolean shouldAvoid = false;
+							int penaltyForCloseEnemies = 100;
+
+							for (Unit enemUnit : gameState.getHuman().getUnits()) {
+								if (enemUnit.getAttack() >= 6) {
+									int currentDistance = calculateDistance(avatar.getCurrentTile(
+											gameState.getBoard()), enemy.getCurrentTile(gameState.getBoard()));
+									int newDistance = calculateDistance(move.tile, enemy.getCurrentTile(
+											gameState.getBoard()));
+
+									if (newDistance < currentDistance) {
+										shouldAvoid = true;
+										break; // Found an enemy we should avoid, no need to check further
+									}
+								}
+							}
+
+							if (shouldAvoid) {
+								score -= penaltyForCloseEnemies; // Apply penalty if moving closer to a strong enemy
 							}
 						}
 					}
@@ -209,12 +227,16 @@ public class AIPlayer extends Player {
 				else if (target.getName().equals("Shadow Watcher") && target.getHealth() <= attacker.getAttack()) {
 					attack.moveQuality = 680; // Assign a really high value for lethal attacks on shadow watcher
 				}
-				else if (target.getId() > 1000 && target.getHealth() <= attacker.getAttack()) {
+				else if (target.getId() >= 1000 && target.getHealth() <= attacker.getAttack()) {
 					attack.moveQuality = 90; // Assign a slightly lower value for lethal attacks on wraithlings
 				}
 				// Prioritize eliminating a unit by checking if the attack is lethal
 				else if (target.getHealth() <= attacker.getAttack()) {
 					attack.moveQuality = 100; // Assign really high value for lethal attacks
+
+				// Prioritize attacking the provoker at all times to avoid inactivity
+				} else if (target.getName().equals("Rock Pulveriser")) {
+					attack.moveQuality = 50;
 
 				// Increase value for attacking the primary human player unit, unless it's by the AI's primary unit
 				} else if (target == gameState.getHuman().getAvatar() && attacker != this.avatar) {
@@ -446,8 +468,10 @@ public class AIPlayer extends Player {
 		try {
 			// AIPlayer makes the best move
 			// Some are repeated to accommodate special cases like  Saberspine Tiger
+			performAttacks();
 			performMovements();
 			performCardActions();
+			performAttacks();
 			performMovements();
 			performAttacks();
 		} catch (Exception e) {
