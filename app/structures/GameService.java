@@ -286,9 +286,6 @@ public class GameService {
 	                updateTileHighlight(tile, 1);
 					// Highlight additional attack tiles if adjacent to valid movement tiles
 					highlightAdjacentAttackTiles(tile, unit);
-	            } else if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
-	                // Highlight tile for attack
-	                updateTileHighlight(tile, 2);
 	            }
 	        }
 	    }
@@ -297,11 +294,10 @@ public class GameService {
 	    for (Tile tile : validAttackTiles) {
 	        if (tile.isOccupied() && tile.getUnit().getOwner() != unit.getOwner()) {
 	            // Highlight tile for attack
-	            updateTileHighlight(tile, 2); // Assuming 2 is the highlight mode for attack
+	            updateTileHighlight(tile, 2);
 	        }
 	    }
 	}
-	//to check 
 
 	private void highlightAdjacentAttackTiles(Tile tile, Unit unit) {
 		Board board = gs.getBoard();
@@ -351,37 +347,56 @@ public class GameService {
 
 	// Helper method to add a valid tile to the set of valid actions if the conditions are met
 	private void addValidTileInDirection(Tile[][] board, Unit unit, int dx, int dy, Set<Tile> validTiles, Player currentPlayer) {
-		int x = unit.getPosition().getTilex() + dx;
-		int y = unit.getPosition().getTiley() + dy;
+		int startX = unit.getPosition().getTilex();
+		int startY = unit.getPosition().getTiley();
+		int endX = startX + dx;
+		int endY = startY + dy;
 
-		// For extended moves, check if the halfway tile is occupied by an enemy unit
-		if (Math.abs(dx) <= 2 && Math.abs(dy) <= 2) {
-			int halfwayX = unit.getPosition().getTilex() + (dx / 2);
-			int halfwayY = unit.getPosition().getTiley() + (dy / 2);
-			// Ensure halfway indices are within bounds before accessing the board
-			if (isValidTile(halfwayX, halfwayY)) {
-				Tile halfwayTile = board[halfwayX][halfwayY];
-				if (halfwayTile.isOccupied() && halfwayTile.getUnit().getOwner() != currentPlayer) {
-					// If the halfway tile is occupied by an enemy, this path is invalid
+		// Check each step along the path for enemy occupation
+		int pathLength = Math.max(Math.abs(dx), Math.abs(dy));
+		for (int step = 1; step <= pathLength; step++) {
+			int stepX = startX + (int)Math.signum(dx) * step;
+			int stepY = startY + (int)Math.signum(dy) * step;
+
+			// Additional check for diagonal moves
+			if (Math.abs(dx) == 1 && Math.abs(dy) == 1 && step == 1) {
+				if (isValidTile(startX + dx, startY) && isValidTile(startX, startY + dy)) {
+					Tile orthogonal1 = board[startX + dx][startY];
+					Tile orthogonal2 = board[startX][startY + dy];
+					if (isTileBlockedByEnemy(orthogonal1, currentPlayer) && isTileBlockedByEnemy(orthogonal2, currentPlayer)) {
+						// If both orthogonal tiles are blocked by enemy units, the diagonal move is invalid
+						return;
+					}
+				}
+				else {
+					// One of the orthogonal tiles is out of bounds
 					return;
 				}
-			} else {
-				// Halfway point is out of bounds; this direction is invalid
+			}
+
+			// If any step along the path is invalid, abort adding this tile
+			if (!isValidTile(stepX, stepY) || isTileBlockedByEnemy(board[stepX][stepY], currentPlayer)) {
 				return;
 			}
 		}
 
-		// Ensure the tile is within the board's bounds and not occupied by an enemy
-		if (isValidTile(x, y)) {
-			Tile tile = board[x][y];
-			validTiles.add(tile);
+		// If the path is clear, add the final tile to validTiles
+		if (isValidTile(endX, endY)) {
+			Tile tile = board[endX][endY];
+			if (!tile.isOccupied()) { // Ensure the final tile is not occupied
+				validTiles.add(tile);
+			}
 		}
 	}
 
+	private boolean isTileBlockedByEnemy(Tile tile, Player currentPlayer) {
+		return tile.isOccupied() && tile.getUnit().getOwner() != currentPlayer;
+	}
 
 	// Checks if a tile position is within the boundaries of the game board
 	private boolean isValidTile(int x, int y) {
-		return x >= 0 && y >= 0 && x < 9 && y < 5; // Assuming a 9x5 board
+		Tile[][] board = gs.getBoard().getTiles();
+		return x >= 0 && y >= 0 && x < board.length && y < board[x].length;
 	}
 
 	// Checks if provoke unit is present on the board and around the tile on which an alleged enemy unit (target) is located
@@ -1003,7 +1018,7 @@ public class GameService {
 	    	BeamShock.stunUnit(gameState);
 	    }
 	    if (card.getCardname().equals("Truestrike")) {
-	        Strike.TrueStrike(gameState, gameState.getHuman().getAvatar());
+	        Strike.TrueStrike(gameState, gameState.getHuman().getAvatar(), out);
 	    }
 	    if (card.getCardname().equals("Sundrop Elixir")) {
 	        Elixir.Sundrop(gameState.getAi().getAvatar(), gameState, out);
